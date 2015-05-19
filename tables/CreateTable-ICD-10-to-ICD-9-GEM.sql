@@ -1,7 +1,8 @@
-USE [CMHC_Export]
+/****** Object:  Table [dbo].[t_ICD-10_ICD-9_with_GEM_AXIS] ******/
+if object_id('t_ICD-10_ICD-9_with_GEM_AXIS') is not null
+   drop table t_ICD-10_ICD-9_with_GEM_AXIS
 GO
 
-/****** Object:  Table [dbo].[t_ICD-10_ICD-9_with_GEM_AXIS]    Script Date: 5/12/2015 2:47:09 PM ******/
 SET ANSI_NULLS ON
 GO
 
