@@ -1,0 +1,241 @@
+start DX_Lookup(ICD_Table,selection[])
+ search_field     is x
+ rc				  is i
+ last_query       is x
+ skip             is b
+ query_code       is x
+ query_desc       is x
+ query_any        is x 
+ query_txt		  is x
+ query_txt_arr[]  is x
+ cnt_query		  is i
+ dsn		      is x
+ o_sql		      is x		
+ o_user		      is x
+ o_pass		      is x
+ o_ds		      is x
+ o_db		      is x
+ db			      is i
+ sql_tpl	      is x
+ result[]	      is x
+ all_results[]    is x
+ CodeID		      is x
+ FileData[]	      is x 
+ ICD_table        is x
+ ICD9_Table       is x
+ ICD10_Table      is x
+ selection[]      is x
+ index            is i
+ 
+ UniqID           is x
+ ICD_Code         is x
+ ICD_Code_DotNt   is x
+ ICD_Description  is x
+ ICD_Code2        is x
+ ICD_Code_DotNt2  is x
+ ICD_Description2 is x
+ DSM_4_Axis       is x
+ Approximate      is x
+ NoMap            is x
+ Combination      is x
+ Scenario         is x
+ ChoiceList       is x
+ DX_Cat           is x
+ TermSearch       is x
+ EffDt            is d
+ EndDt            is d
+ selected[]       is x
+ return_btn       is x 
+
+ $looplimit = 0
+' query_txt = "bipolar,without,psychotic" 
+ o_user = "sqltransfer"
+ o_pass = "sqltransfer"
+ o_ds	= "svrsql"
+ o_db	= "CMHC_Export"
+ ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
+ ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
+ 
+ rc = $loadlib(db, "LIB-freetds")
+ dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
+ db:setDSN(dsn)
+ $submitopt("off", "Search")
+ $cancelopt("off", "Cancel")
+ do until $endbutton = "CANCEL"
+  $form($scriptid)
+   $stylesheet("../cmhcbuilocal/styles/Buttons.css", "R")
+   $br()$text("ICD9 or 10")$dropbox(ICD_table,"ICD9","ICD9")$dropbox(ICD_table,"ICD10","ICD10")   
+   $br(2)$radio(search_field,"Code","Code",,,"SEARCH","CODE",,"Y")
+   $block("SEARCH","CODE")
+    $textbox(query_code,,7,8)  
+   $endblock("SEARCH","CODE")
+   $br()$radio(search_field,"Description","Description",,,"SEARCH","DESCRIPTION",,"Y")
+   $block("SEARCH","DESCRIPTION")
+    $text("Enter DX Search Terms, each term should be separated by a comma","siginfo")$textbox(query_desc,,50,60)
+   $endblock("SEARCH","DESCRIPTION")
+   $br()$radio(search_field,"Any Field","Any",,,"SEARCH","ANY",,"Y")
+   $block("SEARCH","ANY")
+    $text("Enter DX Search Terms, each term should be separated by a comma","siginfo")$textbox(query_any,,50,60)   
+   $endblock("SEARCH","ANY")      
+   $br()$countbox(query_txt,"Max Characters is 50")  
+
+   $br()$text(o_sql,"inst")
+
+   $br(3)  
+   if all_results[1] dp
+    $navbutton(return_btn, "Use Selection") 
+    index = 0
+  	$table($scriptid)
+     $row()
+	  $col()$text($maxarray(all_results[]))
+      select ICD_Table
+       case "ICD9" '$col()$text("ICD 9 Code")
+                   $col()$text("ICD 9 Code Dot Notation")
+                   $col()$text("ICD 9 Description")
+                   '$col()$text("ICD 10 Code")
+                   $col()$text("ICD 10 Code Dot Notation")
+                   $col()$text("ICD 10 Description")
+       case "ICD10" '$col()$text("ICD 10 Code")
+                    $col()$text("ICD 10 Code Dot Notation")
+                    $col()$text("ICD 10 Description")
+                    '$col()$text("ICD 9 Code")
+                    $col()$text("ICD 9 Code Dot Notation")
+                    $col()$text("ICD 9 Description")   
+      endselect
+      $col()$text("DSM 4 Axis")
+'      $col()$text("Approximate")
+'      $col()$text("NoMap")
+'      $col()$text("Combination")
+'      $col()$text("Scenario")
+'      $col()$text("ChoiceList")		
+      $col()$text("DX Cat")        
+	  $row()
+	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+	   $col()$tag("<hr/>")
+	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+	   $col()$tag("<hr/>")
+	   $col()$tag("<hr/>")
+	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+'	   $col()$tag("<hr/>")
+      $col()$tag("<hr/>")
+	 do while index++ < $maxarray(all_results[])
+	  (void)$parsem(all_results[index],1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,EffDt,EndDt)
+	  if $mod(index,2) = 0
+	   $row()
+	  else
+	   $row(,"bgcolor='99ccff'")
+	  endif 
+	   $col()$checkbox(selected[index],,ICD_Code)
+'	   $col()$text(UniqID)	   
+'	   $col()$text(ICD_Code)
+	   $col()$text(ICD_Code_DotNt)
+	   $col()$text(ICD_Description)
+'	   $col()$text(ICD_Code2)
+	   $col()$text(ICD_Code_DotNt2)
+	   $col()$text(ICD_Description2)
+	   $col()$text(DSM_4_Axis)
+'	   $col()$text(Approximate)
+'	   $col()$text(NoMap)
+'	   $col()$text(Combination)
+'	   $col()$text(Scenario)
+'	   $col()$text(ChoiceList)
+      $col()$text(DX_Cat)
+	 enddo
+	$endtable($scriptid)
+   else
+  	$text("No Results Yet")  
+   endif  
+  $sendform($scriptid)
+  select $endbutton
+   case "CANCEL" return
+   case "SUBMIT"   $clear(query_txt_arr[])
+				   select search_field
+				    case "Description" if $len(query_desc) > 3
+					                    $clear(query_code,query_any)
+					                    query_txt = query_desc
+					                    $parsem(query_txt,1,",",query_txt_arr[])
+									   else
+                                        {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+									   endif	
+					case "Code" if $len(query_code) > 1
+					             $clear(query_desc,query_any)
+					             query_txt = query_code
+					             query_txt_arr[1] = $replace(".","",query_txt)					                    
+								else
+                                 {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+								endif 
+					case "Any" if $len(query_any) > 3
+					            $clear(query_code,query_desc)
+					            query_txt = query_any
+					            $parsem(query_txt,1,",",query_txt_arr[])
+							   else
+                                {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+							   endif	
+				   endselect
+                   skip = 0
+				   cnt_query = $maxarray(query_txt_arr[])
+				   if last_query dp and last_query = query_txt
+                    cnt_query = $maxarray(query_txt_arr[])				   
+					skip = 1
+				   endif
+				   if cnt_query = 0
+				    skip = 1
+				   endif		   	
+	               index = 1	
+	               if skip = 0
+				    $clear(all_results[],result[])
+                    select search_field
+				     case "Description" select ICD_table
+	                                     case "ICD9"  o_sql = "select * from " + ICD9_table + " where [ICD-9_Description] like '%" + query_txt_arr[index] + "%'" 
+                                                      do while index++ < cnt_query	 	 								  
+                                                       o_sql += " and [ICD-9_Description] like '%" + query_txt_arr[index] + "%'" 								 
+                                                      enddo				   					
+	                                     case "ICD10" o_sql = "select * from " + ICD10_table + " where [ICD-10_Description] like '%" + query_txt_arr[index] + "%'" 
+                                                      do while index++ < cnt_query	 		 								  
+                                                       o_sql += " and [ICD-10_Description] like '%" + query_txt_arr[index] + "%'" 								 						  						  								  								  
+                                                      enddo				   
+	                                    endselect
+					 case "Code" select ICD_table
+                                  case "ICD9"  o_sql = "select * from " + ICD9_table + " where [ICD-9_Code] like '%" + query_txt_arr[index] + "%'" 
+                                                  do while index++ < cnt_query	 	 								  
+                                                   o_sql += " or [ICD-9_Code] like '%" + query_txt_arr[index] + "%'" 								 
+                                                  enddo				   					
+                                  case "ICD10" o_sql = "select * from " + ICD10_table + " where [ICD-10_Code] like '%" + query_txt_arr[index] + "%'" 
+                                                  do while index++ < cnt_query	 		 								  
+                                                   o_sql += " or [ICD-10_Code] like '%" + query_txt_arr[index] + "%'" 								 						  						  								  								  
+                                                  enddo				   
+                                 endselect 	 
+				     case "Any" select ICD_table
+	                                     case "ICD9"  o_sql = "select * from " + ICD9_table + " where [TermSearch] like '%" + query_txt_arr[index] + "%'" 
+                                                      do while index++ < cnt_query	 	 								  
+                                                       o_sql += " and [TermSearch] like '%" + query_txt_arr[index] + "%'" 								 
+                                                      enddo				   					
+	                                     case "ICD10" o_sql = "select * from " + ICD10_table + " where [TermSearch] like '%" + query_txt_arr[index] + "%'" 
+                                                      do while index++ < cnt_query	 		 								  
+                                                       o_sql += " and [TermSearch] like '%" + query_txt_arr[index] + "%'" 								 						  						  								  								  
+                                                      enddo				   
+	                                    endselect 	 
+				    endselect
+					o_sql += " and EffDt >= '" + $today + "' and (EndDt < '" + $today + "' or EndDt is null)"
+                    rc = db:q(o_sql, result[])
+                    (void)$arrcopy(result[],all_results[])								 
+                    last_query = query_txt 				   
+                   endif
+   case other $allowupdate(ICD_Table,selection[])
+	          index = 0
+	          do while index++ < $maxarray(all_results[])
+	           if selected[index] dp   
+	            (void)$arrpush(selection[],all_results[index])
+	           endif
+	          enddo
+			  return  
+  endselect
+ enddo
+end DX_Lookup 
