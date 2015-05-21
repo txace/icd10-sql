@@ -1,0 +1,824 @@
+start DX10(parmfile,option,client,retcode)
+ $looplimit = 0
+ parmfile is x
+ option   is x
+ client   is x
+ retcode  is i
+ rc       is i
+ %include inc_ICD10
+' %include inc_DX
+' %include inc_ER
+' %include inc_ISN
+ %global bgcolor
+ bgcolor is x
+ bgcolor = "white"
+ %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
+ %define table_nobgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0'"
+ %define row_color1 "bgcolor='LightSkyBlue'"
+ %define row_color2 "bgcolor='White'"
+ %define row_color3 "bgcolor='PaleGreen'"
+ %define row_color4 "bgcolor='LemonChiffon'" 
+ %define col_color_multi "bgcolor='LightGrey'"
+
+ UniqID           is x
+ ICD_Code         is x
+ ICD_Code_DotNt   is x
+ ICD_Description  is x
+ ICD_Code2        is x
+ ICD_Code_DotNt2  is x
+ ICD_Description2 is x
+ DSM_4_Axis       is x
+ Approximate      is x
+ NoMap            is x
+ Combination      is x
+ Scenario         is x
+ ChoiceList       is x
+ DX_Cat           is x
+ TermSearch       is x
+ EffDt            is d
+ EndDt            is d
+ ICD_Type     	  is x
+ Selection[]  	  is x
+ index        	  is i
+ lookup_btn   	  is x
+ ShowICD10_1_btn  is x
+ ShowICD10_2_btn  is x 
+ HideICD10_btn    is x 
+ ShowICD9_1_btn   is x
+ ShowICD9_2_btn   is x 
+ HideICD9_btn     is x
+ ShowLegAx_btn    is x
+ HideLegAx_btn    is x
+ ShowAX4_btn      is x
+ HideAX4_btn      is x
+ ShowAX5_btn      is x 
+ HideAX5_btn      is x
+ ShowDot_btn      is x
+ ShowNonDot_btn   is x
+ up_btn[]     	  is x
+ down_btn[]   	  is x
+ delete_btn[] 	  is x
+ c_dx10_icd10[]   is x
+ c_dx10_icd10_des[] is x 
+ c_dx10_icd9[]    is x
+ c_dx10_icd9_des[] is x 
+ c_dx10_legax[]   is x
+ c_dx10_dxcat[]   is x
+ c_dx10_dxrank[]  is i
+ axis_rank        is i
+ axis1_rank       is i
+ axis2_rank       is i
+ axis3_rank       is i
+ axis_index       is i
+ axis1_index      is i
+ axis2_index      is i
+ axis3_index      is i
+ legacy_axis      is x
+ next_index       is i
+ prev_index       is i
+ curr_index       is i
+ axis1_10_dx[]       is x
+ axis2_10_dx[]       is x
+ axis3_10_dx[]       is x
+ axis1_9_dx[]       is x
+ axis2_9_dx[]       is x
+ axis3_9_dx[]       is x
+ axis1_10_desc[]     is x
+ axis2_10_desc[]     is x
+ axis3_10_desc[]     is x 
+ axis1_9_desc[]     is x
+ axis2_9_desc[]     is x
+ axis3_9_desc[]     is x 
+ comp_axis1_10_dx[] is x 
+ comp_axis2_10_dx[] is x 
+ comp_axis3_10_dx[] is x  
+ comp_axis1_10_ds[] is x
+ comp_axis2_10_ds[] is x
+ comp_axis3_10_ds[] is x
+ comp_axis1_9_dx[] is x 
+ comp_axis2_9_dx[] is x 
+ comp_axis3_9_dx[] is x  
+ comp_axis1_9_ds[] is x
+ comp_axis2_9_ds[] is x
+ comp_axis3_9_ds[] is x 
+
+ 
+ SHOWICD9  is x
+ SHOWICD10 is x
+ DOAXIS4   is x
+ DOAXIS5   is x
+ SHOWLEGAX is x
+ DOTTED    is x
+ SHOWICD9  = "Y"
+ SHOWICD10 = "Y"
+ DOAXIS4   = "Y"
+ DOAXIS5   = "Y"
+ SHOWLEGAX = "Y"
+ DOTTED    = "Y"
+ if parmfile dp
+  (void)$getparm(,parmfile,"SHOWICD9",SHOWICD9)
+  (void)$getparm(,parmfile,"SHOWICD10",SHOWICD10)
+  (void)$getparm(,parmfile,"DOAXIS4",DOAXIS4)
+  (void)$getparm(,parmfile,"DOAXIS5",DOAXIS5)  
+  (void)$getparm(,parmfile,"SHOWLEGAX",SHOWLEGAX)    
+  (void)$getparm(,parmfile,"DOTTED",DOTTED)    
+ endif
+ SHOWICD9  = $uc(SHOWICD9)
+ SHOWICD10 = $uc(SHOWICD10)
+ DOAXIS4   = $uc(DOAXIS4)
+ DOAXIS5   = $uc(DOAXIS5)
+ SHOWLEGAX = $uc(SHOWLEGAX)
+ DOTTED    = $uc(DOTTED)
+ 
+ if SHOWICD9 = SHOWICD10 and SHOWICD9 != "0"
+  SHOWICD9  = "1"
+  SHOWICD10 = "2"
+ elseif SHOWICD9 = SHOWICD10 and SHOWICD9 = "0"
+  SHOWICD9  = "1"
+ endif 
+ 
+' rc = $dbread(2,$regid,dx10_dstlist) 
+'set them directly, worry about shrinking this down later
+ index = 0
+ c_dx10_icd10[index++] = c.dx10.icd10.1
+ c_dx10_icd9[index]    = c.dx10.icd9.1
+ c_dx10_legax[index]   = c.dx10.legax.1
+ c_dx10_dxcat[index]   = c.dx10.dxcat.1
+ c_dx10_dxrank[index]  = c.dx10.dxrank.1
+ c_dx10_icd10[index++] = c.dx10.icd10.2
+ c_dx10_icd9[index]    = c.dx10.icd9.2
+ c_dx10_legax[index]   = c.dx10.legax.2
+ c_dx10_dxcat[index]   = c.dx10.dxcat.2
+ c_dx10_dxrank[index]  = c.dx10.dxrank.2
+ c_dx10_icd10[index++] = c.dx10.icd10.3
+ c_dx10_icd9[index]    = c.dx10.icd9.3
+ c_dx10_legax[index]   = c.dx10.legax.3
+ c_dx10_dxcat[index]   = c.dx10.dxcat.3
+ c_dx10_dxrank[index]  = c.dx10.dxrank.3
+ c_dx10_icd10[index++] = c.dx10.icd10.4
+ c_dx10_icd9[index]    = c.dx10.icd9.4
+ c_dx10_legax[index]   = c.dx10.legax.4
+ c_dx10_dxcat[index]   = c.dx10.dxcat.4
+ c_dx10_dxrank[index]  = c.dx10.dxrank.4
+ c_dx10_icd10[index++] = c.dx10.icd10.5
+ c_dx10_icd9[index]    = c.dx10.icd9.5
+ c_dx10_legax[index]   = c.dx10.legax.5
+ c_dx10_dxcat[index]   = c.dx10.dxcat.5
+ c_dx10_dxrank[index]  = c.dx10.dxrank.5
+ c_dx10_icd10[index++] = c.dx10.icd10.6
+ c_dx10_icd9[index]    = c.dx10.icd9.6
+ c_dx10_legax[index]   = c.dx10.legax.6
+ c_dx10_dxcat[index]   = c.dx10.dxcat.6
+ c_dx10_dxrank[index]  = c.dx10.dxrank.6
+ c_dx10_icd10[index++] = c.dx10.icd10.7
+ c_dx10_icd9[index]    = c.dx10.icd9.7
+ c_dx10_legax[index]   = c.dx10.legax.7
+ c_dx10_dxcat[index]   = c.dx10.dxcat.7
+ c_dx10_dxrank[index]  = c.dx10.dxrank.7     
+ c_dx10_icd10[index++] = c.dx10.icd10.8
+ c_dx10_icd9[index]    = c.dx10.icd9.8
+ c_dx10_legax[index]   = c.dx10.legax.8
+ c_dx10_dxcat[index]   = c.dx10.dxcat.8
+ c_dx10_dxrank[index]  = c.dx10.dxrank.8
+ c_dx10_icd10[index++] = c.dx10.icd10.9
+ c_dx10_icd9[index]    = c.dx10.icd9.9
+ c_dx10_legax[index]   = c.dx10.legax.9
+ c_dx10_dxcat[index]   = c.dx10.dxcat.9
+ c_dx10_dxrank[index]  = c.dx10.dxrank.9
+ c_dx10_icd10[index++] = c.dx10.icd10.10
+ c_dx10_icd9[index]    = c.dx10.icd9.10
+ c_dx10_legax[index]   = c.dx10.legax.10
+ c_dx10_dxcat[index]   = c.dx10.dxcat.10
+ c_dx10_dxrank[index]  = c.dx10.dxrank.10
+ c_dx10_icd10[index++] = c.dx10.icd10.11
+ c_dx10_icd9[index]    = c.dx10.icd9.11
+ c_dx10_legax[index]   = c.dx10.legax.11
+ c_dx10_dxcat[index]   = c.dx10.dxcat.11
+ c_dx10_dxrank[index]  = c.dx10.dxrank.11
+ c_dx10_icd10[index++] = c.dx10.icd10.12
+ c_dx10_icd9[index]    = c.dx10.icd9.12
+ c_dx10_legax[index]   = c.dx10.legax.12
+ c_dx10_dxcat[index]   = c.dx10.dxcat.12
+ c_dx10_dxrank[index]  = c.dx10.dxrank.12
+ c_dx10_icd10[index++] = c.dx10.icd10.13
+ c_dx10_icd9[index]    = c.dx10.icd9.13
+ c_dx10_legax[index]   = c.dx10.legax.13
+ c_dx10_dxcat[index]   = c.dx10.dxcat.13
+ c_dx10_dxrank[index]  = c.dx10.dxrank.13
+ c_dx10_icd10[index++] = c.dx10.icd10.14
+ c_dx10_icd9[index]    = c.dx10.icd9.14
+ c_dx10_legax[index]   = c.dx10.legax.14
+ c_dx10_dxcat[index]   = c.dx10.dxcat.14
+ c_dx10_dxrank[index]  = c.dx10.dxrank.14
+ c_dx10_icd10[index++] = c.dx10.icd10.15
+ c_dx10_icd9[index]    = c.dx10.icd9.15
+ c_dx10_legax[index]   = c.dx10.legax.15
+ c_dx10_dxcat[index]   = c.dx10.dxcat.15
+ c_dx10_dxrank[index]  = c.dx10.dxrank.15
+ c_dx10_icd10[index++] = c.dx10.icd10.16
+ c_dx10_icd9[index]    = c.dx10.icd9.16
+ c_dx10_legax[index]   = c.dx10.legax.16
+ c_dx10_dxcat[index]   = c.dx10.dxcat.16
+ c_dx10_dxrank[index]  = c.dx10.dxrank.16               
+ (void)$sort(c_dx10_dxrank[],,c_dx10_icd10[],c_dx10_icd9[],c_dx10_dxcat[],c_dx10_legax[])
+
+ axis1_rank = 1
+ axis2_rank = 1
+ axis3_rank = 1
+ index = 0
+ do while index++ < $maxarray(c_dx10_icd10[])
+			    select c_dx10_legax[index]
+				 case "1" 'c_dx10_dxrank[index] = axis1_rank++
+				          axis1_9_dx[index] = c_dx10_icd9[index]
+				          axis1_10_dx[index] = c_dx10_icd10[index]						  
+'						   axis1_desc[] =
+				 case "2" 'c_dx10_dxrank[index] = axis2_rank++
+				          axis2_9_dx[index] = c_dx10_icd9[index]
+				          axis2_10_dx[index] = c_dx10_icd10[index]						  
+'						   axis2_desc[] =						  
+				 case "3" 'c_dx10_dxrank[index] = axis3_rank++
+				          axis3_9_dx[index] = c_dx10_icd9[index]
+				          axis3_10_dx[index] = c_dx10_icd10[index]						  
+'						   axis3_desc[] =						  						  
+				endselect
+
+ enddo 
+ (void)$sort(c_dx10_dxrank[],,c_dx10_icd10[],c_dx10_icd9[],c_dx10_dxcat[],c_dx10_icd10_des[],c_dx10_icd9_des[],c_dx10_legax[],axis1_10_dx[],axis1_9_dx[],axis1_10_desc[],axis1_9_desc[],axis2_10_dx[],axis2_9_dx[],axis2_10_desc[],
+             axis2_9_desc[],axis3_10_dx[],axis3_9_dx[],axis3_10_desc[],axis3_9_desc[])
+ (void)$arrcopy(axis1_10_dx[],comp_axis1_10_dx[])
+ (void)$arrcopy(axis2_10_dx[],comp_axis2_10_dx[])
+ (void)$arrcopy(axis3_10_dx[],comp_axis3_10_dx[])
+ (void)$arrcopy(axis1_9_dx[],comp_axis1_9_dx[])
+ (void)$arrcopy(axis2_9_dx[],comp_axis2_9_dx[])
+ (void)$arrcopy(axis3_9_dx[],comp_axis3_9_dx[])			  
+ (void)$arrcopy(axis1_10_desc[],comp_axis1_10_ds[])
+ (void)$arrcopy(axis2_10_desc[],comp_axis2_10_ds[])
+ (void)$arrcopy(axis3_10_desc[],comp_axis3_10_ds[])			  
+ (void)$arrcopy(axis1_9_desc[],comp_axis1_9_ds[])
+ (void)$arrcopy(axis2_9_desc[],comp_axis2_9_ds[])
+ (void)$arrcopy(axis3_9_desc[],comp_axis3_9_ds[])			  
+ (void)$arrcompress(comp_axis1_10_dx[])
+ (void)$arrcompress(comp_axis2_10_dx[])
+ (void)$arrcompress(comp_axis3_10_dx[])				   
+ (void)$arrcompress(comp_axis1_9_dx[])
+ (void)$arrcompress(comp_axis2_9_dx[])
+ (void)$arrcompress(comp_axis3_9_dx[])			  
+ (void)$arrcompress(comp_axis1_10_ds[])
+ (void)$arrcompress(comp_axis2_10_ds[])
+ (void)$arrcompress(comp_axis3_10_ds[]) 
+ (void)$arrcompress(comp_axis1_9_ds[])
+ (void)$arrcompress(comp_axis2_9_ds[])
+ (void)$arrcompress(comp_axis3_9_ds[])			  
+ 
+ do while 1 = 1
+  $clear(lookup_btn,ShowICD10_1_btn,ShowICD10_2_btn,ShowICD9_1_btn,ShowICD9_2_btn,HideICD10_btn,HideICD9_btn,ShowAX4_btn,HideAX4_btn,ShowAX5_btn,HideAX5_btn,ShowLegAx_btn,HideLegAx_btn,ShowDot_btn, ShowNonDot_btn) 
+  $clear(up_btn[],down_btn[],delete_btn[])  
+  $submitopt("off", "Save")
+  $cancelopt("off", "Cancel")
+  $form($scriptid)
+   $br(2)$text("Diagnosis","error")
+   $br()$submit(lookup_btn,"Lookup")
+   $table($scriptid)
+    $row()
+     $col()select ShowICD10
+            case "0" $submit(ShowICD10_1_btn,"Show ICD-10 1st")			
+			         $submit(ShowICD10_2_btn,"Show ICD-10 2nd")
+	        case "1" if ShowICD9 != "0"
+			          $submit(ShowICD10_2_btn,"Show ICD-10 2nd")
+			         endif
+					 $submit(HideICD10_btn,"Hide ICD-10")
+	        case "2" if ShowICD9 != "0"
+			          $submit(ShowICD10_1_btn,"Show ICD-10 1st")			
+					 endif 
+			         $submit(HideICD10_btn,"Hide ICD-10")
+           endselect
+
+     $col()select ShowICD9
+            case "0" $submit(ShowICD9_1_btn,"Show ICD-9 1st")			
+			         $submit(ShowICD9_2_btn,"Show ICD-9 2nd")
+	        case "1" if ShowICD10 != "0"
+			          $submit(ShowICD9_2_btn,"Show ICD-9 2nd")
+					 endif 
+			         $submit(HideICD9_btn,"Hide ICD-9")					 
+	        case "2" if ShowICD10 != "0"
+			          $submit(ShowICD9_1_btn,"Show ICD-9 1st")			
+					 endif 
+			         $submit(HideICD9_btn,"Hide ICD-9")
+           endselect
+
+     $col()select DOAXIS4
+           case "Y" $submit(HideAX4_btn,"Hide Axis 4")
+	       case "N" $submit(ShowAX4_btn,"Show Axis 4") 
+          endselect
+     $col()select DOAXIS5
+            case "Y" $submit(HideAX5_btn,"Hide Axis 5")
+	        case "N" $submit(ShowAX5_btn,"Show Axis 5")
+           endselect
+    if $maxarray(c_dx10_dxrank[]) > 0
+	 $col()select ShowLegAx
+	        case "Y" $submit(HideLegAx_btn,"Hide Legacy DX Table")
+		    case "N" $submit(ShowLegAx_btn,"Show Legacy DX Table")
+		   endselect
+    endif
+'     $col()select DOTTED
+'            case "Y" $submit(ShowNonDot_btn,"Show Non Dotted Notation")
+'	        case "N" $submit(ShowDot_btn,"Show Dotted Notation")
+   $endtable($scriptid)
+   $br(2)   
+   $fieldset("Diagnosis Codes",,"datatag")
+    $table($scriptid,,table_nobgcolor)
+	 $row(,col_color_multi)
+	  $col()$ctag("&nbsp;")
+	  $col()$text("Rank")
+	  if SHOWICD9 = "1"
+	   $col()$text("ICD-9")
+	   $col()$text("ICD-9 Description")	  	   
+	  elseif SHOWICD9 = "2"
+	   $col()$text("ICD-10")
+	   $col()$text("ICD-10 Description")	  	   	   	
+	  endif
+	  if SHOWICD10 = "2"
+	   $col()$text("ICD-10")
+	   $col()$text("ICD-10 Description")	  	   	   		   	
+	  elseif SHOWICD10 = "1"
+	   $col()$text("ICD-9")
+	   $col()$text("ICD-9 Description")	  	   	   
+	  endif
+	  $col()$text("DX Category")
+	  $col()$text("Legacy Axis")	
+      index = 0
+	  prev_index = 0
+	  do while index++ < $maxarray(c_dx10_dxrank[])
+	   curr_index = index
+  	   next_index = curr_index + 1	     		 	   	   
+	   prev_index = curr_index - 1
+       select c_dx10_legax[index]
+	    case "1"  $row(,row_color1)
+	    case "2"  $row(,row_color3)
+	    case "3"  $row(,row_color4)
+	   endselect
+	    $col(,,"5%")if index > 1
+		             $submit(up_btn[index],"{font face='Webdings' size='2' color='black'}5{/font}")
+				    else
+				     $ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
+					endif
+					if index < $maxarray(c_dx10_dxrank[])
+				     $submit(down_btn[index],"{font face='Webdings' size='2' color='black'}6{/font}")
+				    else
+				     $ctag("&nbsp;&nbsp;&nbsp;&nbsp;")
+				    endif				
+                   $submit(delete_btn[index],"{font face='Webdings' size='2' color='red'}r{/font}")
+	    $col()$text(c_dx10_dxrank[index])					  
+	    if SHOWICD9 = "1"
+	     $col()$text(c_dx10_icd9[index])
+		 $col()$text(c_dx10_icd9_des[index])
+	    elseif SHOWICD9 = "2"
+	     $col()$text(c_dx10_icd10[index])
+	     $col()$text(c_dx10_icd10_des[index])
+	    endif
+	    if SHOWICD10 = "2"
+	     $col()$text(c_dx10_icd10[index])
+	     $col()$text(c_dx10_icd10_des[index])
+	    elseif SHOWICD10 = "1"
+	     $col()$text(c_dx10_icd9[index])
+		 $col()$text(c_dx10_icd9_des[index])
+	    endif
+	     $col()$text(c_dx10_dxcat[index]) 
+		 $col()$text(c_dx10_legax[index])
+	  enddo	  
+    $endtable($scriptid)
+   $endfieldset()
+   if ShowLegAx = "Y" and $maxarray(c_dx10_icd10[]) > 0
+    $br(2)
+    $fieldset("Converted to Legacy Axis Fields",,"datatag")
+     $table($scriptid,,table_nobgcolor)
+      $row(,col_color_multi)   
+	   $col()$text("Axis I")
+	   $col()$text("Level")   
+	   if SHOWICD9 = "1"
+	    $col()$text("ICD-9")
+	    $col()$text("ICD-9 Description")	  	   
+	   elseif SHOWICD9 = "2"
+	    $col()$text("ICD-10")
+	    $col()$text("ICD-10 Description")	  	   	   	
+	   endif
+	   if SHOWICD10 = "2"
+	    $col()$text("ICD-10")
+	    $col()$text("ICD-10 Description")	  	   	   		   	
+	   elseif SHOWICD10 = "1"
+	    $col()$text("ICD-9")
+	    $col()$text("ICD-9 Description")	  	   	   
+	   endif
+
+	  if $maxarray(comp_axis1_10_dx[])  = 0
+	   $row(,row_color1)
+	 	$col()$ctag("&nbsp;")
+	    $col()$text("1")
+        if SHOWICD9 = "1"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        elseif SHOWICD9 = "2"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        endif
+        if SHOWICD10 = "2"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        elseif SHOWICD10 = "1"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        endif		 					
+      else
+	   index = 0
+	   do while index++ < $maxarray(comp_axis1_10_dx[])
+	    $row(,row_color1)
+	     $col()$ctag("&nbsp;")
+		 $col()$text(index)		 
+	     if SHOWICD9 = "1"
+	      $col()$text(comp_axis1_9_dx[index])
+	      $col()$text(comp_axis1_9_ds[index])
+	     elseif SHOWICD9 = "2"
+	      $col()$text(comp_axis1_10_dx[index])
+	      $col()$text(comp_axis1_10_ds[index])
+	     endif
+	     if SHOWICD10 = "2"
+	      $col()$text(comp_axis1_10_dx[index])
+	      $col()$text(comp_axis1_10_ds[index])
+	     elseif SHOWICD10 = "1"
+	      $col()$text(comp_axis1_9_dx[index])
+	      $col()$text(comp_axis1_9_ds[index])
+	     endif		   		 
+	   enddo
+      endif
+	  $row(,col_color_multi)   
+	   $col()$text("Axis II")
+	   $col()$text("Level")
+	   if SHOWICD9 = "1"
+	    $col()$text("ICD-9")
+	    $col()$text("ICD-9 Description")	  	   
+	   elseif SHOWICD9 = "2"
+	    $col()$text("ICD-10")
+	    $col()$text("ICD-10 Description")	  	   	   	
+	   endif
+	   if SHOWICD10 = "2"
+	    $col()$text("ICD-10")
+	    $col()$text("ICD-10 Description")	  	   	   		   	
+	   elseif SHOWICD10 = "1"
+	    $col()$text("ICD-9")
+	    $col()$text("ICD-9 Description")	  	   	   
+	   endif
+	  index = 0	  
+	  if $maxarray(comp_axis2_10_dx[])  = 0
+	   $row(,row_color3)
+	 	$col()$ctag("&nbsp;")
+	    $col()$text("1")
+        if SHOWICD9 = "1"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        elseif SHOWICD9 = "2"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        endif
+        if SHOWICD10 = "2"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        elseif SHOWICD10 = "1"
+         $col()$text("v71.09")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        endif		 
+      else	 
+	   do while index++ < $maxarray(comp_axis2_10_dx[])
+ 	    $row(,row_color3)
+	     $col()$text(index)
+	     if SHOWICD9 = "1"
+	      $col()$text(comp_axis2_9_dx[index])
+	      $col()$text(comp_axis2_9_ds[index])
+	     elseif SHOWICD9 = "2"
+	      $col()$text(comp_axis2_10_dx[index])
+	      $col()$text(comp_axis2_10_ds[index])
+	     endif
+	     if SHOWICD10 = "2"
+	      $col()$text(comp_axis2_10_dx[index])
+	      $col()$text(comp_axis2_10_ds[index])
+	     elseif SHOWICD10 = "1"
+	      $col()$text(comp_axis2_9_dx[index])
+	      $col()$text(comp_axis2_9_ds[index])
+	     endif		   		 
+	   enddo	 
+      endif
+	  $row(,col_color_multi)   
+	   $col()$text("Axis III")
+	   $col()$text("Level")   
+	   if SHOWICD9 = "1"
+	    $col()$text("ICD-9")
+	    $col()$text("ICD-9 Description")	  	   
+	   elseif SHOWICD9 = "2"
+	    $col()$text("ICD-10")
+	    $col()$text("ICD-10 Description")	  	   	   	
+	   endif
+	   if SHOWICD10 = "2"
+	    $col()$text("ICD-10")
+	    $col()$text("ICD-10 Description")	  	   	   		   	
+	   elseif SHOWICD10 = "1"
+	    $col()$text("ICD-9")
+	    $col()$text("ICD-9 Description")	  	   	   
+	   endif
+	  if $maxarray(comp_axis3_10_dx[])  = 0
+	   $row(,row_color4)
+	 	$col()$ctag("&nbsp;")
+	    $col()$text("1")
+        if SHOWICD9 = "1"
+         $col()$text("NONE")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        elseif SHOWICD9 = "2"
+         $col()$text("NONE")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        endif
+        if SHOWICD10 = "2"
+         $col()$text("NONE")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        elseif SHOWICD10 = "1"
+         $col()$text("NONE")
+	     $col()$text("Diagnosis Deferred/Not Entered")
+        endif	
+	  else
+	   index = 0	  
+	   do while index++ < $maxarray(comp_axis3_10_dx[])
+	    $row(,row_color4)
+	     $col()$ctag("&nbsp;")
+	     $col()$text(index)
+	     if SHOWICD9 = "1"
+	      $col()$text(comp_axis3_9_dx[index])
+	      $col()$text(comp_axis3_9_ds[index])
+	     elseif SHOWICD9 = "2"
+	      $col()$text(comp_axis3_10_dx[index])
+	      $col()$text(comp_axis3_10_ds[index])
+	     endif
+	     if SHOWICD10 = "2"
+	      $col()$text(comp_axis3_10_dx[index])
+	      $col()$text(comp_axis3_10_ds[index])
+	     elseif SHOWICD10 = "1"
+	      $col()$text(comp_axis3_9_dx[index])
+	      $col()$text(comp_axis3_9_ds[index])
+	     endif		   		 
+	   enddo	 	 
+      endif	 	  
+	 $endtable($scriptid)
+	$endfieldset()
+   endif       
+   if DOAXIS4 = "Y"
+    $br(2)
+    $fieldset("Axis IV",,"datatag")
+     $table($scriptid)
+	  $row()
+	   $col()$ctag("&nbsp;")
+	   $col()$ctag("&nbsp;")
+       $col()$text("Primary Support Group Problems")'$checkbox()
+	   $col()$text("Social Environmental Problems")'$checkbox()
+	   $col()$ctag("&nbsp;")	  
+      $row()
+	   $col()$ctag("&nbsp;")
+	   $col()$ctag("&nbsp;")
+       $col()$text("Educational Problems")'$checkbox()
+       $col()$text("Occupational Problems")'$checkbox()
+	   $col()$ctag("&nbsp;")	  
+      $row()
+	   $col()$ctag("&nbsp;")
+	   $col()$ctag("&nbsp;")
+       $col()$text("Housing Problems")'$checkbox()
+       $col()$text("Economic Problems")'$checkbox()
+	   $col()$ctag("&nbsp;")	  
+      $row()
+	   $col()$ctag("&nbsp;")
+	   $col()$ctag("&nbsp;")
+       $col()$text("Health Care Access Problems")'$checkbox()
+       $col()$text("Legal System Problems")'$checkbox()
+	   $col()$ctag("&nbsp;")	  
+      $row()
+	   $col()$ctag("&nbsp;")
+	   $col()$ctag("&nbsp;")
+       $col()$text("Other Psychosocial/Environmental Problems")'$checkbox()
+       $col()$text("None")'$checkbox()
+	   $col()$ctag("&nbsp;")	  	  
+   	 $endtable($scriptid)
+    $endfieldset()       
+   endif
+   if DOAXIS5 = "Y"
+    $br(2)   
+    $fieldset("Axis V",,"datatag")
+	  $text("Current GAF")'$textbox()
+      $br()$text("Past GAF")'$textbox()
+    $endfieldset()
+   endif
+   $br(2)
+   $text("Axis of Primary DX")
+   $br(2)
+   $text("AAMD Adaptive Behavior Level")
+   $text("Current ABL")'$textbox()
+   $br()$text("Past ABL")'$textbox()
+  $sendform($scriptid) 
+  select $endbutton
+   case "CANCEL" return
+   case "SUBMIT" do while 1 = 1
+                  $submitopt("off",)
+                  $cancelopt("off","Back")
+                  $form($scriptid)
+                   $br(2)$text("{center}Diagnosis Record{/center}","H1")
+                   $br(2)       
+                   $fieldset("Diagnosis Codes")
+                    $table($scriptid,,table_nobgcolor)
+	                 $row(,col_color_multi)
+	                  $col()$text("Rank")
+	                  if SHOWICD9 = "1"
+	                   $col()$text("ICD-9")
+	                   $col()$text("ICD-9 Description")	  	   
+	                  elseif SHOWICD9 = "2"
+	                   $col()$text("ICD-10")
+	                   $col()$text("ICD-10 Description")	  	   	   	
+	                  endif
+	                  if SHOWICD10 = "2"
+	                   $col()$text("ICD-10")
+	                   $col()$text("ICD-10 Description")	  	   	   		   	
+	                  elseif SHOWICD10 = "1"
+	                   $col()$text("ICD-9")
+	                   $col()$text("ICD-9 Description")	  	   	   
+	                  endif
+	                  $col()$text("DX Category")
+	                  $col()$text("Legacy Axis")	
+                      index = 0
+	                  do while index++ < $maxarray(c_dx10_dxrank[])
+	                   $col()$text(c_dx10_dxrank[index])					  
+	                   if SHOWICD9 = "1"
+	                    $col()$text(c_dx10_icd9[index])
+		                $col()$text(c_dx10_icd9_des[index])
+	                   elseif SHOWICD9 = "2"
+	                    $col()$text(c_dx10_icd10[index])
+	                    $col()$text(c_dx10_icd10_des[index])
+	                   endif
+	                   if SHOWICD10 = "2"
+	                    $col()$text(c_dx10_icd10[index])
+	                    $col()$text(c_dx10_icd10_des[index])
+	                   elseif SHOWICD10 = "1"
+	                    $col()$text(c_dx10_icd9[index])
+		                $col()$text(c_dx10_icd9_des[index])
+	                   endif
+	                  $col()$text(c_dx10_dxcat[index]) 
+		              $col()$text(c_dx10_legax[index])
+	                 enddo	  
+   	                $endtable($scriptid)
+                   $endfieldset()       
+                   if DOAXIS4 = "Y"
+                    $br(2)
+                    $fieldset("Axis IV")
+                     $table($scriptid)
+   	                 $endtable($scriptid)
+                    $endfieldset()       
+                   endif
+                   if DOAXIS5 = "Y"
+                    $br(2)   
+                    $fieldset("Axis V",)
+	                  $text("Current GAF")'$text()
+                      $br()$text("Past GAF")'$text()
+                    $endfieldset()
+                   endif
+                   $br(2)
+                   $text("Axis of Primary DX")
+                   $br(2)
+                   $text("AAMD Adaptive Behavior Level")
+                   $text("Current ABL")'$text()
+                   $br()$text("Past ABL")'$text()
+			      $sendform($scriptid)
+				  if $endbutton = "CANCEL" or $endbutton = "SUBMIT"
+				   return
+'				  else
+'save stuff				  
+				  endif
+				 enddo
+'figure out the flow back/forth later				 
+   case other if lookup_btn = "Y"
+'               $clear(selection[])
+			   call "DX_Lookup"(ICD_Type,selection[])
+			   index = 0
+			   axis1_rank = 1
+			   axis2_rank = 1
+			   axis3_rank = 1			   
+			   do while index++ < $maxarray(selection[])
+                (void)$parsem(selection[index],1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)			    
+                c_dx10_legax[index] = DSM_4_Axis
+'2 ways to do this, by the axis rank or position returned by DX_Lookup
+			    select DSM_4_Axis
+				 case "1" axis1_10_dx[index] = ICD_Code   
+				          axis1_9_dx[index] = ICD_Code2
+						  axis1_10_desc[index] = ICD_Description
+						  axis1_9_desc[index] = ICD_Description2
+				 case "2" axis2_10_dx[index] = ICD_Code   
+				          axis2_9_dx[index] = ICD_Code2
+						  axis2_10_desc[index] = ICD_Description
+						  axis2_9_desc[index] = ICD_Description2				  
+				 case "3" axis3_10_dx[index] = ICD_Code   
+				          axis3_9_dx[index] = ICD_Code2
+						  axis3_10_desc[index] = ICD_Description
+						  axis3_9_desc[index] = ICD_Description2				  				  
+				endselect
+                c_dx10_dxrank[index] = index                
+				c_dx10_icd10_des[index] = ICD_Description
+                c_dx10_icd9_des[index] = ICD_Description2
+			    c_dx10_icd10[index] = ICD_Code
+			    c_dx10_icd9[index]  = ICD_Code2
+			    c_dx10_dxcat[index] = DX_Cat	   			   		
+			   enddo
+              elseif HideICD10_btn = "Y"
+	           SHOWICD10 = "0"
+	           SHOWICD9 = "1"					 
+              elseif ShowICD10_1_btn = "Y"
+	           ShowICD10 = "1"			  
+	           if SHOWICD9 != "0"
+			    SHOWICD9 = "2"
+			   endif
+              elseif ShowICD10_2_btn = "Y"
+	           ShowICD10 = "2"			  
+			   if ShowICD9 != "0"
+			    ShowICD9 = "1"
+			   endif
+              elseif HideICD9_btn = "Y"
+	           ShowICD9 = "0"			  
+			   ShowICD10 = "1"					 
+              elseif ShowICD9_1_btn = "Y"
+	           ShowICD9 = "1"
+			   if ShowICD10 != "0"
+			    ShowICD10 = "2"
+			   endif
+              elseif ShowICD9_2_btn = "Y"
+	           ShowICD9 = "2"
+			   if ShowICD10 != "0"
+			    ShowICD10 = "1"
+			   endif
+		      elseif HideAX4_btn = "Y"
+	           DOAXIS4 = "N"
+		      elseif ShowAX4_btn = "Y"		 
+	           DOAXIS4 = "Y"
+		      elseif HideAX5_btn = "Y"
+	           DOAXIS5 = "N"
+		      elseif ShowAX5_btn = "Y"		 
+	           DOAXIS5 = "Y"			  		 
+              elseif ShowLegAx_btn = "Y"
+			   ShowLegAx = "Y"
+			  elseif HideLegAx_btn = "Y" 
+			   ShowLegAx = "N"			  
+			  elseif ShowNonDot_btn = "Y"
+			   DOTTED = "N"
+			  elseif ShowDot_btn = "Y"
+			   DOTTED = "Y" 
+			  elseif $maxarray(up_btn[]) > 0
+			   curr_index = $maxarray(up_btn[])
+			   next_index = curr_index + 1			   
+			   prev_index = curr_index - 1			   
+			   c_dx10_dxrank[prev_index] = c_dx10_dxrank[curr_index]
+			   if c_dx10_dxrank[curr_index] > 1
+			    c_dx10_dxrank[curr_index] = c_dx10_dxrank[curr_index] - 1
+			   endif	
+              elseif $maxarray(down_btn[]) > 0
+			   curr_index = $maxarray(down_btn[])  
+			   next_index = curr_index + 1			   
+			   prev_index = curr_index - 1			   
+			   c_dx10_dxrank[next_index] = c_dx10_dxrank[curr_index]
+			   c_dx10_dxrank[curr_index] = c_dx10_dxrank[curr_index] + 1				
+              elseif $maxarray(delete_btn[]) > 0
+			   curr_index = $maxarray(delete_btn[])  
+			   prev_index = curr_index - 1
+			   (void)$arrremove(c_dx10_dxrank[curr_index],1,c_dx10_legax[],c_dx10_icd10[],c_dx10_icd9[],c_dx10_dxcat[],c_dx10_icd10_des[],c_dx10_icd9_des[],axis1_10_dx[],axis1_9_dx[],axis1_10_desc[],axis1_9_desc[],axis2_10_dx[],axis2_9_dx[],
+			                    axis2_10_desc[],axis2_9_desc[],axis3_10_dx[],axis3_9_dx[],axis3_10_desc[],axis3_9_desc[])
+			   index = prev_index
+			   do while index++ < $maxarray(c_dx10_legax[])
+			    c_dx10_dxrank[index] = c_dx10_dxrank[index] - 1
+			   enddo
+			  endif			 
+			  (void)$sort(c_dx10_dxrank[],,c_dx10_icd10[],c_dx10_icd9[],c_dx10_dxcat[],c_dx10_icd10_des[],c_dx10_icd9_des[],c_dx10_legax[],axis1_10_dx[],axis1_9_dx[],axis1_10_desc[],axis1_9_desc[],axis2_10_dx[],axis2_9_dx[],axis2_10_desc[],
+			               axis2_9_desc[],axis3_10_dx[],axis3_9_dx[],axis3_10_desc[],axis3_9_desc[])
+              (void)$arrcopy(axis1_10_dx[],comp_axis1_10_dx[])
+              (void)$arrcopy(axis2_10_dx[],comp_axis2_10_dx[])
+              (void)$arrcopy(axis3_10_dx[],comp_axis3_10_dx[])
+              (void)$arrcopy(axis1_9_dx[],comp_axis1_9_dx[])
+              (void)$arrcopy(axis2_9_dx[],comp_axis2_9_dx[])
+              (void)$arrcopy(axis3_9_dx[],comp_axis3_9_dx[])			  
+              (void)$arrcopy(axis1_10_desc[],comp_axis1_10_ds[])
+              (void)$arrcopy(axis2_10_desc[],comp_axis2_10_ds[])
+              (void)$arrcopy(axis3_10_desc[],comp_axis3_10_ds[])			  
+              (void)$arrcopy(axis1_9_desc[],comp_axis1_9_ds[])
+              (void)$arrcopy(axis2_9_desc[],comp_axis2_9_ds[])
+              (void)$arrcopy(axis3_9_desc[],comp_axis3_9_ds[])			  
+              (void)$arrcompress(comp_axis1_10_dx[])
+              (void)$arrcompress(comp_axis2_10_dx[])
+              (void)$arrcompress(comp_axis3_10_dx[])				   
+              (void)$arrcompress(comp_axis1_9_dx[])
+              (void)$arrcompress(comp_axis2_9_dx[])
+              (void)$arrcompress(comp_axis3_9_dx[])			  
+              (void)$arrcompress(comp_axis1_10_ds[])
+              (void)$arrcompress(comp_axis2_10_ds[])
+              (void)$arrcompress(comp_axis3_10_ds[]) 
+              (void)$arrcompress(comp_axis1_9_ds[])
+              (void)$arrcompress(comp_axis2_9_ds[])
+              (void)$arrcompress(comp_axis3_9_ds[])			  
+  endselect
+ enddo
+end DX10 
