@@ -13,7 +13,7 @@ SET ANSI_PADDING ON
 GO
 
 CREATE TABLE [dbo].[t_ICD-10_ICD-10_with_GEM_AXIS](
-	[UniqID] [varchar](25) NULL,
+	[UniqID] [varchar](6) NULL,
 	[ICD-10_Code] [varchar](7) NULL,
 	[ICD-10_Code_DotNotation] [varchar](8) NULL,
 	[ICD-10_Description] [varchar](255) NULL,
