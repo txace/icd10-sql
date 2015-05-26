@@ -1,7 +1,8 @@
-USE [CMHC_Export]
+/****** Object:  Table [dbo].[t_ICD-10_ICD-9_with_GEM_AXIS] ******/
+if object_id('[dbo].[t_ICD-10_ICD-10_with_GEM_AXIS]') is not null
+   drop table [dbo].[t_ICD-10_ICD-10_with_GEM_AXIS]
 GO
 
-/****** Object:  Table [dbo].[t_ICD-10_ICD-10_with_GEM_AXIS]    Script Date: 5/20/2015 11:10:06 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,7 +13,7 @@ SET ANSI_PADDING ON
 GO
 
 CREATE TABLE [dbo].[t_ICD-10_ICD-10_with_GEM_AXIS](
-	[UniqID] [varchar](25) NULL,
+	[UniqID] [varchar](6) NULL,
 	[ICD-10_Code] [varchar](7) NULL,
 	[ICD-10_Code_DotNotation] [varchar](8) NULL,
 	[ICD-10_Description] [varchar](255) NULL,
