@@ -1,6 +1,6 @@
 /****** Object:  Table [dbo].[t_ICD-10_ICD-9_with_GEM_AXIS] ******/
-if object_id('t_ICD-10_ICD-9_with_GEM_AXIS') is not null
-   drop table t_ICD-10_ICD-9_with_GEM_AXIS
+if object_id('[dbo].[t_ICD-10_ICD-10_with_GEM_AXIS]') is not null
+   drop table [dbo].[t_ICD-10_ICD-10_with_GEM_AXIS]
 GO
 
 SET ANSI_NULLS ON
