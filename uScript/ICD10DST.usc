@@ -1,0 +1,183 @@
+'    SCRIPT DESCRIPTION
+'       This script adds the DSTs needed for the ICD-10 data capture process.
+'       (HT 163328)
+'=================================================
+'    ASSUMPTIONS
+'       The script will only create the requested DSTs if they are not already
+'       on the system. DCTs will only be created if they are not on the system.
+'       Missing codes to the DCTs will be added
+'
+'=================================================
+'    PARAMETERS
+'        NONE
+'=================================================
+'    AUTHOR: Robert Bell
+'    DATE CREATED: 04/15/2015
+'=================================================
+'    DATABASES INVOLVED:
+'        02 - Client Database
+'
+'    DSTS READ:
+'       NONE
+'
+'    DSTS UPDATED:
+'       NONE
+'
+'=================================================
+'    MODIFICATION LOG:
+
+
+start ICD10DST()
+'-- Local Variables
+ rc        is i
+ dbfile    is i     dbfile = 02    ' Client Database
+ dst       is n
+ recordnum is n
+ info[]	   is x
+
+'$nextavdst
+'This is the starting number of the DST's that will be added.  While a
+' contiguous range of DST numbers is not required.  It is preferable.
+' If you want a contiguous range of DST's make sure you have at least
+' 25 available DST numbers after the number you choose.
+
+'recordnum
+'This is the DST record number that will be assigned to all of the DST's
+' that are created.  This can be any available number.  But preference should
+' be given to making it the same number as the record header DST number.  The
+'record header DST will be the first DST crated and will have the number in the
+' $nextavdst value
+
+'''''''These values MUST be Changed for your system'''''''''
+ $nextavdst = xxxxx
+ recordnum  = xxxxx
+ $trace("path.on", "/c4/EXPORT2/trace/ICD10DST.txt")
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+rc = $dstadd(dst, "C.DX10.RH",        "DX10 Record Header",              dbfile, "H", 0,  0,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.STAFF",     "DX10 Diagnosing Staff",           dbfile, "X", 3,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ENTSTAFF",  "DX10 Entry Staff",                dbfile, "X", 3,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DT",        "DX10 Date",                       dbfile, "D", 0, 10,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.TIME",      "DX10 Time",                       dbfile, "T", 0 , 7,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ENTDT",     "DX10 Entry Date",                 dbfile, "D", 0, 10,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ENTTM",     "DX10 Entry Time",                 dbfile, "T", 0,  7,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.CAREDT",    "DX10 CARE Date",                  dbfile, "D", 0, 10,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.REASON",    "DX10 Reason for Diagnosis",       dbfile, "X", 1,  1,  55, recordnum)
+rc = $dstadd(dst, "C.DX10.EXPIRE",    "DX10 Expire Date",                dbfile, "D", 0, 10,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.PIMARY.AX", "DX10 Axis of Primary Diagnosis",  dbfile, "X", 1,  1,2087, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.1",   "DX10 ICD10 Code Lev 1",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.1",    "DX10 ICD9 Code Lev 1",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.1",   "DX10 Legacy Axis Lev 1",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.1",   "DX10 Diagnosis Category Lev 1",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.1",  "DX10 Diagnosis Rank Lev 1",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.1",    "DX10 Diagnosis Unique Lev 1",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.2"  , "DX10 ICD10 Code Lev 2",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.2",    "DX10 ICD9 Code Lev 2",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.2",   "DX10 Legacy Axis Lev 2",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.2",   "DX10 Diagnosis Category Lev 2",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.2",  "DX10 Diagnosis Rank Lev 2",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.2",    "DX10 Diagnosis Unique Lev 2",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.3",   "DX10 ICD10 Code Lev 3",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.3",    "DX10 ICD9 Code Lev 3",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.3",   "DX10 Legacy Axis Lev 3",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.3",   "DX10 Diagnosis Category Lev 3",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.3",  "DX10 Diagnosis Rank Lev 3",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.3",    "DX10 Diagnosis Unique Lev 3",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.4",   "DX10 ICD10 Code Lev 4",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.4",    "DX10 ICD9 Code Lev 4",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.4",   "DX10 Legacy Axis Lev 4",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.4",   "DX10 Diagnosis Category Lev 4",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.4",  "DX10 Diagnosis Rank Lev 4",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.4",    "DX10 Diagnosis Unique Lev 4",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.5",   "DX10 ICD10 Code Lev 5",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.5",    "DX10 ICD9 Code Lev 5",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.5",   "DX10 Legacy Axis Lev 5",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.5",   "DX10 Diagnosis Category Lev 5",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.5",  "DX10 Diagnosis Rank Lev 5",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.5",    "DX10 Diagnosis Unique Lev 5",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.6",   "DX10 ICD10 Code Lev 6",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.6",    "DX10 ICD9 Code Lev 6",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.6",   "DX10 Legacy Axis Lev 6",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.6",   "DX10 Diagnosis Category Lev 6",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.6",  "DX10 Diagnosis Rank Lev 6",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.6",    "DX10 Diagnosis Unique Lev 6",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.7",   "DX10 ICD10 Code Lev 7",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.7",    "DX10 ICD9 Code Lev 7",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.7",   "DX10 Legacy Axis Lev 7",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.7",   "DX10 Diagnosis Category Lev 7",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.7",  "DX10 Diagnosis Rank Lev 7",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.7",    "DX10 Diagnosis Unique Lev 7",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.8",   "DX10 ICD10 Code Lev 8",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.8",    "DX10 ICD9 Code Lev 8",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.8",   "DX10 Legacy Axis Lev 8",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.8",   "DX10 Diagnosis Category Lev 8",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.8",  "DX10 Diagnosis Rank Lev 8",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.8",    "DX10 Diagnosis Unique Lev 8",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.9",   "DX10 ICD10 Code Lev 9",           dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.9",    "DX10 ICD9 Code Lev 9",            dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.9",   "DX10 Legacy Axis Lev 9",          dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.9",   "DX10 Diagnosis Category Lev 9",   dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.9",  "DX10 Diagnosis Rank Lev 9",       dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.9",    "DX10 Diagnosis Unique Lev 9",     dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.10",  "DX10 ICD10 Code Lev 10",          dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.10",   "DX10 ICD9 Code Lev 10",           dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.10",  "DX10 Legacy Axis Lev 10",         dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.10",  "DX10 Diagnosis Category Lev 10",  dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.10", "DX10 Diagnosis Rank Lev 10",      dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.10",   "DX10 Diagnosis Unique Lev 10",    dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.11",  "DX10 ICD10 Code Lev 11",          dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.11",   "DX10 ICD9 Code Lev 11",           dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.11",  "DX10 Legacy Axis Lev 11",         dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.11",  "DX10 Diagnosis Category Lev 11",  dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.11", "DX10 Diagnosis Rank Lev 11",      dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.11",   "DX10 Diagnosis Unique Lev 11",    dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.12",  "DX10 ICD10 Code Lev 12",          dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.12",   "DX10 ICD9 Code Lev 12",           dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.12",  "DX10 Legacy Axis Lev 12",         dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.12",  "DX10 Diagnosis Category Lev 12",  dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.12", "DX10 Diagnosis Rank Lev 12",      dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.12",   "DX10 Diagnosis Unique Lev 12",    dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.13",  "DX10 ICD10 Code Lev 13",          dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.13",   "DX10 ICD9 Code Lev 13",           dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.13",  "DX10 Legacy Axis Lev 13",         dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.13",  "DX10 Diagnosis Category Lev 13",  dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.13", "DX10 Diagnosis Rank Lev 13",      dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.13",   "DX10 Diagnosis Unique Lev 13",    dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.14",  "DX10 ICD10 Code Lev 14",          dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.14",   "DX10 ICD9 Code Lev 14",           dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.14",  "DX10 Legacy Axis Lev 14",         dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.14",  "DX10 Diagnosis Category Lev 14",  dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.14", "DX10 Diagnosis Rank Lev 14",      dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.14",   "DX10 Diagnosis Unique Lev 14",    dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.15",  "DX10 ICD10 Code Lev 15",          dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.15",   "DX10 ICD9 Code Lev 15",           dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.15",  "DX10 Legacy Axis Lev 15",         dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.15",  "DX10 Diagnosis Category Lev 15",  dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.15", "DX10 Diagnosis Rank Lev 15",      dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.15",   "DX10 Diagnosis Unique Lev 15",    dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD10.16",  "DX10 ICD10 Code Lev 16",          dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ICD9.16",   "DX10 ICD9 Code Lev 16",           dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.LEGAX.16",  "DX10 Legacy Axis Lev 16",         dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXCAT.16",  "DX10 Diagnosis Category Lev 16",  dbfile, "X", 0,  8,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.DXRANK.16", "DX10 Diagnosis Rank Lev 16",      dbfile, "X", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.UNIQ.16",   "DX10 Diagnosis Unique Lev 16",    dbfile, "X", 0,  6,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.SUPGRP", "DX10 Axis 4  Support Group",      dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.SOCENV", "DX10 Axis 4  Social Environment", dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.EDU",    "DX10 Axis 4  Education",          dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.OCC",    "DX10 Axis 4  Occupational",       dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.HOUSNG", "DX10 Axis 4  Housing",            dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.ECO",    "DX10 Axis 4  Economic",           dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.HEALTH", "DX10 Axis 4  Health Care",        dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.LEGAL",  "DX10 Axis 4  Legal/Crime",        dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.PSYENV", "DX10 Axis 4  Psy/Environment",    dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A4.NONE",   "DX10 Axis 4  None",               dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 0,  2,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 0,  1,   0, recordnum)
+
+end ICD10DST
+
+
+ 
+ 

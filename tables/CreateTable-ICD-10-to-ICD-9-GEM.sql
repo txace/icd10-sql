@@ -26,7 +26,7 @@ CREATE TABLE [dbo].[t_ICD-10_ICD-10_with_GEM_AXIS](
 	[Combination] [varchar](1) NULL,
 	[Scenario] [varchar](1) NULL,
 	[ChoiceList] [varchar](1) NULL,
-	[DX_CAT] [varchar](2) NULL,
+	[DX_CAT] [varchar](8) NULL,
 	[TermSearch] [varchar](500) NULL,
 	[EffDt] [datetime] NULL,
 	[EndDt] [datetime] NULL
