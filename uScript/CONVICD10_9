@@ -1,0 +1,176 @@
+start CONVICD10_9(parmfile,option,client,retcode) 
+ parmfile    is x
+ option      is x
+ client      is x
+ retcode     is i
+ rc          is i
+ index       is i
+ leg_ax[]    is x
+ rank[]      is x
+ DX10_code[] is x
+ DX9_code[]  is x
+ %include inc_DX10
+ %include inc_DX
+ %include inc_ISN
+ %include inc_ER
+
+ if client !dp
+  return
+ endif
+
+ rc = $dbread(2,client,dx10_dstlist)
+ (void)$arrpush(leg_ax[],c.dx10.legax.1)
+ (void)$arrpush(rank[],c.dx10.dxrank.1)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.1)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.1)
+ (void)$arrpush(leg_ax[],c.dx10.legax.2)
+ (void)$arrpush(rank[],c.dx10.dxrank.2)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.2)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.2)
+ (void)$arrpush(leg_ax[],c.dx10.legax.3)
+ (void)$arrpush(rank[],c.dx10.dxrank.3)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.3)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.3)
+ (void)$arrpush(leg_ax[],c.dx10.legax.4)
+ (void)$arrpush(rank[],c.dx10.dxrank.4)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.4)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.4)
+ (void)$arrpush(leg_ax[],c.dx10.legax.5)
+ (void)$arrpush(rank[],c.dx10.dxrank.5)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.5)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.5)    
+ (void)$arrpush(leg_ax[],c.dx10.legax.6)
+ (void)$arrpush(rank[],c.dx10.dxrank.6)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.6)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.6)
+ (void)$arrpush(leg_ax[],c.dx10.legax.7)
+ (void)$arrpush(rank[],c.dx10.dxrank.7)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.7)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.7)  
+ (void)$arrpush(leg_ax[],c.dx10.legax.8)
+ (void)$arrpush(rank[],c.dx10.dxrank.8)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.8)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.8)
+ (void)$arrpush(leg_ax[],c.dx10.legax.9)
+ (void)$arrpush(rank[],c.dx10.dxrank.9)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.9)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.9)
+ (void)$arrpush(leg_ax[],c.dx10.legax.10)
+ (void)$arrpush(rank[],c.dx10.dxrank.10)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.10)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.10)
+ (void)$arrpush(leg_ax[],c.dx10.legax.11)
+ (void)$arrpush(rank[],c.dx10.dxrank.11)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.11)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.11)
+ (void)$arrpush(leg_ax[],c.dx10.legax.12)
+ (void)$arrpush(rank[],c.dx10.dxrank.12)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.12)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.12)
+ (void)$arrpush(leg_ax[],c.dx10.legax.13)
+ (void)$arrpush(rank[],c.dx10.dxrank.13)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.13)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.13)  
+ (void)$arrpush(leg_ax[],c.dx10.legax.14)
+ (void)$arrpush(rank[],c.dx10.dxrank.14)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.14)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.14)
+ (void)$arrpush(leg_ax[],c.dx10.legax.15)
+ (void)$arrpush(rank[],c.dx10.dxrank.15)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.15)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.15) 
+ (void)$arrpush(leg_ax[],c.dx10.legax.16)
+ (void)$arrpush(rank[],c.dx10.dxrank.16)
+ (void)$arrpush(DX10_code[], c.dx10.icd10.16)
+ (void)$arrpush(DX9_code[],c.dx10.icd9.16) 
+ if c.dx10.isn dp
+  rc = $dbread(9,c.dx10.isn,$$isn.sac,$$isn.tm,$$isn.sdur,$$isn.ru,$$isn.loc,$$isn.pj)
+  c.dx.ser        = $$isn.sac
+  c.dx.time       = $$isn.tm
+  c.dx.dur        = $$isn.sdur
+  c.dx.ru         = $$isn.ru
+  c.dx.loc        = $$isn.loc
+  c.dx.proj       = $$isn.pj
+ endif 
+ $dblock()
+ rc = $dbpoint(2,client,c.dsmiiir)
+ c.dsmiiir[effd] = c.dx10.rh[effd]   
+ index = 0
+ do while index++ < $maxarray(rank[])
+  select leg_ax[index]
+   case "1" if c.diag !dp
+             c.diag = DX9_code[index] 
+            elseif c.dxaxi2 !dp
+			 c.dxaxi2 = DX9_code[index] 
+            elseif c.dxaxi3 !dp
+             c.dxaxi3 = DX9_code[index] 			
+            elseif c.dxaxi4 !dp
+			 c.dxaxi4 = DX9_code[index] 
+            elseif c.dxaxi5 !dp
+			 c.dxaxi5 = DX9_code[index] 
+            elseif c.dxaxi6 !dp
+			 c.dxaxi6 = DX9_code[index] 
+            endif   
+   case "2" if c.dxaxii1 !dp
+             c.dxaxii1 = DX9_code[index] 
+            elseif c.dxaxii2 !dp
+			 c.dxaxii2 = DX9_code[index] 
+            elseif c.dxaxii3 !dp
+			 c.dxaxii3 = DX9_code[index] 
+            elseif c.dxaxii4 !dp
+			 c.dxaxii4 = DX9_code[index] 
+            elseif c.dxaxii5 !dp
+			 c.dxaxii5 = DX9_code[index] 
+            elseif c.dxaxii6 !dp
+			 c.dxaxii6 = DX9_code[index] 
+		    endif	
+   case "3" if c.dxaxiii1 !dp
+             c.dxaxiii1 = DX9_code[index] 
+            elseif c.dxaxiii2 !dp 
+			 c.dxaxiii2 = DX9_code[index] 
+            elseif c.dxaxiii3 !dp
+			 c.dxaxiii3 = DX9_code[index] 
+            elseif c.dxaxiii4 !dp
+			 c.dxaxiii4 = DX9_code[index] 
+            elseif c.dxaxiii5 !dp
+			 c.dxaxiii5 = DX9_code[index] 
+            elseif c.dxaxiii6 !dp
+			 c.dxaxiii6 = DX9_code[index] 
+            endif
+  endselect
+ enddo
+ 
+ c.dxaxiv        = c.dx10.a5.gaf
+ c.dxaxvc        = c.dx10.a5.gaf
+ c.cabl          = c.dx10.curr.abl
+ c.pabl          = c.dx10.pot.abl
+ c.dxdate        = c.dx10.dt
+ c.dxaxiiidt     = c.dx10.dt
+ c.prdxaxis      = c.dx10.pimary.ax
+ c.dxreason      = c.dx10.reason
+ c.dx.comment    = c.dx10.comment
+ c.dx.isn        = c.dx10.isn
+ c.who.diag      = c.dx10.staff
+'? c.dsmivtr       is x   'DSM-IVTR Symptom justification
+ c.dx.stat       = c.dx10.stat
+ c.dxflag        = c.dx10.caredt
+ c.dx.comme      = c.dx10.comment
+  c.dx.by        = c.dx10.staff  
+ c.dx.ax4.a      = c.dx10.a4.supgrp
+ c.dx.ax4.b      = c.dx10.a4.socenv
+ c.dx.ax4.c      = c.dx10.a4.edu
+ c.dx.ax4.d      = c.dx10.a4.occ
+ c.dx.ax4.e      = c.dx10.a4.housng
+ c.dx.ax4.f      = c.dx10.a4.eco
+ c.dx.ax4.g      = c.dx10.a4.health
+ c.dx.ax4.h      = c.dx10.a4.legal
+ c.dx.ax4.i      = c.dx10.a4.psyenv
+ c.dx.ax4.j      = c.dx10.a4.none 
+ retcode = $dbadddst(2,client,c.dsmiiir,c.diag,c.dx.when,c.dx4,c.dxaxi2,c.dxaxi3,c.dxaxi4,c.dxaxi5,c.dxaxi6,c.dxaxii1,c.dxaxii2,c.dxaxii3,c.dxaxii4,c.dxaxii5,c.dxaxii6,
+                         c.dxaxiii1,c.dxaxiii2,c.dxaxiii3,c.dxaxiii4,c.dxaxiii5,c.dxaxiii6,c.dxaxiv,c.dxaxvp,c.dxaxvc,c.cabl,c.pabl,c.dxdate,c.dxaxiiidt,c.prdxaxis,c.dxreason,c.dx.comment,
+                         c.dx.isn,c.dxaxiv-a,c.who.diag,c.dx.stat,c.dxflag,c.a1l1,c.dx.ax3,c.dx.ax4.a,c.dx.ser,c.dx.time,c.dx.dur,c.dx.ru,c.dx.loc,c.dx.proj,c.dx.serv,c.dx.fill,c.dx.comme,c.dx.by,
+                         c.dx.ax4.c,c.dx.ax4.d,c.paamd,c.saamd,c.taamd,c.genetic,c.c.anomal,c.sen.imp,c.precept,c.conv.dis,c.psy.impa,c.motor.dy,c.aamd.dat,c.iq.score,
+                         c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax4.e,c.dx.ax4.f,c.dx.ax4.g,c.dx.ax4.h,c.dx.sys,c.dx.ax4.i,c.dx.ax4.j,c.dx.needed)
+ $allowupdate(retcode)
+end CONVICD10_9
+
