@@ -9,10 +9,17 @@ start CONVICD10_9(parmfile,option,client,retcode)
  rank[]      is x
  DX10_code[] is x
  DX9_code[]  is x
+
+ $$isn.sac             is b        'ISN Service Activity Code     
+ $$isn.tm              is t        'ISN Service Time              
+ $$isn.sdur            is t        'ISN Service Staff Dur         
+ $$isn.ru              is b        'ISN Service RU                
+ $$isn.loc             is x        'ISN Service Location          
+ $$isn.pj              is b        'ISN Service Project           
+
  %include inc_DX10
  %include inc_DX
- %include inc_ISN
- %include inc_ER
+ '%include inc_ER
 
  if client !dp
   return
@@ -83,6 +90,7 @@ start CONVICD10_9(parmfile,option,client,retcode)
  (void)$arrpush(rank[],c.dx10.dxrank.16)
  (void)$arrpush(DX10_code[], c.dx10.icd10.16)
  (void)$arrpush(DX9_code[],c.dx10.icd9.16) 
+
  if c.dx10.isn dp
   rc = $dbread(9,c.dx10.isn,$$isn.sac,$$isn.tm,$$isn.sdur,$$isn.ru,$$isn.loc,$$isn.pj)
   c.dx.ser        = $$isn.sac
