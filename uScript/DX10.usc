@@ -6,7 +6,11 @@ start DX10(parmfile,option,client,retcode)
  retcode  is i
  rc       is i
  %include inc_DX10
- %include inc_ER
+ e.ser    is i
+ e.ru     is i
+ e.start  is t
+ e.dur    is t
+ e.loc    is x
  %global bgcolor
  bgcolor is x
  bgcolor = "white"
