@@ -27,7 +27,10 @@
 '    MODIFICATION LOG:
 
 
-start ICD10DST()
+start ICD10DST(dststart, tracefile)
+'-- Arguments
+dststart   is x
+tracefile  is x
 '-- Local Variables
  rc        is i
  dbfile    is i     dbfile = 02    ' Client Database
@@ -49,13 +52,19 @@ start ICD10DST()
 ' $nextavdst value
 
 '''''''Change These Values for your system'''''''''
- $nextavdst = 28500
- recordnum  = 28500
- $trace("path.on", "/c4/EXPORT2/trace/ICD10DST.txt")
+ $infomsg1 = "Tracing Option Off"
+ if (tracefile dp) then
+   $infomsg1 = "Tracing to files: " + tracefile
+   $trace("path.on", tracefile)
+endif
+ dststart = dststart
+ $nextavdst = $castn(dststart)
+ recordnum  = $castn(dststart)
 '''''''''''''''''''''''''''''''''''''''''''''''''''
 
 'Let's meka sure that these values are set by the user otherwise, stop the script before it creates any DST's
 if $nextavdst !dp or recordnum !dp
+        $errmsg1 = "DST Number Not Specified"
 	return
 endif
 

@@ -10,6 +10,6 @@
   "author": "txace",
   "license": "ISC",
   "dependencies": {
-    "mis-util": "^0.4.1"
+    "mis-util": "^0.5"
   }
 }
