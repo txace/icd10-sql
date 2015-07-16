@@ -1,0 +1,21 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	new file:   uScript/CONVICD10_9
+#	new file:   uScript/CONVICD10_9 (1)
+#	new file:   uScript/DX10
+#	new file:   uScript/DX10 (1)
+#	new file:   uScript/DX10 (2)
+#	new file:   uScript/ICD10DST
+#	new file:   uScript/ICD10DST (1)
+#	new file:   uScript/inc_DX10
+#	new file:   uScript/lib_COMMON.txt
+#	new file:   uScript/lib_COMMON2.txt
+#	new file:   uScript/lib_DX10
+#	new file:   uScript/lib_DX10 (1)
+#
+Added Chris' stuff.
