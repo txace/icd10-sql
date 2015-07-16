@@ -160,7 +160,7 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
 			      query_txt = query_any
 			      $parsem(query_txt,1,",",query_txt_arr[])
 				 else
-                  {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+                  msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
 			     endif	
                  skip = 0
 				 cnt_query = $maxarray(query_txt_arr[])
@@ -525,3 +525,152 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
 
  $clear(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 end getClientIq
+
+dynamic function MsgBox(DialogMessage, Icon, DialogTitle, Button1, Button2, Button3, Button4, Button5, Button6, Button7, Button8, Button9, Button10) is b
+ DialogMessage	 is x
+ Icon		     is b
+ DialogTitle	 is x
+ Button1		 is x
+ Button2		 is x
+ Button3		 is x 
+ Button4		 is x 
+ Button5		 is x 
+ Button6		 is x 
+ Button7		 is x 
+ Button8		 is x 
+ Button9		 is x 
+ Button10		 is x 
+ Buttons[]       is x
+ ClickedButton[] is x
+ IconURL		 is x
+ WorkX		     is x 
+ TitleFGColor    is x
+ TitleBGColor    is x
+ IconBase        is x
+ IconH           is x
+ IconW           is x
+ IconH = "32"
+ IconW = "32"
+ 
+ TitleFGColor = "#FFFFFF"
+ TitleBGColor = "#008000"
+ IconBase = "../cmhcbuilocal/our_images/"
+ IconBase = "/cmhcbui/cmhcbuilocal/our_images/"
+ if DialogTitle !DP
+  DialogTitle =  $scriptid
+ endif
+
+ if Button1 !DP
+  Button1 = "Ok"
+ endif
+
+ Select Icon
+  case 1 IconURL = IconBase + "Information.gif"
+  case 2 IconURL = IconBase + "Question.gif"
+  case 3 IconURL = IconBase + "Warning.gif"
+  case 4 IconURL = IconBase + "Critical.gif"
+  case 5 IconURL = IconBase + "oatmeal_tumbeasts/tbrun1.png"
+         IconH = "120"
+		 IconW = "240"
+  case 6 IconURL = IconBase + "oatmeal_tumbeasts/tbrun2.png"
+         IconH = "186"
+		 IconW = "256"
+  case 7 IconURL = IconBase + "oatmeal_tumbeasts/tbsit1.png"
+         IconH = "262"
+		 IconW = "174"
+  case 8 IconURL = IconBase + "oatmeal_tumbeasts/tbsit2.png"
+         IconH = "267"
+		 IconW = "151"
+  case 9 IconURL = IconBase + "oatmeal_tumbeasts/tbstand1.png"
+         IconH = "199"
+		 IconW = "247"		 
+  case 10 IconURL = IconBase + "oatmeal_tumbeasts/server.png"
+         IconH = "269"
+		 IconW = "203"
+ endselect
+
+ $submitopt("OFF","")
+ $cancelopt("OFF","")
+ $form("MsgBox")
+  $style()
+  $bstyle()
+  $table("T1",," border='0' cellspacing='0' cellpadding='0' id='AutoNumber1' width='100%' height='100%'")
+   $row()
+    $col("center","middle",,,,)$table("T2",," border='1' cellspacing='1' width='75%' id='AutoNumber2'")
+		                        $row()
+		                         $col("center",,"100%",,,`" bgcolor='" + TitleBGColor + "'"`)$ctag(`"<font color='" + TitleFGColor + "' size='5'>"`)$text(DialogTitle)$ctag("</font>")
+		                        $row()
+		                         $col(,,"100%",,," bgcolor='#FFFFFF'")$ctag("<div align='center'>")
+		                                                               $ctag("<center>")
+			                                                            $table("T3",," border='0' style='border-collapse: collapse' bordercolor='#111111' id='AutoNumber4' cellpadding='2'")
+			                                                             $row()
+			                                                             if IconURL DP and IconBase DP
+				                                                          $col("center","middle",,,,)$ctag(`"<img border='0' src='" + IconURL + "' width='" + IconW + "' height='" + IconH + "'>"`)
+			                                                             endif
+			                                                             $col(,"middle")$text(DialogMessage)
+			                                                            $endtable("T3")
+			                                                            $table("T4",," border='0' cellspacing='0' style='border-collapse: collapse' bordercolor='#111111' cellpadding='0' id='AutoNumber5'")
+			                                                             $row()
+			                                                              $col(,,,,,)$submit(ClickedButton[1],Button1)
+			                                                                         if Button2 DP
+				                                                                      $ctag("&nbsp;")$submit(ClickedButton[2],Button2)
+			                                                                         endif
+			                                                                         if Button3 DP
+				                                                                      $ctag("&nbsp;")$submit(ClickedButton[3],Button3)
+			                                                                         endif
+			                                                                         if Button4 DP
+				                                                                      $ctag("&nbsp;")$submit(ClickedButton[4],Button4)
+			                                                                         endif									 
+			                                                                         if Button5 DP
+				                                                                      $ctag("&nbsp;")$submit(ClickedButton[5],Button5)
+			                                                                         endif											 
+			                                                             if Button6 dp or button7 dp or button8 dp or button9 dp or button10 dp
+																		  $row()
+																		  $row()
+			                                                               if Button6 dp
+																		    $col(,,,,,)$submit(ClickedButton[6],Button6)
+																		   endif 
+			                                                                           if Button7 DP
+				                                                                        $ctag("&nbsp;")$submit(ClickedButton[7],Button7)
+			                                                                           endif
+			                                                                           if Button8 DP
+				                                                                        $ctag("&nbsp;")$submit(ClickedButton[8],Button8)
+			                                                                           endif
+			                                                                           if Button9 DP
+				                                                                        $ctag("&nbsp;")$submit(ClickedButton[9],Button9)
+			                                                                           endif									 
+			                                                                           if Button10 DP
+				                                                                        $ctag("&nbsp;")$submit(ClickedButton[10],Button10)
+			                                                                           endif									 
+                                                                         endif
+			                                                            $endtable("T4")
+		                                                               $ctag("</center>")
+		                                                              $ctag("</div>")
+		                        $endtable("T2")
+  $endtable("T1")
+ $sendform("MsgBox")
+ $submitopt("ON","Submit")
+ $cancelopt("ON","Cancel")
+ MsgBox = $maxarray(ClickedButton[]) 
+end MsgBox
+
+dynamic function ConfirmExit() is x
+ yes_btn  is x
+ no_btn   is x
+ $submitopt("off", "YES")
+ $cancelopt("off", "NO")
+ $form("confirm")
+  $bstyle("buttondown","button")
+  $text("{H1 align='CENTER'}ARE YOU SURE{/H1}")
+  $text("{CENTER}If you cancel now, {u}{b}{font color=red}NONE OF THE DATA{/font}{/b}{/u} will be saved!{/CENTER}",,"font-family:times new roman; font-size:14pt; color:black; font-weight:bold;")
+  $text("{CENTER}Do you wish to cancel and return to Main Menu?{/CENTER}",,"font-family:times new roman; font-size:14pt; color:darkblue; font-weight:bold;")
+  $br(2)
+  $tag("<center>")
+   $submit(yes_btn,"YES")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(no_btn,"NO")
+  $tag("</center>")
+  $sendform("confirm")
+ if $endbutton = "SUBMIT" or yes_btn = "Y" then
+  ConfirmExit = "Y"
+ endif
+end ConfirmExit
+

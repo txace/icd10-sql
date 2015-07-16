@@ -162,21 +162,21 @@ start DX_Lookup(ICD_Table,selection[])
 					                    query_txt = query_desc
 					                    $parsem(query_txt,1,",",query_txt_arr[])
 									   else
-                                        {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+                                        {"lib_DX10"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
 									   endif	
 					case "Code" if $len(query_code) > 1
 					             $clear(query_desc,query_any)
 					             query_txt = query_code
 					             query_txt_arr[1] = $replace(".","",query_txt)					                    
 								else
-                                 {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+                                 {"lib_DX10"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
 								endif 
 					case "Any" if $len(query_any) > 3
 					            $clear(query_code,query_desc)
 					            query_txt = query_any
 					            $parsem(query_txt,1,",",query_txt_arr[])
 							   else
-                                {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+                                {"lib_DX10"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
 							   endif	
 				   endselect
                    skip = 0
