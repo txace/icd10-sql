@@ -48,11 +48,16 @@ start ICD10DST()
 'record header DST will be the first DST crated and will have the number in the
 ' $nextavdst value
 
-'''''''These values MUST be Changed for your system'''''''''
- $nextavdst = xxxxx
- recordnum  = xxxxx
+'''''''Change These Values for your system'''''''''
+ $nextavdst = 28500
+ recordnum  = 28500
  $trace("path.on", "/c4/EXPORT2/trace/ICD10DST.txt")
 '''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'Let's meka sure that these values are set by the user otherwise, stop the script before it creates any DST's
+if $nextavdst !dp or recordnum !dp
+	return
+endif
 
 
 rc = $dstadd(dst, "C.DX10.RH",        "DX10 Record Header",              dbfile, "H", 0,  0,   0, recordnum)
@@ -175,7 +180,10 @@ rc = $dstadd(dst, "C.DX10.A4.NONE",   "DX10 Axis 4  None",               dbfile,
 rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 0,  2,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 0,  1,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 0,  1,   0, recordnum)
-
+rc = $dstadd(dst, "C.DX10.COMMENT",   "DX10 COMMENT",                    dbfile, "X", 0, 64,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.SNAPID",    "DX10 SNAPID",                     dbfile, "X",113, 32,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.ISN",       "DX10 ISN",                        dbfile, "X",109, 32,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 1,  8, 2088, recordnum)
 end ICD10DST
 
 
