@@ -119,13 +119,13 @@ start DX10(parmfile,option,client,retcode)
   if client dp
    $regid = client
   else
-   $regid = {"lib_UACOMMON"}GetClientID()
+   $regid = {"lib_DX10"}GetClientID()
    if $regid !dp
     return
    endif
   endif
  elseif ($regid dp and client dp) and client != $regid
-  $regid = {"lib_UACOMMON"}GetClientID()
+  $regid = {"lib_DX10"}GetClientID()
   if $regid !dp
    return
   endif
@@ -182,7 +182,7 @@ start DX10(parmfile,option,client,retcode)
                      Page = "2"
 					else
 					 Page = "1"
-					 {"lib_UACOMMON"}DisplayErrors(errors[])
+					 {"lib_DX10"}DisplayErrors(errors[])
 					endif
    case "LookUp" LookUp()
                  Page = "1"
@@ -404,7 +404,7 @@ function Page1() is null
  $submitopt("off","Save")
  $cancelopt("off","Cancel")
  $form($funcname)
- $br(){"lib_UACOMMON"}ClientPageHeader($regid)
+ $br(){"lib_DX10"}ClientPageHeader($regid)
   $br()$text("{center}ICD-10 Diagnosis Entry{/center}","H1")  
   $br()
   $table($funcname,,table_nobgcolor)
@@ -597,7 +597,7 @@ function Page2() is null
  $submitopt("off","")
  $cancelopt("off","Back")
  $form($funcname)
-  $br(){"lib_UACOMMON"}ClientPageHeader($regid)
+  $br(){"lib_DX10"}ClientPageHeader($regid)
   $br(2)$text("{center}ICD-10 Diagnosis Record{/center}","H1")
   $br()
   if addsal = "YES"

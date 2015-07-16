@@ -674,3 +674,74 @@ dynamic function ConfirmExit() is x
  endif
 end ConfirmExit
 
+function ClientPageHeader(CID) is null
+ CID  is x
+ c.fn is x
+ c.mn is x
+ c.ln is x
+ sp is x
+ sp = " "
+ 
+ if $regid dp and cid !dp
+  CID = $regid
+ endif
+ (void)$dbread(02, CID, c.fn, c.mn, c.ln)
+
+
+ $table("PageHeader",,"width='100%'")
+  $row()
+   $col("right",,"33%","1","1")$text(`"Consumer ID" + sp + sp + sp + sp`,"hdrtag")$text(CID,"hdrdate")$col(,,"25%","1","1")
+   $col(,,"42%","1","1")$text(`"Consumer Name" + sp + sp + sp + sp`,"hdrtag") $text(`c.ln + ", " + c.fn`,"hdrdate")
+   if c.mn dp
+    $text(`sp + $seg(c.mn,1,1) + "."`,"hdrdate")
+   endif
+ $endtable("PageHeader")
+ $tag("<hr/>")
+end ClientPageHeader
+
+function GetClientID() is x
+ id_length is i 
+ id_length = 6
+ select $custnumber
+  case 256 select $uc($seg($mscname,1,5))
+            case "HELEN" id_length = 6
+	        case "PECAN" id_length = 10
+           endselect
+  case 641 id_length = 10
+ endselect 
+ c.id is x
+ $clear(c.id) 
+ $submitopt("off", "NEXT")
+ $cancelopt("off", "CANCEL")
+ $form()
+  $text("{H1}Enter Client ID{/H1}")
+  $table("t1",,"width='100%'")
+   $row()$col("right",,"50%") $text("ENTER CLIENT ID: ","datatag")  
+         $col() $textbox(c.id,"DB``02",id_length,4,"Y") $editmsg(c.id)
+  $endtable("t1")
+ $sendform()
+ if $endbutton = "SUBMIT"
+  GetClientID = c.id
+ endif
+end GetClientID
+
+function DisplayErrors(errors[],HeaderYN) is null
+ errors[] is x
+ index    is i
+ HeaderYN is x
+ $submitopt("off", "")
+ $cancelopt("off", "BACK")
+ $form("errors")
+  if $uc(HeaderYN) != "N"
+   {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+  endif 
+  $text("{H1}Errors Were Found{/H1}")
+  $br()
+  $tag("<CENTER>")
+   index = 0
+   do while index++ <= $maxarray(errors[])
+    $br()$text(errors[index] , "error")
+   enddo
+  $tag("</CENTER>")
+ $sendform("errors")
+end DisplayErrors
