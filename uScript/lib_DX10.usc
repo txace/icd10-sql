@@ -745,3 +745,45 @@ function DisplayErrors(errors[],HeaderYN) is null
   $tag("</CENTER>")
  $sendform("errors")
 end DisplayErrors
+
+function report(e_ser, e_ru, e_start, e_dur, e_loc, video) is alpha
+
+'Variables
+e_ser       is binary    'EVENT SERVICE CODE
+e_ru        is binary    'EVENT RU
+e_start     is time      'EVENT START TIME
+e_dur       is time      'EVENT DURATION
+e_loc       is alpha     'EVENT LOCATION
+video       is alpha     'VIDEO CONFERENCE VARIABLE
+endtime     is time      'SERVICE ENDTIME
+
+endtime = e_start + e_dur
+$table("t1", , "border='1' cellspacing='0' width='100%'")
+
+$row(, "align='center' bgcolor='#EEEEEE'")
+$col() $text("SAC")
+$col() $text("RU")
+$col() $text("Loc")
+$col() $text("Start")
+$col() $text("Cl Dur")
+$col() $text("Staff Dur")
+$col() $text("Endtime")
+$col() $text("Video")
+  
+$row(, "align='center' bgcolor='#EEEEEE'")
+$col() $text(e_ser)
+$col() $text(e_ru)
+$col() $text(e_loc)
+$col() $text(e_start)
+$col() $text(`$format(e_dur, "HH.MM")`)
+$col() $text(`$format(e_dur, "HH.MM")`)
+$col() $text(endtime)
+$col() if video dp
+        $text(video)
+	   else
+	    $ctag("&nbsp;")
+	   endif	
+
+$endtable("t1")
+
+end report

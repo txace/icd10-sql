@@ -601,7 +601,7 @@ function Page2() is null
   $br(2)$text("{center}ICD-10 Diagnosis Record{/center}","H1")
   $br()
   if addsal = "YES"
-   {"lib_UAEVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc,video)
+   {"lib_DX10"}report(e.ser, e.ru, e.start, e.dur, e.loc,video)
    $br()
   endif
   $table($funcname,,table_nobgcolor)
