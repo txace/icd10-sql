@@ -3,6 +3,7 @@ var config = require('./config.ignore');
 
 var options = {
    sysname: '/c1/FRSH',
+   webname: '/c0/cmhcweb/cmhcbui/cmhcbuilocal/',
    connect: {
       host: 'gccmhc',
       user: 'tim',
@@ -35,3 +36,6 @@ mis.deploy.usc()
    })
    .then(mis.script.uninstallcompile);
 });
+
+mis.deploy.dir('./Resources/', options.webname + 'our_images/', 'gif', true);
+mis.deploy.dir('./Resources/oatmeal_tumbeasts/', options.webname + 'our_images/', 'png', true);
