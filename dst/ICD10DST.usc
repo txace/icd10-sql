@@ -186,13 +186,14 @@ rc = $dstadd(dst, "C.DX10.A4.HEALTH", "DX10 Axis 4  Health Care",        dbfile,
 rc = $dstadd(dst, "C.DX10.A4.LEGAL",  "DX10 Axis 4  Legal/Crime",        dbfile, "X", 1,  1,   29, recordnum)
 rc = $dstadd(dst, "C.DX10.A4.PSYENV", "DX10 Axis 4  Psy/Environment",    dbfile, "X", 1,  1,   29, recordnum)
 rc = $dstadd(dst, "C.DX10.A4.NONE",   "DX10 Axis 4  None",               dbfile, "X", 1,  1,   29, recordnum)
-rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 0,  2,   0, recordnum)
-rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 0,  1,   0, recordnum)
-rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 0,  1,   0, recordnum)
+rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 1,  8, 2085, recordnum)
+rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 1,  8, 2088, recordnum)
+rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 1,  8, 2088, recordnum)
 rc = $dstadd(dst, "C.DX10.COMMENT",   "DX10 COMMENT",                    dbfile, "X", 0, 64,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.SNAPID",    "DX10 SNAPID",                     dbfile, "X",113, 32,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.ISN",       "DX10 ISN",                        dbfile, "X",109, 32,   0, recordnum)
-rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 1,  8, 2088, recordnum)
+rc = $dstadd(dst, "C.DX10.CONVERTED", "DX9-10 Converted Record",         dbfile, "X", 1,  1,   29, recordnum)
+rc = $dstadd(dst, "C.DX10.STAT",      "DX10 STATUS",                     dbfile, "X", 1,  8, 2088, recordnum)
 end ICD10DST
 
 
