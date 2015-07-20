@@ -1,0 +1,15 @@
+{
+  "name": "icd10-sql",
+  "version": "0.0.1",
+  "description": "icd10 cmhc custom implementation",
+  "main": "deploy.js",
+  "repository": {
+    "type": "git",
+    "url": "https://gihub.com/txace/icd10-sql.git"
+  },
+  "author": "txace",
+  "license": "ISC",
+  "dependencies": {
+    "mis-util": "^0.5"
+  }
+}
