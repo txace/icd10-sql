@@ -16,10 +16,10 @@ library lib_DX10()
   o_ds        is x
   o_db        is x
   ICD10_Table is x
-  o_user = "sqltransfer"
-  o_pass = "sqltransfer"
-  o_ds	= "svrsql"
-  o_db	= "CMHC_Export"
+  o_user = "userid"
+  o_pass = "pass"
+  o_ds	= "host"
+  o_db	= "database"
  ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
  
 dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
@@ -246,23 +246,24 @@ function PreviousGaf() is x
  rc            is i
  c.dx10.rh     is h
  c.dx10.a5.gaf is b
- c.dsmiiir     is h
- c.dxaxvc      is x
+ 'c.dsmiiir     is h
+ 'c.dxaxvc      is x
+ $clear(PreviousGaf)
  rc = $dbread(2,$regid,c.dx10.rh,c.dx10.a5.gaf)
  if c.dx10.rh dp
   rc = $dbreadnextdst(2,$regid,c.dx10.rh,c.dx10.a5.gaf)
   if c.dx10.a5.gaf dp
    PreviousGaf = c.dx10.a5.gaf
-  else
-   $clear(PreviousGaf)
+  return
+  'else
   endif 
- else
-  rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
-  if c.dxaxvc dp
-   PreviousGaf = c.dxaxvc
-  else
-   $clear(PreviousGaf)
-  endif   
+ 'else
+  'rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
+  'if c.dxaxvc dp
+  ' PreviousGaf = c.dxaxvc
+  'else
+  ' $clear(PreviousGaf)
+  'endif   
  endif 
 end PreviousGaf
 
