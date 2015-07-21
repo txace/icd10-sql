@@ -9,7 +9,7 @@ ReportID is x
 '*********Change These**********
 Title    = "Diagnostic Report"
 RptTitle = Title
-ReportID = "HFCDXRPT"
+ReportID = "YOURREPORTID"
 '*******************************
 
 rc_dx10_dstlist  is i
