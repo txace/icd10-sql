@@ -9,14 +9,343 @@ start CONVICD10_9(parmfile,option,client,retcode)
  rank[]      is x
  DX10_code[] is x
  DX9_code[]  is x
+
+ $$isn.sac             is b        'ISN Service Activity Code     
+ $$isn.tm              is t        'ISN Service Time              
+ $$isn.sdur            is t        'ISN Service Staff Dur         
+ $$isn.ru              is b        'ISN Service RU                
+ $$isn.loc             is x        'ISN Service Location          
+ $$isn.pj              is b        'ISN Service Project           
+
  %include inc_DX10
- %include inc_DX
- %include inc_ISN
- %include inc_ER
+ '%include inc_DX
+ '%include inc_ER
+
+ c.dsmiiir       is h   'DSM-IIIR DIAGNOSIS RECORD      
+ c.diag          is x   'AXIS I LEVEL 1                 
+ c.dx.when       is x   'WHEN? (A=ADM,E=EST,D=DISCH)    
+ c.dx4           is x   'DSM-IV AXIS I & II CODES       
+ c.dxaxi2        is x   'AXIS I LEVEL 2                 
+ c.dxaxi3        is x   'AXIS I LEVEL 3                 
+ c.dxaxi4        is x   'AXIS I LEVEL 4                 
+ c.dxaxi5        is x   'AXIS I LEVEL 5                 
+ c.dxaxi6        is x   'AXIS I LEVEL 6                 
+ c.dxaxii1       is x   'AXIS II LEVEL 1                
+ c.dxaxii2       is x   'AXIS II LEVEL 2                
+ c.dxaxii3       is x   'AXIS II LEVEL 3                
+ c.dxaxii4       is x   'AXIS II LEVEL 4                
+ c.dxaxii5       is x   'AXIS II LEVEL 5                
+ c.dxaxii6       is x   'AXIS II LEVEL 6                
+ c.dxaxiii1      is x   'AXIS III LEVEL 1               
+ c.dxaxiii2      is x   'AXIS III LEVEL 2               
+ c.dxaxiii3      is x   'AXIS III LEVEL 3               
+ c.dxaxiii4      is x   'AXIS III LEVEL 4               
+ c.dxaxiii5      is x   'AXIS III LEVEL 5               
+ c.dxaxiii6      is x   'AXIS III LEVEL 6               
+ c.dxaxiv        is x   'AXIS IV                        
+ c.dxaxvp        is x   'AXIS V-PAST GLOBAL ASSESSMENT  
+ c.dxaxvc        is x   'AXIS V-CURRENT GLOBAL ASSESS.  
+ c.cabl          is x   'CURRENT ABL                    
+ c.pabl          is x   'POTENTIAL ABL                  
+ c.dxdate        is d   'DIAGNOSIS DATE                 
+ c.dxiiidte      is d   'AXIS III DIAGNOSIS DATE        
+ c.prdxaxis      is x   'PRINCIPAL DIAGNOSIS AXIS       
+ c.dxreason      is x   'REASON FOR DIAGNOSIS           
+ c.dx.comment    is x   'DIAGNOSIS COMMENTS             
+ c.dx.isn        is x   'DIAGNOSIS ISN REFERENCE        
+ c.dxaxiv-a      is x   'AXIS IV (01/01/95 VERSION)     
+ c.who.diag      is x   'WHO DIAGNOSED CLIENT(?)        
+ c.dx.stat       is x   'DIAGNOSIS STATUS               
+ c.dxflag        is d   'DIAGNOSIS FLAG DATE            
+ c.a1l1          is x   'AXIS I LEVEL I                 
+ c.dx.ax3        is x   'AXIS III                       
+ c.dx.ax4.a      is x   'AXIS IV A                      
+ c.dx.ser        is b   'DIAGNOSIS SERVICE CODE         
+ c.dx.time       is t   'DIAGNOSIS START TIME           
+ c.dx.dur        is t   'DIAGNOSIS DURATION             
+ c.dx.ru         is b   'DIAGNOSIS RU                   
+ c.dx.loc        is x   'DIAGNOSIS LOCATION CODE        
+ c.dx.proj       is b   'DIAGNOSIS PROJECT CODE         
+ c.dx.serv       is x   'DX SERVICE WITH COUNSELING     
+ c.dx.fill       is x   'CLIENT DSM-IV FILLER           
+ c.dx.comme      is x   'DIAGNOSIS COMMENTS             
+ c.dx.by         is x   'DIAGNOSIS MADE BY              
+ c.dx.ax4.c      is x   'DSM-IV AXIS IV LEVEL C         
+ c.dx.ax4.d      is x   'DSM-IV AXIS IV LEVEL D         
+ c.paamd         is x   'PRIMARY AAMD                   
+ c.saamd         is x   'SECONDARY AAMD                 
+ c.taamd         is x   'TERTIARY AAMD                  
+ c.genetic       is x   'GENETIC                        
+ c.c.anomal      is x   'CRANIAL ANOMALY                
+ c.sen.imp       is x   'SENSORY IMPARIAMENT            
+ c.precept       is x   'PRECEPTION                     
+ c.conv.dis      is x   'CONVULSIVE DISORDER            
+ c.psy.impa      is x   'PSYCH IMPARMENT                
+ c.motor.dy      is x   'MOTOR DYSFUCTION               
+ c.aamd.dat      is d   'AAMD DATE                      
+ c.iq.score      is x   'IQ SCORE                       
+ c.iq.date       is d   'IQ TEST DATE                   
+ c.iq.type       is x   'IQ SCORE TYPE                  
+ c.sq.score      is x   'SQ SCORE                       
+ c.sq.date       is d   'SQ TEST DATE                   
+ c.sq.type       is x   'SQ TEST TYPE                   
+ c.dx.prese      is x   'PRESENTING ISSUE               
+ c.dx.ax4.b      is x   'DSM-IV AXIS IV LEVEL B         
+ c.dx.ax4.e      is x   'DSM-IV AXIS IV LEVEL E         
+ c.dx.ax4.f      is x   'DSM-IV AXIS IV LEVEL F         
+ c.dx.ax4.g      is x   'DSM-IV AXIS IV LEVEL G         
+ c.dx.ax4.h      is x   'DSM-IV AXIS IV LEVEL H         
+ c.dx.sys        is x   'DIAGNOSIS SYSTEM               
+ c.dx.ax4.i      is x   'DSM-IV AXIS IV LEVEL I         
+ c.dx.ax4.j      is x   'DSM-IV, AXIS IV LEVEL J        
+ c.dx.needed     is x   'NEW DIAGNOSIS NEEDED FLAG
+
+ 'mapping vars
+ MAP_dsmiiir     is x
+ MAP_diag        is x
+ MAP_dx.when     is x
+ MAP_dx4         is x
+ MAP_dxaxi2      is x
+ MAP_dxaxi3      is x
+ MAP_dxaxi4      is x
+ MAP_dxaxi5      is x
+ MAP_dxaxi6      is x
+ MAP_dxaxii1     is x
+ MAP_dxaxii2     is x
+ MAP_dxaxii3     is x
+ MAP_dxaxii4     is x
+ MAP_dxaxii5     is x
+ MAP_dxaxii6     is x
+ MAP_dxaxiii1    is x
+ MAP_dxaxiii2    is x
+ MAP_dxaxiii3    is x
+ MAP_dxaxiii4    is x
+ MAP_dxaxiii5    is x
+ MAP_dxaxiii6    is x
+ MAP_dxaxiv      is x
+ MAP_dxaxvp      is x
+ MAP_dxaxvc      is x
+ MAP_cabl        is x
+ MAP_pabl        is x
+ MAP_dxdate      is x
+ MAP_dxiiidte    is x
+ MAP_prdxaxis    is x
+ MAP_dxreason    is x
+ MAP_dx.commen   is x
+ MAP_dx.isn      is x
+ MAP_dxaxiv-a    is x
+ MAP_who.diag    is x
+ MAP_dx.stat     is x
+ MAP_dxflag      is x
+ MAP_a1l1        is x
+ MAP_dx.ax3      is x
+ MAP_dx.ax4.a    is x
+ MAP_dx.ser      is x
+ MAP_dx.time     is x
+ MAP_dx.dur      is x
+ MAP_dx.ru       is x
+ MAP_dx.loc      is x
+ MAP_dx.proj     is x
+ MAP_dx.serv     is x
+ MAP_dx.fill     is x
+ MAP_dx.comme    is x
+ MAP_dx.by       is x
+ MAP_dx.ax4.c    is x
+ MAP_dx.ax4.d    is x
+ MAP_paamd       is x
+ MAP_saamd       is x
+ MAP_taamd       is x
+ MAP_genetic     is x
+ MAP_c.anomal    is x
+ MAP_sen.imp     is x
+ MAP_precept     is x
+ MAP_conv.dis    is x
+ MAP_psy.impa    is x
+ MAP_motor.dy    is x
+ MAP_aamd.dat    is x
+ MAP_iq.score    is x
+ MAP_iq.date     is x
+ MAP_iq.type     is x
+ MAP_sq.score    is x
+ MAP_sq.date     is x
+ MAP_sq.type     is x
+ MAP_dx.prese    is x
+ MAP_dx.ax4.b    is x
+ MAP_dx.ax4.e    is x
+ MAP_dx.ax4.f    is x
+ MAP_dx.ax4.g    is x
+ MAP_dx.ax4.h    is x
+ MAP_dx.sys      is x
+ MAP_dx.ax4.i    is x
+ MAP_dx.ax4.j    is x
+ MAP_dx.needed   is x
 
  if client !dp
   return
  endif
+
+ 'default the dst names
+ MAP_dsmiiir   = $varname(c.dsmiiir   )
+ MAP_diag      = $varname(c.diag      )
+ MAP_dx.when   = $varname(c.dx.when   )
+ MAP_dx4       = $varname(c.dx4       )
+ MAP_dxaxi2    = $varname(c.dxaxi2    )
+ MAP_dxaxi3    = $varname(c.dxaxi3    )
+ MAP_dxaxi4    = $varname(c.dxaxi4    )
+ MAP_dxaxi5    = $varname(c.dxaxi5    )
+ MAP_dxaxi6    = $varname(c.dxaxi6    )
+ MAP_dxaxii1   = $varname(c.dxaxii1   )
+ MAP_dxaxii2   = $varname(c.dxaxii2   )
+ MAP_dxaxii3   = $varname(c.dxaxii3   )
+ MAP_dxaxii4   = $varname(c.dxaxii4   )
+ MAP_dxaxii5   = $varname(c.dxaxii5   )
+ MAP_dxaxii6   = $varname(c.dxaxii6   )
+ MAP_dxaxiii1  = $varname(c.dxaxiii1  )
+ MAP_dxaxiii2  = $varname(c.dxaxiii2  )
+ MAP_dxaxiii3  = $varname(c.dxaxiii3  )
+ MAP_dxaxiii4  = $varname(c.dxaxiii4  )
+ MAP_dxaxiii5  = $varname(c.dxaxiii5  )
+ MAP_dxaxiii6  = $varname(c.dxaxiii6  )
+ MAP_dxaxiv    = $varname(c.dxaxiv    )
+ MAP_dxaxvp    = $varname(c.dxaxvp    )
+ MAP_dxaxvc    = $varname(c.dxaxvc    )
+ MAP_cabl      = $varname(c.cabl      )
+ MAP_pabl      = $varname(c.pabl      )
+ MAP_dxdate    = $varname(c.dxdate    )
+ MAP_dxiiidte  = $varname(c.dxiiidte  )
+ MAP_prdxaxis  = $varname(c.prdxaxis  )
+ MAP_dxreason  = $varname(c.dxreason  )
+ MAP_dx.commen = $varname(c.dx.commen )
+ MAP_dx.isn    = $varname(c.dx.isn    )
+ MAP_dxaxiv-a  = $varname(c.dxaxiv-a  )
+ MAP_who.diag  = $varname(c.who.diag  )
+ MAP_dx.stat   = $varname(c.dx.stat   )
+ MAP_dxflag    = $varname(c.dxflag    )
+ MAP_a1l1      = $varname(c.a1l1      )
+ MAP_dx.ax3    = $varname(c.dx.ax3    )
+ MAP_dx.ax4.a  = $varname(c.dx.ax4.a  )
+ MAP_dx.ser    = $varname(c.dx.ser    )
+ MAP_dx.time   = $varname(c.dx.time   )
+ MAP_dx.dur    = $varname(c.dx.dur    )
+ MAP_dx.ru     = $varname(c.dx.ru     )
+ MAP_dx.loc    = $varname(c.dx.loc    )
+ MAP_dx.proj   = $varname(c.dx.proj   )
+ MAP_dx.serv   = $varname(c.dx.serv   )
+ MAP_dx.fill   = $varname(c.dx.fill   )
+ MAP_dx.comme  = $varname(c.dx.comme  )
+ MAP_dx.by     = $varname(c.dx.by     )
+ MAP_dx.ax4.c  = $varname(c.dx.ax4.c  )
+ MAP_dx.ax4.d  = $varname(c.dx.ax4.d  )
+ MAP_paamd     = $varname(c.paamd     )
+ MAP_saamd     = $varname(c.saamd     )
+ MAP_taamd     = $varname(c.taamd     )
+ MAP_genetic   = $varname(c.genetic   )
+ MAP_c.anomal  = $varname(c.c.anomal  )
+ MAP_sen.imp   = $varname(c.sen.imp   )
+ MAP_precept   = $varname(c.precept   )
+ MAP_conv.dis  = $varname(c.conv.dis  )
+ MAP_psy.impa  = $varname(c.psy.impa  )
+ MAP_motor.dy  = $varname(c.motor.dy  )
+ MAP_aamd.dat  = $varname(c.aamd.dat  )
+ MAP_iq.score  = $varname(c.iq.score  )
+ MAP_iq.date   = $varname(c.iq.date   )
+ MAP_iq.type   = $varname(c.iq.type   )
+ MAP_sq.score  = $varname(c.sq.score  )
+ MAP_sq.date   = $varname(c.sq.date   )
+ MAP_sq.type   = $varname(c.sq.type   )
+ MAP_dx.prese  = $varname(c.dx.prese  )
+ MAP_dx.ax4.b  = $varname(c.dx.ax4.b  )
+ MAP_dx.ax4.e  = $varname(c.dx.ax4.e  )
+ MAP_dx.ax4.f  = $varname(c.dx.ax4.f  )
+ MAP_dx.ax4.g  = $varname(c.dx.ax4.g  )
+ MAP_dx.ax4.h  = $varname(c.dx.ax4.h  )
+ MAP_dx.sys    = $varname(c.dx.sys    )
+ MAP_dx.ax4.i  = $varname(c.dx.ax4.i  )
+ MAP_dx.ax4.j  = $varname(c.dx.ax4.j  )
+ MAP_dx.needed = $varname(c.dx.needed )
+
+ 'load configuration
+ getparm(parmfile)
+
+ 'map the old dx record
+ $setvarname(c.dsmiiir   , MAP_dsmiiir   )
+ $setvarname(c.diag      , MAP_diag      )
+ $setvarname(c.dx.when   , MAP_dx.when   )
+ $setvarname(c.dx4       , MAP_dx4       )
+ $setvarname(c.dxaxi2    , MAP_dxaxi2    )
+ $setvarname(c.dxaxi3    , MAP_dxaxi3    )
+ $setvarname(c.dxaxi4    , MAP_dxaxi4    )
+ $setvarname(c.dxaxi5    , MAP_dxaxi5    )
+ $setvarname(c.dxaxi6    , MAP_dxaxi6    )
+ $setvarname(c.dxaxii1   , MAP_dxaxii1   )
+ $setvarname(c.dxaxii2   , MAP_dxaxii2   )
+ $setvarname(c.dxaxii3   , MAP_dxaxii3   )
+ $setvarname(c.dxaxii4   , MAP_dxaxii4   )
+ $setvarname(c.dxaxii5   , MAP_dxaxii5   )
+ $setvarname(c.dxaxii6   , MAP_dxaxii6   )
+ $setvarname(c.dxaxiii1  , MAP_dxaxiii1  )
+ $setvarname(c.dxaxiii2  , MAP_dxaxiii2  )
+ $setvarname(c.dxaxiii3  , MAP_dxaxiii3  )
+ $setvarname(c.dxaxiii4  , MAP_dxaxiii4  )
+ $setvarname(c.dxaxiii5  , MAP_dxaxiii5  )
+ $setvarname(c.dxaxiii6  , MAP_dxaxiii6  )
+ $setvarname(c.dxaxiv    , MAP_dxaxiv    )
+ $setvarname(c.dxaxvp    , MAP_dxaxvp    )
+ $setvarname(c.dxaxvc    , MAP_dxaxvc    )
+ $setvarname(c.cabl      , MAP_cabl      )
+ $setvarname(c.pabl      , MAP_pabl      )
+ $setvarname(c.dxdate    , MAP_dxdate    )
+ $setvarname(c.dxiiidte  , MAP_dxiiidte  )
+ $setvarname(c.prdxaxis  , MAP_prdxaxis  )
+ $setvarname(c.dxreason  , MAP_dxreason  )
+ $setvarname(c.dx.commen , MAP_dx.commen )
+ $setvarname(c.dx.isn    , MAP_dx.isn    )
+ $setvarname(c.dxaxiv-a  , MAP_dxaxiv-a  )
+ $setvarname(c.who.diag  , MAP_who.diag  )
+ $setvarname(c.dx.stat   , MAP_dx.stat   )
+ $setvarname(c.dxflag    , MAP_dxflag    )
+ $setvarname(c.a1l1      , MAP_a1l1      )
+ $setvarname(c.dx.ax3    , MAP_dx.ax3    )
+ $setvarname(c.dx.ax4.a  , MAP_dx.ax4.a  )
+ $setvarname(c.dx.ser    , MAP_dx.ser    )
+ $setvarname(c.dx.time   , MAP_dx.time   )
+ $setvarname(c.dx.dur    , MAP_dx.dur    )
+ $setvarname(c.dx.ru     , MAP_dx.ru     )
+ $setvarname(c.dx.loc    , MAP_dx.loc    )
+ $setvarname(c.dx.proj   , MAP_dx.proj   )
+ $setvarname(c.dx.serv   , MAP_dx.serv   )
+ $setvarname(c.dx.fill   , MAP_dx.fill   )
+ $setvarname(c.dx.comme  , MAP_dx.comme  )
+ $setvarname(c.dx.by     , MAP_dx.by     )
+ $setvarname(c.dx.ax4.c  , MAP_dx.ax4.c  )
+ $setvarname(c.dx.ax4.d  , MAP_dx.ax4.d  )
+ $setvarname(c.paamd     , MAP_paamd     )
+ $setvarname(c.saamd     , MAP_saamd     )
+ $setvarname(c.taamd     , MAP_taamd     )
+ $setvarname(c.genetic   , MAP_genetic   )
+ $setvarname(c.c.anomal  , MAP_c.anomal  )
+ $setvarname(c.sen.imp   , MAP_sen.imp   )
+ $setvarname(c.precept   , MAP_precept   )
+ $setvarname(c.conv.dis  , MAP_conv.dis  )
+ $setvarname(c.psy.impa  , MAP_psy.impa  )
+ $setvarname(c.motor.dy  , MAP_motor.dy  )
+ $setvarname(c.aamd.dat  , MAP_aamd.dat  )
+ $setvarname(c.iq.score  , MAP_iq.score  )
+ $setvarname(c.iq.date   , MAP_iq.date   )
+ $setvarname(c.iq.type   , MAP_iq.type   )
+ $setvarname(c.sq.score  , MAP_sq.score  )
+ $setvarname(c.sq.date   , MAP_sq.date   )
+ $setvarname(c.sq.type   , MAP_sq.type   )
+ $setvarname(c.dx.prese  , MAP_dx.prese  )
+ $setvarname(c.dx.ax4.b  , MAP_dx.ax4.b  )
+ $setvarname(c.dx.ax4.e  , MAP_dx.ax4.e  )
+ $setvarname(c.dx.ax4.f  , MAP_dx.ax4.f  )
+ $setvarname(c.dx.ax4.g  , MAP_dx.ax4.g  )
+ $setvarname(c.dx.ax4.h  , MAP_dx.ax4.h  )
+ $setvarname(c.dx.sys    , MAP_dx.sys    )
+ $setvarname(c.dx.ax4.i  , MAP_dx.ax4.i  )
+ $setvarname(c.dx.ax4.j  , MAP_dx.ax4.j  )
+ $setvarname(c.dx.needed , MAP_dx.needed )
 
  rc = $dbread(2,client,dx10_dstlist)
  (void)$arrpush(leg_ax[],c.dx10.legax.1)
@@ -83,6 +412,7 @@ start CONVICD10_9(parmfile,option,client,retcode)
  (void)$arrpush(rank[],c.dx10.dxrank.16)
  (void)$arrpush(DX10_code[], c.dx10.icd10.16)
  (void)$arrpush(DX9_code[],c.dx10.icd9.16) 
+
  if c.dx10.isn dp
   rc = $dbread(9,c.dx10.isn,$$isn.sac,$$isn.tm,$$isn.sdur,$$isn.ru,$$isn.loc,$$isn.pj)
   c.dx.ser        = $$isn.sac
@@ -174,3 +504,4 @@ start CONVICD10_9(parmfile,option,client,retcode)
  $allowupdate(retcode)
 end CONVICD10_9
 
+%include inc_GetParm
