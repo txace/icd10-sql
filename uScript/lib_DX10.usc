@@ -10,12 +10,13 @@ library lib_DX10()
  %define row_color4 "bgcolor='LemonChiffon'" 
  %define col_color_multi "bgcolor='LightGrey'"
  on load do: 
-  %global o_user, o_pass, o_ds, o_db, ICD10_Table  
+  %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table
   o_user      is x
   o_pass      is x
   o_ds        is x
   o_db        is x
   ICD10_Table is x
+  ICD9_Table  is x
   o_user = "userid"
   o_pass = "pass"
   o_ds	= "host"
@@ -246,8 +247,9 @@ end DX_Uniq_Query
 
 function PreviousGaf() is x
  rc            is i
- c.dx10.rh     is h
- c.dx10.a5.gaf is b
+ 'dx10 dsts globally defined by inc_DX10
+ 'c.dx10.rh     is h
+ 'c.dx10.a5.gaf is b
  'c.dsmiiir     is h
  'c.dxaxvc      is x
  $clear(PreviousGaf)
