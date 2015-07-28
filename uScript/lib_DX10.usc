@@ -285,3 +285,243 @@ function NoDX_Lookup(axis) is x
  rc = db:q(o_sql, results)
  NoDX_Lookup = results  
 end NoDX_Lookup
+
+function getClientDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[]) is i
+ client_id   is x
+ as_of_date  is d
+ dx_rec      is h
+ dx_date     is d
+ dx_time     is t
+ dx_primary  is x
+ dx_reason   is x
+ dx10_code[] is x
+ dx_rank[]   is x
+ dx_axis[]   is x
+ dx9_code[] is x
+ 
+ if as_of_date !dp
+  as_of_date = $today
+ endif
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[])
+ getClientDx = $dbread(2,client_id,dx10_dstlist)
+ do while c.dx10.dt > as_of_date
+  getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
+ enddo
+ dx_date = c.dx10.dt
+ dx_time = c.dx10.time
+ dx_primary = c.dx10.pimary.ax
+ dx_reason = c.dx10.reason  
+ if c.dx10.uniq.1 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.1)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.1)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.1)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.1)
+ endif
+ if c.dx10.uniq.2 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.2)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.2)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.2)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.2) 
+ endif
+ if c.dx10.uniq.3 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.3)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.3)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.3)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.3) 
+ endif
+ if c.dx10.uniq.4 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.4)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.4)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.4)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.4) 
+ endif
+ if c.dx10.uniq.5 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.5)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.5)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.5)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.5) 
+ endif
+ if c.dx10.uniq.6 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.6)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.6)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.6)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.6) 
+ endif
+ if c.dx10.uniq.7 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.7)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.7)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.7)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.7) 
+ endif
+ if c.dx10.uniq.8 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.8)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.8)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.8)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.8) 
+ endif
+ if c.dx10.uniq.9 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.9)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.9)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.9)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.9) 
+ endif
+ if c.dx10.uniq.10 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.10)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.10)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.10)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.10) 
+ endif
+ if c.dx10.uniq.11 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.11)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.11)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.11)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.11) 
+ endif
+ if c.dx10.uniq.12 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.12)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.12)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.12)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.12) 
+ endif
+ if c.dx10.uniq.13 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.13)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.13)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.13)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.13) 
+ endif
+ if c.dx10.uniq.14 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.14)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.14)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.14)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.14) 
+ endif
+ if c.dx10.uniq.15 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.15)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.15)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.15)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.15) 
+ endif
+ if c.dx10.uniq.16 dp
+  (void)$arrpush(dx10_code[],c.dx10.icd10.16)
+  (void)$arrpush(dx9_code[],c.dx10.icd9.16)
+  (void)$arrpush(dx_rank[],c.dx10.dxrank.16)  
+  (void)$arrpush(dx_axis[],c.dx10.legax.16) 
+ endif
+end getClientDX  
+
+function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[]) is x
+ dx_code[] is x
+ dx_rank[] is x
+ dx_axis[] is x
+ stripdots is X
+ axis1[]   is x
+ axis2[]   is x
+ axis3[]   is x
+ rc        is i
+ index     is i
+ delim_str is x
+ rc = $sort(dx_rank[],,dx_code[],dx_axis[])
+ $clear(axis1[],axis2[],axis3[])
+ index = 0
+ do while index++ < $maxarray(dx_code[])
+  select dx_axis[index]
+   case "1" (void)$arrpush(axis1[],dx_code[index])
+   case "2" (void)$arrpush(axis2[],dx_code[index])
+   case "3" (void)$arrpush(axis3[],dx_code[index])
+  endselect 
+ enddo
+ $allowupdate(axis1[],axis2[],axis3[])
+ index = 0
+ do while index++ < $maxarray(axis1[])
+  delim_str += axis1[index] + "|"
+ enddo
+ index = 0
+ do while index++ < $maxarray(axis2[])
+  delim_str += axis2[index] + "|" 
+ enddo
+ index = 0
+ do while index++ < $maxarray(axis3[])
+  delim_str += axis3[index] + "|" 
+ enddo
+ sortDxByV4Axis = delim_str
+end sortDxByV4Axis  
+
+function getClientGaf(client_id, as_of_date, dx_rec, dx_date, dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot) is i
+ client_id  is x
+ as_of_date is d
+ dx_rec     is h
+ dx_date    is d
+ dx_gaf_cur is b
+ dx_gaf_pre is b
+ dx_abl_cur is x
+ dx_abl_pot is x
+
+ if as_of_date !dp
+  as_of_date = $today
+ endif
+ $allowupdate(dx_gaf_cur, dx_gaf_pre)
+ getClientGaf = $dbread(2,client_id,dx10_dstlist)
+ do while c.dx10.dt > as_of_date
+  getClientGaf = $dbreadnextdst(2,client_id,dx10_dstlist) 
+ enddo 
+ dx_date = c.dx10.dt
+ dx_gaf_cur = c.dx10.a5.gaf
+ dx_abl_cur = c.dx10.curr.abl
+ dx_abl_pot = c.dx10.pot.abl
+'HFC:Not sending previous, otherwise uncomment below
+ $clear(dx_gaf_pre)
+' (void)$dbreadnextdst(2,client_id,dx10_dstlist) 
+' dx_gaf_pre = c.dx10.a5.gaf  
+end getClientGaf
+
+function getClientAamd(client_id, as_of_date, dx_rec, dx_date, dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, dx_aamd_mloc, dx_aamd_msev) is i
+ client_id    is x
+ as_of_date   is d
+ dx_rec       is h
+ dx_date      is d
+ dx_aamd_date is d
+ dx_aamd_1    is x
+ dx_aamd_2    is x
+ dx_aamd_3    is x
+ dx_aamd_gen  is x
+ dx_aamd_anom is x
+ dx_aamd_sens is x
+ dx_aamd_prec is x
+ dx_aamd_conv is x
+ dx_aamd_phys is x
+ dx_aamd_moto is x
+ dx_aamd_mloc is x
+ dx_aamd_msev is x
+ if as_of_date !dp
+  as_of_date = $today
+ endif
+ getClientAamd = $dbread(2,client_id,dx10_dstlist)
+ do while c.dx10.dt > as_of_date
+  getClientAamd = $dbreadnextdst(2,client_id,dx10_dstlist) 
+ enddo 
+ $allowupdate(dx_date, dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, dx_aamd_mloc, dx_aamd_msev) 
+end getClientAamd 
+
+
+function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date) is i
+ client_id  is x
+ as_of_date is d
+ dx_rec     is h
+ dx_date    is d
+ dx_iq      is x
+ dx_iq_test is x
+ dx_iq_date is d
+ dx_sq      is x
+ dx_sq_test is x
+ dx_sq_date is d
+ if as_of_date !dp
+  as_of_date = $today
+ endif
+ getClientIq = $dbread(2,client_id,dx10_dstlist)
+ do while c.dx10.dt > as_of_date
+  getClientIq = $dbreadnextdst(2,client_id,dx10_dstlist) 
+ enddo 
+ $allowupdate(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
+
+ $clear(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
+end getClientIq
