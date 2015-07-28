@@ -10,17 +10,20 @@ library lib_DX10()
  %define row_color4 "bgcolor='LemonChiffon'" 
  %define col_color_multi "bgcolor='LightGrey'"
  on load do: 
-  %global o_user, o_pass, o_ds, o_db, ICD10_Table  
+  %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table
   o_user      is x
   o_pass      is x
   o_ds        is x
   o_db        is x
   ICD10_Table is x
+  ICD9_Table  is x
   o_user = "sqltransfer"
   o_pass = "sqltransfer"
   o_ds	= "svrsql"
   o_db	= "CMHC_Export"
  ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
+ ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
+ %include inc_DX10
  
 dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  10DOTTED         is x
@@ -244,8 +247,9 @@ end DX_Uniq_Query
 
 function PreviousGaf() is x
  rc            is i
- c.dx10.rh     is h
- c.dx10.a5.gaf is b
+ 'dx10 dsts globally defined by inc_DX10
+ 'c.dx10.rh     is h
+ 'c.dx10.a5.gaf is b
  c.dsmiiir     is h
  c.dxaxvc      is x
  rc = $dbread(2,$regid,c.dx10.rh,c.dx10.a5.gaf)
@@ -302,7 +306,7 @@ function getClientDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
  if as_of_date !dp
   as_of_date = $today
  endif
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[])
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_date, dx_time, dx_primary, dx_reason)
  getClientDx = $dbread(2,client_id,dx10_dstlist)
  do while c.dx10.dt > as_of_date
   getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
