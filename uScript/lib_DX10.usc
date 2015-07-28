@@ -681,7 +681,7 @@ function ClientPageHeader(CID) is null
  c.mn is x
  c.ln is x
  sp is x
- sp = "Â "
+ sp = " "
  
  if $regid dp and cid !dp
   CID = $regid
