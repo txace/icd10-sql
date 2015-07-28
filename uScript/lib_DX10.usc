@@ -307,7 +307,7 @@ function getClientDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
  if as_of_date !dp
   as_of_date = $today
  endif
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[])
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_date, dx_time, dx_primary, dx_reason)
  getClientDx = $dbread(2,client_id,dx10_dstlist)
  do while c.dx10.dt > as_of_date
   getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
