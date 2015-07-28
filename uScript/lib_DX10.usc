@@ -21,6 +21,8 @@ library lib_DX10()
   o_ds	= "host"
   o_db	= "database"
  ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
+ ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
+ %include inc_DX10
  
 dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  10DOTTED         is x
