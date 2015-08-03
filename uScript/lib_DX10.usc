@@ -290,7 +290,7 @@ function NoDX_Lookup(axis) is x
  NoDX_Lookup = results  
 end NoDX_Lookup
 
-function getClientDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[]) is i
+function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt) is i
  client_id   is x
  as_of_date  is d
  dx_rec      is h
@@ -301,20 +301,78 @@ function getClientDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
  dx10_code[] is x
  dx_rank[]   is x
  dx_axis[]   is x
- dx9_code[] is x
+ dx9_code[]  is x
+ dx_batchdt  is d
  
  if as_of_date !dp
   as_of_date = $today
  endif
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_date, dx_time, dx_primary, dx_reason)
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt)
  getClientDx = $dbread(2,client_id,dx10_dstlist)
  do while c.dx10.dt > as_of_date
   getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
  enddo
+ fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt)
+end getclientdx
+
+function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt) is i
+ client_id   is x
+ as_of_date  is d
+ dx_rec      is h
+ dx_date     is d
+ dx_time     is t
+ dx_primary  is x
+ dx_reason   is x
+ dx10_code[] is x
+ dx_rank[]   is x
+ dx_axis[]   is x
+ dx9_code[]  is x
+ dx_batchdt  is d
+ 
+ if as_of_date !dp
+  as_of_date = $today
+ endif
+
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt)
+
+ getClientDx = $dbread(2,client_id,dx10_dstlist)
+ do while c.dx10.dt > as_of_date
+  getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
+ enddo
+ if dx_batchdt !dp then
+   fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt)
+   do while c.dx10.caredt !dp and getUnbatchCltDx < 2
+      getUnbatchCltDx =$dbreadnextdst(2, client_id, dx10_dstlist)
+      if dx_rec dp and dx_batchdt !dp then
+         fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt)
+      endif
+   enddo
+ endif 
+
+end getUnbatchCltDx
+
+private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt) is i 
+ dx_rec      is h
+ dx_date     is d
+ dx_time     is t
+ dx_primary  is x
+ dx_reason   is x
+ dx10_code[] is x
+ dx_rank[]   is x
+ dx_axis[]   is x
+ dx9_code[]  is x
+ dx_batchdt  is d
+
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt)
+
+ dx_rec = c.dx10.rec
  dx_date = c.dx10.dt
  dx_time = c.dx10.time
  dx_primary = c.dx10.pimary.ax
  dx_reason = c.dx10.reason  
+ dx_batchdt = c.dx10.caredt
+
  if c.dx10.uniq.1 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.1)
   (void)$arrpush(dx9_code[],c.dx10.icd9.1)
@@ -411,7 +469,7 @@ function getClientDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
   (void)$arrpush(dx_rank[],c.dx10.dxrank.16)  
   (void)$arrpush(dx_axis[],c.dx10.legax.16) 
  endif
-end getClientDX  
+end fillclientdx  
 
 function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[]) is x
  dx_code[] is x
