@@ -27,10 +27,16 @@
 '    MODIFICATION LOG:
 
 
-start ICD10DST(dststart, tracefile)
+start ICD10DST(dststart, tracefile, add_dct, gaf_dct, stat_dct, axis_dct, abl_dct, reas_dct)
 '-- Arguments
 dststart   is x
 tracefile  is x
+ add_dct   is x
+ gaf_dct   is i
+ stat_dct  is i
+ axis_dct  is i
+ abl_dct   is i
+ reas_dct  is i
 '-- Local Variables
  rc        is i
  dbfile    is i     dbfile = 02    ' Client Database
@@ -57,6 +63,15 @@ tracefile  is x
    $infomsg1 = "Tracing to files: " + tracefile
    $trace("path.on", tracefile)
 endif
+ 'dct config
+ 'add_dct = "Y"
+ 'gaf_dct = 7070
+ 'stat_dct = 7071
+ 'axis_dct = 7072
+ 'abl_dct = 7073
+ 'reas_dct = 7074
+
+ 'dst config
  dststart = dststart
  $nextavdst = $castn(dststart)
  recordnum  = $castn(dststart)
@@ -68,6 +83,135 @@ if $nextavdst !dp or recordnum !dp
 	return
 endif
 
+if gaf_dct !dp or stat_dct !dp or axis_dct !dp or abl_dct !dp or reas_dct !dp then
+   $errmsg1 = "DCT Numbers Not Specified"
+endif
+
+if add_dct = "Y" then
+   rc = $adddct(gaf_dct,"DSM-IV Axis V")
+   rc = $adddcv(gaf_dctl,00,"Inadequate information")
+   rc = $adddcv(gaf_dctl,01,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,02,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,03,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,04,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,05,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,06,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,07,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,08,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,09,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,10,"Persistent danger-self/others")
+   rc = $adddcv(gaf_dctl,11,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,12,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,13,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,14,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,15,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,16,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,17,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,18,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,19,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,20,"Some danger to self/others")
+   rc = $adddcv(gaf_dctl,21,"Serious impairment")
+   rc = $adddcv(gaf_dctl,22,"Serious impairment")
+   rc = $adddcv(gaf_dctl,23,"Serious impairment")
+   rc = $adddcv(gaf_dctl,24,"Serious impairment")
+   rc = $adddcv(gaf_dctl,25,"Serious impairment")
+   rc = $adddcv(gaf_dctl,26,"Serious impairment")
+   rc = $adddcv(gaf_dctl,27,"Serious impairment")
+   rc = $adddcv(gaf_dctl,28,"Serious impairment")
+   rc = $adddcv(gaf_dctl,29,"Serious impairment")
+   rc = $adddcv(gaf_dctl,30,"Serious impairment")
+   rc = $adddcv(gaf_dctl,31,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,32,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,33,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,34,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,35,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,36,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,37,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,38,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,39,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,40,"Impaired reality testing")
+   rc = $adddcv(gaf_dctl,41,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,42,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,43,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,44,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,45,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,46,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,47,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,48,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,49,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,50,"Serious symptoms")
+   rc = $adddcv(gaf_dctl,51,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,52,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,53,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,54,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,55,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,56,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,57,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,58,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,59,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,60,"Moderate symptoms")
+   rc = $adddcv(gaf_dctl,61,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,62,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,63,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,64,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,65,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,66,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,67,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,68,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,69,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,70,"Mild symptoms")
+   rc = $adddcv(gaf_dctl,71,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,72,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,73,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,74,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,75,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,76,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,77,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,78,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,79,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,80,"Transient symptoms")
+   rc = $adddcv(gaf_dctl,81,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,82,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,83,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,84,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,85,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,86,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,87,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,88,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,89,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,90,"Absent or minimal symptoms")
+   rc = $adddcv(gaf_dctl,91,"Superior functioning")
+   rc = $adddcv(gaf_dctl,92,"Superior functioning")
+   rc = $adddcv(gaf_dctl,93,"Superior functioning")
+   rc = $adddcv(gaf_dctl,94,"Superior functioning")
+   rc = $adddcv(gaf_dctl,95,"Superior functioning")
+   rc = $adddcv(gaf_dctl,96,"Superior functioning")
+   rc = $adddcv(gaf_dctl,97,"Superior functioning")
+   rc = $adddcv(gaf_dctl,98,"Superior functioning")
+   rc = $adddcv(gaf_dctl,99,"Superior functioning")
+   rc = $adddcv(gaf_dctl,100,"Superior functioning")
+   
+   rc = $adddct(stat_dct,"Diagnosis Status")
+   rc = $adddcv(stat_dct,C,"Confirmed")
+   rc = $adddcv(stat_dct,P,"Provisional")
+   
+   rc = $adddct(axis_dct,"Axis of Principal Diagnosis")
+   rc = $adddcv(axis_dct,1,"Axis I")
+   rc = $adddcv(axis_dct,2,"Axis II")
+   
+   rc = $adddct(abl_dct,"MR ABL")
+   rc = $adddcv(abl_dct,0,"Not Retarded")
+   rc = $adddcv(abl_dct,1,"Mild")
+   rc = $adddcv(abl_dct,2,"Moderate")
+   rc = $adddcv(abl_dct,3,"Severe")
+   rc = $adddcv(abl_dct,4,"Profound")
+   
+   rc = $adddct(reas_dct,"REASON FOR DIAGNOSIS")
+   rc = $adddcv(reas_dct,1,"ADMISSION/PROVISIONAL")
+   rc = $adddcv(reas_dct,2,"REEVALUATION")
+   rc = $adddcv(reas_dct,3,"DEATH")
+   rc = $adddcv(reas_dct,4,"DISCHARGE")
+endif
 
 rc = $dstadd(dst, "C.DX10.RH",        "DX10 Record Header",              dbfile, "H", 0,  0,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.STAFF",     "DX10 Diagnosing Staff",           dbfile, "X", 3,  8,   0, recordnum)
@@ -77,9 +221,9 @@ rc = $dstadd(dst, "C.DX10.TIME",      "DX10 Time",                       dbfile,
 rc = $dstadd(dst, "C.DX10.ENTDT",     "DX10 Entry Date",                 dbfile, "D", 0, 10,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.ENTTM",     "DX10 Entry Time",                 dbfile, "T", 0,  7,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.CAREDT",    "DX10 CARE Date",                  dbfile, "D", 0, 10,   0, recordnum)
-rc = $dstadd(dst, "C.DX10.REASON",    "DX10 Reason for Diagnosis",       dbfile, "X", 1,  1,  55, recordnum)
+rc = $dstadd(dst, "C.DX10.REASON",    "DX10 Reason for Diagnosis",       dbfile, "X", 1,  1,  reas_dct, recordnum)
 rc = $dstadd(dst, "C.DX10.EXPIRE",    "DX10 Expire Date",                dbfile, "D", 0, 10,   0, recordnum)
-rc = $dstadd(dst, "C.DX10.PIMARY.AX", "DX10 Axis of Primary Diagnosis",  dbfile, "X", 1,  1,2087, recordnum)
+rc = $dstadd(dst, "C.DX10.PIMARY.AX", "DX10 Axis of Primary Diagnosis",  dbfile, "X", 1,  1, axis_dct, recordnum)
 rc = $dstadd(dst, "C.DX10.ICD10.1",   "DX10 ICD10 Code Lev 1",           dbfile, "X", 0,  8,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.ICD9.1",    "DX10 ICD9 Code Lev 1",            dbfile, "X", 0,  6,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.LEGAX.1",   "DX10 Legacy Axis Lev 1",          dbfile, "X", 0,  1,   0, recordnum)
@@ -186,16 +330,12 @@ rc = $dstadd(dst, "C.DX10.A4.HEALTH", "DX10 Axis 4  Health Care",        dbfile,
 rc = $dstadd(dst, "C.DX10.A4.LEGAL",  "DX10 Axis 4  Legal/Crime",        dbfile, "X", 1,  1,   29, recordnum)
 rc = $dstadd(dst, "C.DX10.A4.PSYENV", "DX10 Axis 4  Psy/Environment",    dbfile, "X", 1,  1,   29, recordnum)
 rc = $dstadd(dst, "C.DX10.A4.NONE",   "DX10 Axis 4  None",               dbfile, "X", 1,  1,   29, recordnum)
-rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 1,  8, 2085, recordnum)
-rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 1,  8, 2088, recordnum)
-rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 1,  8, 2088, recordnum)
+rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 1,  8, gaf_dct, recordnum)
+rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 1,  8, abl_dct, recordnum)
+rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 1,  8, abl_dct, recordnum)
 rc = $dstadd(dst, "C.DX10.COMMENT",   "DX10 COMMENT",                    dbfile, "X", 0, 64,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.SNAPID",    "DX10 SNAPID",                     dbfile, "X",113, 32,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.ISN",       "DX10 ISN",                        dbfile, "X",109, 32,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.CONVERTED", "DX9-10 Converted Record",         dbfile, "X", 1,  1,   29, recordnum)
-rc = $dstadd(dst, "C.DX10.STAT",      "DX10 STATUS",                     dbfile, "X", 1,  8, 2088, recordnum)
+rc = $dstadd(dst, "C.DX10.STAT",      "DX10 STATUS",                     dbfile, "X", 1,  8, stat_dct, recordnum)
 end ICD10DST
-
-
- 
- 
