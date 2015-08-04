@@ -1,0 +1,119 @@
+DESC|2085|DSM-IV Axis V|
+CODE|2085|00|A|Inadequate information||||
+CODE|2085|01|A|Persistent danger-self/others||||
+CODE|2085|02|A|Persistent danger-self/others||||
+CODE|2085|03|A|Persistent danger-self/others||||
+CODE|2085|04|A|Persistent danger-self/others||||
+CODE|2085|05|A|Persistent danger-self/others||||
+CODE|2085|06|A|Persistent danger-self/others||||
+CODE|2085|07|A|Persistent danger-self/others||||
+CODE|2085|08|A|Persistent danger-self/others||||
+CODE|2085|09|A|Persistent danger-self/others||||
+CODE|2085|10|A|Persistent danger-self/others||||
+CODE|2085|100|A|Superior functioning||||
+CODE|2085|11|A|Some danger to self/others||||
+CODE|2085|12|A|Some danger to self/others||||
+CODE|2085|13|A|Some danger to self/others||||
+CODE|2085|14|A|Some danger to self/others||||
+CODE|2085|15|A|Some danger to self/others||||
+CODE|2085|16|A|Some danger to self/others||||
+CODE|2085|17|A|Some danger to self/others||||
+CODE|2085|18|A|Some danger to self/others||||
+CODE|2085|19|A|Some danger to self/others||||
+CODE|2085|20|A|Some danger to self/others||||
+CODE|2085|21|A|Serious impairment||||
+CODE|2085|22|A|Serious impairment||||
+CODE|2085|23|A|Serious impairment||||
+CODE|2085|24|A|Serious impairment||||
+CODE|2085|25|A|Serious impairment||||
+CODE|2085|26|A|Serious impairment||||
+CODE|2085|27|A|Serious impairment||||
+CODE|2085|28|A|Serious impairment||||
+CODE|2085|29|A|Serious impairment||||
+CODE|2085|30|A|Serious impairment||||
+CODE|2085|31|A|Impaired reality testing||||
+CODE|2085|32|A|Impaired reality testing||||
+CODE|2085|33|A|Impaired reality testing||||
+CODE|2085|34|A|Impaired reality testing||||
+CODE|2085|35|A|Impaired reality testing||||
+CODE|2085|36|A|Impaired reality testing||||
+CODE|2085|37|A|Impaired reality testing||||
+CODE|2085|38|A|Impaired reality testing||||
+CODE|2085|39|A|Impaired reality testing||||
+CODE|2085|40|A|Impaired reality testing||||
+CODE|2085|41|A|Serious symptoms||||
+CODE|2085|42|A|Serious symptoms||||
+CODE|2085|43|A|Serious symptoms||||
+CODE|2085|44|A|Serious symptoms||||
+CODE|2085|45|A|Serious symptoms||||
+CODE|2085|46|A|Serious symptoms||||
+CODE|2085|47|A|Serious symptoms||||
+CODE|2085|48|A|Serious symptoms||||
+CODE|2085|49|A|Serious symptoms||||
+CODE|2085|50|A|Serious symptoms||||
+CODE|2085|51|A|Moderate symptoms||||
+CODE|2085|52|A|Moderate symptoms||||
+CODE|2085|53|A|Moderate symptoms||||
+CODE|2085|54|A|Moderate symptoms||||
+CODE|2085|55|A|Moderate symptoms||||
+CODE|2085|56|A|Moderate symptoms||||
+CODE|2085|57|A|Moderate symptoms||||
+CODE|2085|58|A|Moderate symptoms||||
+CODE|2085|59|A|Moderate symptoms||||
+CODE|2085|60|A|Moderate symptoms||||
+CODE|2085|61|A|Mild symptoms||||
+CODE|2085|62|A|Mild symptoms||||
+CODE|2085|63|A|Mild symptoms||||
+CODE|2085|64|A|Mild symptoms||||
+CODE|2085|65|A|Mild symptoms||||
+CODE|2085|66|A|Mild symptoms||||
+CODE|2085|67|A|Mild symptoms||||
+CODE|2085|68|A|Mild symptoms||||
+CODE|2085|69|A|Mild symptoms||||
+CODE|2085|70|A|Mild symptoms||||
+CODE|2085|71|A|Transient symptoms||||
+CODE|2085|72|A|Transient symptoms||||
+CODE|2085|73|A|Transient symptoms||||
+CODE|2085|74|A|Transient symptoms||||
+CODE|2085|75|A|Transient symptoms||||
+CODE|2085|76|A|Transient symptoms||||
+CODE|2085|77|A|Transient symptoms||||
+CODE|2085|78|A|Transient symptoms||||
+CODE|2085|79|A|Transient symptoms||||
+CODE|2085|80|A|Transient symptoms||||
+CODE|2085|81|A|Absent or minimal symptoms||||
+CODE|2085|82|A|Absent or minimal symptoms||||
+CODE|2085|83|A|Absent or minimal symptoms||||
+CODE|2085|84|A|Absent or minimal symptoms||||
+CODE|2085|85|A|Absent or minimal symptoms||||
+CODE|2085|86|A|Absent or minimal symptoms||||
+CODE|2085|87|A|Absent or minimal symptoms||||
+CODE|2085|88|A|Absent or minimal symptoms||||
+CODE|2085|89|A|Absent or minimal symptoms||||
+CODE|2085|90|A|Absent or minimal symptoms||||
+CODE|2085|91|A|Superior functioning||||
+CODE|2085|92|A|Superior functioning||||
+CODE|2085|93|A|Superior functioning||||
+CODE|2085|94|A|Superior functioning||||
+CODE|2085|95|A|Superior functioning||||
+CODE|2085|96|A|Superior functioning||||
+CODE|2085|97|A|Superior functioning||||
+CODE|2085|98|A|Superior functioning||||
+CODE|2085|99|A|Superior functioning||||
+DESC|2088|Diagnosis Status|
+CODE|2088|C|A|Confirmed||||
+CODE|2088|P|A|Provisional||||
+DESC|2087|Axis of Principal Diagnosis|
+CODE|2087|1|A|Axis I||||
+CODE|2087|2|A|Axis II||||
+DESC|9104|MR ABL|
+CODE|9104|0|A|Not Retarded||||
+CODE|9104|1|A|Mild||||
+CODE|9104|2|A|Moderate||||
+CODE|9104|3|A|Severe||||
+CODE|9104|4|A|Profound||||
+DESC|301|REASON FOR DIAGNOSIS|
+CODE|301|1|A|ADMISSION/PROVISIONAL||||
+CODE|301|2|A|REEVALUATION||||
+CODE|301|3|A|DEATH||||
+CODE|301|4|A|DISCHARGE||||
