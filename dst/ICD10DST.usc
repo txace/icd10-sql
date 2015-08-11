@@ -27,16 +27,27 @@
 '    MODIFICATION LOG:
 
 
-start ICD10DST(dststart, tracefile)
+start ICD10DST(dststart, tracefile, gaf_arg, stat_arg, axis_arg, abl_arg, reas_arg)
 '-- Arguments
 dststart   is x
 tracefile  is x
+ gaf_arg   is x
+ stat_arg  is x
+ axis_arg  is x
+ abl_arg   is x
+ reas_arg  is x
 '-- Local Variables
  rc        is i
  dbfile    is i     dbfile = 02    ' Client Database
  dst       is n
  recordnum is n
  info[]	   is x
+ gaf_dct   is i
+ stat_dct  is i
+ axis_dct  is i
+ abl_dct   is i
+ reas_dct  is i
+
 
 '$nextavdst
 'This is the starting number of the DST's that will be added.  While a
@@ -60,6 +71,17 @@ endif
  dststart = dststart
  $nextavdst = $castn(dststart)
  recordnum  = $castn(dststart)
+
+' set the dcts
+ if gaf_arg !dp or stat_arg !dp or axis_arg !dp or abl_arg !dp or reas_arg !dp then
+    $infomsg1 = "Missing DCT Mappings"
+    return
+ endif
+ gaf_dct = $castn(gaf_arg)
+ stat_dct = $castn(stat_arg)
+ axis_dct = $castn(axis_arg)
+ abl_dct = $castn(abl_arg)
+ reas_dct = $castn(reas_arg)
 '''''''''''''''''''''''''''''''''''''''''''''''''''
 
 'Let's meka sure that these values are set by the user otherwise, stop the script before it creates any DST's
@@ -77,9 +99,9 @@ rc = $dstadd(dst, "C.DX10.TIME",      "DX10 Time",                       dbfile,
 rc = $dstadd(dst, "C.DX10.ENTDT",     "DX10 Entry Date",                 dbfile, "D", 0, 10,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.ENTTM",     "DX10 Entry Time",                 dbfile, "T", 0,  7,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.CAREDT",    "DX10 CARE Date",                  dbfile, "D", 0, 10,   0, recordnum)
-rc = $dstadd(dst, "C.DX10.REASON",    "DX10 Reason for Diagnosis",       dbfile, "X", 1,  1,  55, recordnum)
+rc = $dstadd(dst, "C.DX10.REASON",    "DX10 Reason for Diagnosis",       dbfile, "X", 1,  1, reas_dct, recordnum)
 rc = $dstadd(dst, "C.DX10.EXPIRE",    "DX10 Expire Date",                dbfile, "D", 0, 10,   0, recordnum)
-rc = $dstadd(dst, "C.DX10.PIMARY.AX", "DX10 Axis of Primary Diagnosis",  dbfile, "X", 1,  1,2087, recordnum)
+rc = $dstadd(dst, "C.DX10.PIMARY.AX", "DX10 Axis of Primary Diagnosis",  dbfile, "X", 1,  1, axis_dct, recordnum)
 rc = $dstadd(dst, "C.DX10.ICD10.1",   "DX10 ICD10 Code Lev 1",           dbfile, "X", 0,  8,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.ICD9.1",    "DX10 ICD9 Code Lev 1",            dbfile, "X", 0,  6,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.LEGAX.1",   "DX10 Legacy Axis Lev 1",          dbfile, "X", 0,  1,   0, recordnum)
@@ -186,16 +208,12 @@ rc = $dstadd(dst, "C.DX10.A4.HEALTH", "DX10 Axis 4  Health Care",        dbfile,
 rc = $dstadd(dst, "C.DX10.A4.LEGAL",  "DX10 Axis 4  Legal/Crime",        dbfile, "X", 1,  1,   29, recordnum)
 rc = $dstadd(dst, "C.DX10.A4.PSYENV", "DX10 Axis 4  Psy/Environment",    dbfile, "X", 1,  1,   29, recordnum)
 rc = $dstadd(dst, "C.DX10.A4.NONE",   "DX10 Axis 4  None",               dbfile, "X", 1,  1,   29, recordnum)
-rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 1,  8, 2085, recordnum)
-rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 1,  8, 2088, recordnum)
-rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 1,  8, 2088, recordnum)
+rc = $dstadd(dst, "C.DX10.A5.GAF",    "DX10 Axis 5 GAF",                 dbfile, "B", 0,  8,    0, recordnum)
+rc = $dstadd(dst, "C.DX10.CURR.ABL",  "DX10 Current ABL",                dbfile, "X", 1,  8, abl_dct, recordnum)
+rc = $dstadd(dst, "C.DX10.POT.ABL",   "DX10 Potential ABL",              dbfile, "X", 1,  8, abl_dct, recordnum)
 rc = $dstadd(dst, "C.DX10.COMMENT",   "DX10 COMMENT",                    dbfile, "X", 0, 64,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.SNAPID",    "DX10 SNAPID",                     dbfile, "X",113, 32,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.ISN",       "DX10 ISN",                        dbfile, "X",109, 32,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.CONVERTED", "DX9-10 Converted Record",         dbfile, "X", 1,  1,   29, recordnum)
-rc = $dstadd(dst, "C.DX10.STAT",      "DX10 STATUS",                     dbfile, "X", 1,  8, 2088, recordnum)
+rc = $dstadd(dst, "C.DX10.STAT",      "DX10 STATUS",                     dbfile, "X", 1,  8, stat_dct, recordnum)
 end ICD10DST
-
-
- 
- 
