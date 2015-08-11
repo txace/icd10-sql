@@ -13,9 +13,16 @@ start CONVICD10_9(parmfile,option,client,retcode)
  rank[]      is x
  DX10_code[] is x
  DX9_code[]  is x
+
+ $$isn.sac   is b
+ $$isn.tm    is t
+ $$isn.sdur  is t
+ $$isn.ru    is b
+ $$isn.loc   is x
+ $$isn.pj    is b
+
  %include inc_DX10
  %include inc_DX
- %include inc_ISN
  %include inc_ER
 
  if client !dp
