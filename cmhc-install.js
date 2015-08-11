@@ -26,7 +26,7 @@ var options = {
 
 var mis = util(options);
 
-mis.script.runonce('./dst/ICD10DST.usc', [30300, "/c1/FRSH/P/icd10.trace"])
+mis.script.runonce('./dst/ICD10DST.usc', [30300, "/c1/FRSH/P/icd10.trace", "2085", "2088", "2087", "9104", "301"])
 .then(function() {
 return mis.deploy.usc()
 .then(function(scripts) { 
