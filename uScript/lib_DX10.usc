@@ -163,7 +163,7 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
 			      query_txt = query_any
 			      $parsem(query_txt,1,",",query_txt_arr[])
 				 else
-                  {"lib_COMMON"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
+                  {"lib_txaceUI"}msgbox("Please enter a longer search term",1,"Alert","Ok")									   											
 			     endif	
                  skip = 0
 				 cnt_query = $maxarray(query_txt_arr[])
