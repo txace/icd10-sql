@@ -261,12 +261,13 @@ function PreviousGaf() is x
    $clear(PreviousGaf)
   endif 
  else
-  rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
-  if c.dxaxvc dp
-   PreviousGaf = c.dxaxvc
-  else
-   $clear(PreviousGaf)
-  endif   
+  'skip the reading of the gaf from the legacy dx record
+  'rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
+  'if c.dxaxvc dp
+  ' PreviousGaf = c.dxaxvc
+  'else
+  ' $clear(PreviousGaf)
+  'endif   
  endif 
 end PreviousGaf
 
@@ -336,14 +337,14 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
 
  $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt)
 
- getClientDx = $dbread(2,client_id,dx10_dstlist)
+ getUnbatchCltDx = $dbread(2,client_id,dx10_dstlist)
  do while c.dx10.dt > as_of_date
-  getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
+  getUnbatchCltDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
  enddo
  if dx_batchdt !dp then
    fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt)
    do while c.dx10.caredt !dp and getUnbatchCltDx < 2
-      getUnbatchCltDx =$dbreadnextdst(2, client_id, dx10_dstlist)
+      getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
       if dx_rec dp and dx_batchdt !dp then
          fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt)
       endif
@@ -353,7 +354,7 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
 end getUnbatchCltDx
 
 private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt) is i 
- dx_rec      is h
+ dx_rec      is n
  dx_date     is d
  dx_time     is t
  dx_primary  is x
@@ -366,7 +367,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
 
  $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt)
 
- dx_rec = c.dx10.rec
+ dx_rec = $castn(c.dx10.rh)
  dx_date = c.dx10.dt
  dx_time = c.dx10.time
  dx_primary = c.dx10.pimary.ax
