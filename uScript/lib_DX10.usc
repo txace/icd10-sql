@@ -261,12 +261,13 @@ function PreviousGaf() is x
    $clear(PreviousGaf)
   endif 
  else
-  rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
-  if c.dxaxvc dp
-   PreviousGaf = c.dxaxvc
-  else
-   $clear(PreviousGaf)
-  endif   
+  'skip the reading of the gaf from the legacy dx record
+  'rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
+  'if c.dxaxvc dp
+  ' PreviousGaf = c.dxaxvc
+  'else
+  ' $clear(PreviousGaf)
+  'endif   
  endif 
 end PreviousGaf
 
