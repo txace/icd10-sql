@@ -6,7 +6,6 @@ start DX10(parmfile,option,client,retcode)
  retcode  is i
  rc       is i
  %include inc_DX10
- %include inc_ER
  %include inc_ISN
  %global bgcolor
  bgcolor is x
@@ -114,6 +113,13 @@ start DX10(parmfile,option,client,retcode)
  video              is x
  PULLFW             is x
  PULLABLFW          is x
+
+ 'event vars
+ e.ser              is b
+ e.ru               is b
+ e.start            is t
+ e.dur              is t
+ e.loc              is x
 
  Page = "OnLoad"
  if $regid !dp
