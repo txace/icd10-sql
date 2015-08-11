@@ -1,3 +1,7 @@
+' Covert ICD10 records to legacy ICD9 record
+
+%version 0.0.0 08/11/2015 txace 
+
 start CONVICD10_9(parmfile,option,client,retcode) 
  parmfile    is x
  option      is x
