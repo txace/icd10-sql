@@ -23,7 +23,6 @@ start CONVICD10_9(parmfile,option,client,retcode)
 
  %include inc_DX10
  %include inc_DX
- %include inc_ER
 
  if client !dp
   return
