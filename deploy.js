@@ -2,15 +2,15 @@ var util = require('mis-util');
 var config = require('./config.ignore');
 
 var options = {
-   sysname: '/c1/FRSH',
-   webname: '/c0/cmhcweb/cmhcbui/cmhcbuilocal/',
+   sysname: config.sysname,
+   webname: config.webname,
    connect: {
-      host: 'gccmhc',
-      user: 'tim',
+      host: config.host,
+      user: config.name,
       password: config.user
    },
    cron: {
-      user: 'datamgr',
+      user: config.cronname,
       pass: config.cron
    },
    view_path: {

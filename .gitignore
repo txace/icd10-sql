@@ -1,0 +1,9 @@
+build/
+[Bb]in/
+[Oo]bj/
+*.log
+~$*
+*~
+*.ignore
+*ignore*
+node_modules
