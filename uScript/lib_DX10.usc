@@ -17,14 +17,31 @@ library lib_DX10()
   o_db        is x
   ICD10_Table is x
   ICD9_Table  is x
-  o_user = "sqltransfer"
-  o_pass = "sqltransfer"
-  o_ds	= "svrsql"
-  o_db	= "CMHC_Export"
- ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
- ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
+ ' o_user = "sqltransfer"
+ ' o_pass = "sqltransfer"
+ ' o_ds	= "svrsql"
+ ' o_db	= "CMHC_Export"
+ 'ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
+ 'ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
  %include inc_DX10
  
+dynamic function Set_Sql(user, pass, host, db, icd10, icd9) is null
+ 
+ user             is x
+ pass             is x
+ host             is x
+ db               is x
+ icd10            is x
+ icd9             is x
+
+ o_user = user
+ o_pass = pass
+ o_ds = host
+ o_db = db
+ ICD10_TABLE = icd10
+ ICD9_TABLE = icd9
+end set_sql
+
 dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  10DOTTED         is x
  9DOTTED          is x

@@ -1,0 +1,38 @@
+* Example DX10 Script Parmfile configuration
+*
+* show the dsm 4 axis table
+SHOWLEGAX Y
+* use the dot notation for icd 9 codes
+9DOTTED Y
+* use the dot notation for icd 10 codes
+10DOTTED Y
+* 
+* convert the new icd 10 record back to your old icd 9 record
+* requires CONVICD10_9 script
+CONVLEGC N
+*
+* allow user to be prompted to pull forward the last icd 10 
+* record into a new record
+PULLFW Y
+*
+* not currently implemented
+PULLABLFW Y
+*
+* not currently implemented
+dxservice N
+* 
+* default form values
+* set the record status to C = Confirmed
+c_dx10_stat C
+*
+* sql connection settings
+o_user sqluser
+o_pass sqlpass
+o_ds sqlhost
+o_db sqldb
+*
+* Snapshot settings
+Title Diagnostic Report
+RptTitle Diagnostic Report
+ReportID IRMSDXREPORTID
+

@@ -1,4 +1,5 @@
-start DX_Lookup(ICD_Table,selection[])
+start DX_Lookup(parmfile, ICD_Table,selection[])
+ parmfile         is x
  search_field     is x
  rc				  is i
  last_query       is x
@@ -49,12 +50,14 @@ start DX_Lookup(ICD_Table,selection[])
 
  $looplimit = 0
 ' query_txt = "bipolar,without,psychotic" 
- o_user = "sqltransfer"
- o_pass = "sqltransfer"
- o_ds	= "svrsql"
- o_db	= "CMHC_Export"
+ o_user = "sqluser"
+ o_pass = "sqlpass"
+ o_ds	= "sqlhost"
+ o_db	= "sqldb"
  ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
  ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
+
+ getparm(parmfile)
  
  rc = $loadlib(db, "LIB-freetds")
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
@@ -239,3 +242,5 @@ start DX_Lookup(ICD_Table,selection[])
   endselect
  enddo
 end DX_Lookup 
+
+%include inc_GetParm
