@@ -2,14 +2,14 @@ var util = require('mis-util');
 var config = require('./config.ignore');
 
 var options = {
-   sysname: '/c1/FRSH',
+   sysname: config.sysname,
    connect: {
-      host: 'gccmhc',
-      user: 'tim',
+      host: config.host,
+      user: config.name,
       password: config.user
    },
    cron: {
-      user: 'datamgr',
+      user: config.cronname,
       pass: config.cron
    },
    view_path: {
@@ -26,7 +26,8 @@ var options = {
 
 var mis = util(options);
 
-mis.script.runonce('./dst/ICD10DST.usc', [30300, "/c1/FRSH/P/icd10.trace", "2085", "2088", "2087", "9104", "301"])
+mis.script.runonce('./dst/ICD10DST.usc', [config.scripts.dststart, config.scripts.trace, config.scripts.gaf_dct, 
+      config.scripts.status_dct, config.scripts.parmary_axis_dct, config.scritps.abl_dct, config.scripts.reason_dct])
 .then(function() {
 return mis.deploy.usc()
 .then(function(scripts) { 

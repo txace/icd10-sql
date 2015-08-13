@@ -6,7 +6,6 @@ start DX10(parmfile,option,client,retcode)
  retcode  is i
  rc       is i
  %include inc_DX10
- %include inc_ISN
  %global bgcolor
  bgcolor is x
  bgcolor = "white"
@@ -17,7 +16,7 @@ start DX10(parmfile,option,client,retcode)
  %define row_color3 "bgcolor='PaleGreen'"
  %define row_color4 "bgcolor='LemonChiffon'" 
  %define col_color_multi "bgcolor='LightGrey'"  
- %global parmfile,option,client,retcode
+ %global client,retcode
  %global SHOWLEGAX,10DOTTED,9DOTTED,CONVLEGC,PULLFW,PULLABLFW
  %global UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,EffDt,EndDt
  %global Selection,index ,lookup_btn,up_btn,down_btn,delete_btn
@@ -121,6 +120,12 @@ start DX10(parmfile,option,client,retcode)
  e.dur              is t
  e.loc              is x
 
+ 'snapshot variables
+ Title              is x
+ RptTitle           is x
+ ReportID           is x
+ %global ReportID,RptTitle,Title
+
  Page = "OnLoad"
  if $regid !dp
   if client dp
@@ -193,7 +198,7 @@ start DX10(parmfile,option,client,retcode)
 					endif
    case "LookUp" LookUp()
                  Page = "1"
-   case "OnLoad" OnLoad()
+   case "OnLoad" OnLoad(parmfile, option)
                  Page = "1"
    case "SaveData" select SaveData()
                     case "0" Page = "Exit"
@@ -209,32 +214,57 @@ start DX10(parmfile,option,client,retcode)
  enddo
 end DX10
 
-function Onload() is null
- rc is i
+%include inc_GetParm
+%include inc_GetOption
+
+function Onload(parmfile, option) is null
+ parmfile      is x
+ option        is x
+ rc            is i
+
+  'set up the library too
+  o_user      is x
+  o_pass      is x
+  o_ds        is x
+  o_db        is x
+  ICD10_Table is x
+  ICD9_Table  is x
+ ' o_user = "sqltransfer"
+ ' o_pass = "sqltransfer"
+ ' o_ds	= "svrsql"
+ ' o_db	= "CMHC_Export"
+ ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
+ ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
 '***Parmfile releated/etc
+ 'set script defaults
  SHOWLEGAX = "Y"
  9DOTTED   = "Y"
  10DOTTED  = "Y"
  CONVLEGC  = "N"
  PULLFW    = "Y"
  PULLABLFW = "Y"
- if parmfile dp 
-  (void)$getparm(,parmfile,"SHOWLEGAX",SHOWLEGAX)    
-  (void)$getparm(,parmfile,"9DOTTED",9DOTTED)    
-  (void)$getparm(,parmfile,"10DOTTED",10DOTTED)    
-  (void)$getparm(,parmfile,"CONVLEGC",CONVLEGC)      
-  (void)$getparm(,parmfile,"PULLFW",PULLFW)          
-  (void)$getparm(,parmfile,"PULLABLFW",PULLABLFW)          
- endif
+ dxservice = "N"
+ c_dx10_stat = "C"
+
+ Title    = "Diagnostic Report"
+ RptTitle = Title
+ ReportID = "IRMSDXREPORTID"
+
+ 'read in the parm and option settings
+ getparm(parmfile)
+ getoption(option)
+
  SHOWLEGAX = $uc(SHOWLEGAX)
  9DOTTED   = $uc(9DOTTED)
  10DOTTED   = $uc(10DOTTED)
  CONVLEGC  = $uc(CONVLEGC)
  PULLFW    = $uc(PULLFW)
  PULLABLFW = $uc(PULLABLFW)
- dxservice = "N"
- c_dx10_stat = "C"
+ dxservice = $uc(dxservice)
+ c_dx10_stat = $uc(c_dx10_stat)
+
 '********************
+{"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
 
  rc = $dbread(2,$regid,c.fn,c.mn,c.ln,c.bd)
  rc = $dbread(2,$regid,dx10_dstlist)

@@ -1,16 +1,4 @@
-'HFC
-'ICD10 Diagnosis Record
-'#
-%global ReportID,RptTitle,Title
-Title    is x
-RptTitle is x
-ReportID is x
-
-'*********Change These**********
-Title    = "Diagnostic Report"
-RptTitle = Title
-ReportID = "HFCDXRPT"
-'*******************************
+'TxAce ICD10 Diagnosis Record
 
 rc_dx10_dstlist  is i
 dx10_dstlist     is dstlist

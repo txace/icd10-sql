@@ -2,15 +2,15 @@ var util = require('mis-util');
 var config = require('./config.ignore');
 
 var options = {
-   sysname: '/c1/FRSH',
-   webname: '/c0/cmhcweb/cmhcbui/cmhcbuilocal/',
+   sysname: config.sysname,
+   webname: config.webname,
    connect: {
-      host: 'gccmhc',
-      user: 'tim',
+      host: config.host,
+      user: config.name,
       password: config.user
    },
    cron: {
-      user: 'datamgr',
+      user: config.cronname,
       pass: config.cron
    },
    view_path: {
@@ -27,6 +27,7 @@ var options = {
 
 var mis = util(options);
 
+//deploy and compile the uscripts
 mis.deploy.usc()
 .then(function(scripts) { 
    mis.script.installcompile()
@@ -37,5 +38,13 @@ mis.deploy.usc()
    .then(mis.script.uninstallcompile);
 });
 
+//build and deploy the parmfiles
+console.log('parms');
+mis.parm.fromflatfile('parm/dx10.ignore')
+.then(mis.parm.tofile.bind(mis, 'build/DX10.parm'))
+.then(mis.deploy.parm);
+
+//deploy the resources
 mis.deploy.dir('./Resources/', options.webname + 'our_images/', 'gif', true);
 mis.deploy.dir('./Resources/oatmeal_tumbeasts/', options.webname + 'our_images/', 'png', true);
+

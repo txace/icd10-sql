@@ -1,0 +1,18 @@
+{
+   "sysname": "/c0/TEST",
+   "webname": "/c0/cmhcweb/cmhcbui/cmhcbuilocal",
+   "host": "cmhchostname",
+   "name": "unixlogin",
+   "user": "unixpass",
+   "cronname": "cronlogin",
+   "cron": "cronpass",
+   scripts: {
+      "dststart": 30300,         //set the starting dst number for the new dx10 record
+      "trace": "",               //path for tracing dst install script
+      "gaf_dct": 2085,           //map the gaf dct
+      "status_dct": 2088,        //map the dx status dct
+      "primary_axis_dct": 2087,  //map the primary axis of the dx dct
+      "abl_dct": 9104,           //map the ABL dct
+      "reason_dct": 301          //map the reason for dx dct
+   }
+}
