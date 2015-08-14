@@ -28,8 +28,8 @@ start DX10(parmfile,option,client,retcode)
  %global c_dx10_dt,c_dx10_reason,c_dx10_a5_pgaf,c_dx10_comment,c_dx10_stat
  %global errors, RequireABL
  %global c.fn,c.mn,c.ln,c.bd
- %global dxservice,e_doc,addsal,video
- %global e.date, e.staff, e.case.no, e.ru, e.ser, e.start, e.cl.dur, e.dur, e.loc, e.proj
+ %global e_doc
+ %global mode,c_dx10_staff 
  errors[]           is x
  SHOWLEGAX          is x
  10DOTTED           is x
@@ -105,27 +105,17 @@ start DX10(parmfile,option,client,retcode)
  c.ln               is x
  c.bd               is d
  RequireABL         is x
- dxservice          is x
  e_doc              is x
  CONVLEGC           is x
- addsal             is x
- video              is x
  PULLFW             is x
  PULLABLFW          is x
-
- 'event vars
- e.ser              is b
- e.ru               is b
- e.start            is t
- e.dur              is t
- e.loc              is x
-
- 'snapshot variables
- Title              is x
- RptTitle           is x
- ReportID           is x
- %global ReportID,RptTitle,Title
-
+ mode               is x
+ c_dx10_staff       is x
+ s.enc.sttp06       is x
+ s.qualcode         is x
+ s_qualcode         is x
+ email_staff[]      is x
+  				   
  Page = "OnLoad"
  if $regid !dp
   if client dp
@@ -146,6 +136,29 @@ start DX10(parmfile,option,client,retcode)
  if option = "reportonly" or option = "bigreport"
   Page = "Report"
  endif
+ 
+ select $custnumber
+'Helen Farabee and Pecan Valley
+  case 256
+   select $uc($seg($mscname,1,5))
+    case "HELEN" (void)$dbread(3,$operstaffid,s.enc.sttp06)
+                 if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
+                  mode = "DATAENTRY"
+                 endif
+    case "PECAN" (void)$dbread(3,$operstaffid,s.qualcode)
+                 s_qualcode = $dct(301,s.qualcode,"1")
+                 if s_qualcode = "G" or s_qualcode = "H" or s_qualcode = "I" or s_qualcode = "J" or s_qualcode = "K" or s_qualcode = "M" or s_qualcode = "R" or s_qualcode !dp
+                  mode = "DATAENTRY"
+                 endif 
+   endselect
+   if Page != "Report"
+    if $dct(9722,$operstaffid) !dp
+     $brmsg("You are not Authorized for this Function",1,"WC") 
+     Page = "Exit" 
+    endif
+   endif   
+ endselect				  
+
  do while 1 = 1
   select page
    case "1" Page1()
@@ -202,14 +215,15 @@ start DX10(parmfile,option,client,retcode)
                  Page = "1"
    case "SaveData" select SaveData()
                     case "0" Page = "Exit"
+					        if CONVLEGC = "Y"
+                             call "CONVICD10_9"(parmfile,option,$regid,retcode)
+				            endif
+							(void)$email(email_staff[],`"DX10 Completed for " + $regid`,`"DX10 Completed for " + $regid`)
 				    case other Page = "2"
 				   endselect									 				   
    case "Report" Report()
-                 Page = "Exit"
-   case "Exit"  if CONVLEGC = "Y"
-                 call "CONVICD10_9"(parmfile,option,$regid,retcode)
-				endif
-                return
+                 Page = "Exit" 
+   case "Exit" return
   endselect
  enddo
 end DX10
@@ -218,58 +232,53 @@ end DX10
 %include inc_GetOption
 
 function Onload(parmfile, option) is null
- parmfile      is x
- option        is x
- rc            is i
+ rc          is i
+ parmfile    is x
+ option      is x
+ o_user      is x
+ o_pass      is x
+ o_ds        is x
+ o_db        is x
+ ICD10_Table is x
+ ICD9_Table  is x
 
-  'set up the library too
-  o_user      is x
-  o_pass      is x
-  o_ds        is x
-  o_db        is x
-  ICD10_Table is x
-  ICD9_Table  is x
- ' o_user = "sqltransfer"
- ' o_pass = "sqltransfer"
- ' o_ds	= "svrsql"
- ' o_db	= "CMHC_Export"
- ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
- ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
 '***Parmfile releated/etc
- 'set script defaults
+'*****Defaults*********
  SHOWLEGAX = "Y"
  9DOTTED   = "Y"
  10DOTTED  = "Y"
- CONVLEGC  = "N"
+ CONVLEGC  = "Y"
  PULLFW    = "Y"
  PULLABLFW = "Y"
- dxservice = "N"
  c_dx10_stat = "C"
-
  Title    = "Diagnostic Report"
  RptTitle = Title
  ReportID = "IRMSDXREPORTID"
+ ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
+ ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]" 
+'*****End Defaults****
 
- 'read in the parm and option settings
- getparm(parmfile)
- getoption(option)
-
- SHOWLEGAX = $uc(SHOWLEGAX)
- 9DOTTED   = $uc(9DOTTED)
- 10DOTTED   = $uc(10DOTTED)
- CONVLEGC  = $uc(CONVLEGC)
- PULLFW    = $uc(PULLFW)
- PULLABLFW = $uc(PULLABLFW)
- dxservice = $uc(dxservice)
+ if parmfile dp 
+'read in the parm and option settings
+  getparm(parmfile)
+  getoption(option)      
+ endif
+ 
+ SHOWLEGAX   = $uc(SHOWLEGAX)
+ 9DOTTED     = $uc(9DOTTED)
+ 10DOTTED    = $uc(10DOTTED)
+ CONVLEGC    = $uc(CONVLEGC)
+ PULLFW      = $uc(PULLFW)
+ PULLABLFW   = $uc(PULLABLFW)
  c_dx10_stat = $uc(c_dx10_stat)
+'****************************
 
-'********************
 {"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
 
  rc = $dbread(2,$regid,c.fn,c.mn,c.ln,c.bd)
  rc = $dbread(2,$regid,dx10_dstlist)
  c_dx10_a5_pgaf = {"lib_DX10"}PreviousGAF()
- if c.dx10.dt dp
+ if c.dx10.dt dp and c.dx10.converted != "Y"
   If PromptPullFW() = "Y" 
    index = 1
    $clear(c.dx10.dt)
@@ -453,6 +462,9 @@ function Page1() is null
     $col("center")$text("Status", "datatag")$radio(c_dx10_stat, "Confirmed", "C")
                                             $radio(c_dx10_stat, "Provisional", "P")											
   $endtable($funcname)											   
+  if mode = "DATAENTRY"
+   $br(2)$text("Diagnosis Staff: ","datatag")$textbox(c_dx10_staff ,"DB``03",6,,"Y")$editmsg(c_dx10_staff )
+  endif  
   $br(2)
   $fieldset("Diagnosis Codes",,"datatag")
    $br()$submit(lookup_btn,"Lookup")
@@ -610,7 +622,7 @@ function Page1() is null
   $endfieldset()       
   $br(2)   
   $fieldset("Axis V",,"datatag")
-   $text("Current GAF")$textbox(c_dx10_a5_gaf ,"DCVA``2085",2,2)
+   $text("Current GAF")$textbox(c_dx10_a5_gaf,"DCVA``2085",2,2)$editmsg(c_dx10_a5_gaf)
    if c_dx10_a5_pgaf dp
     $br()$text("Previous GAF: ")$text(c_dx10_a5_pgaf)$text(" - ")$text($dct(2085,c_dx10_a5_pgaf))
    endif	
@@ -630,23 +642,30 @@ end Page1
  
 function Page2() is null
  e_docname is x
- (void)$dbalpha(3,e_doc,e_docname)
+ if mode = "DATAENTRY"
+  (void)$dbalpha(3,c_dx10_staff,e_docname)
+ endif 
  $submitopt("off","")
  $cancelopt("off","Back")
  $form($funcname)
   $br(){"lib_txaceUI"}ClientPageHeader($regid)
   $br(2)$text("{center}ICD-10 Diagnosis Record{/center}","H1")
   $br()
-  if addsal = "YES"
-   {"lib_txaceUI"}report(e.ser, e.ru, e.start, e.dur, e.loc,video)
-   $br()
-  endif
   $table($funcname,,table_nobgcolor)
    $row()
     $col("center")$text("Diagnosis Date: ")$text(c_dx10_dt)
     $col("center")$text("Reason: ")$text($dct(55,c_dx10_reason))
     $col("center")$text("Status: ")$text($dct(2088,c_dx10_stat))
+   if c.bd dp
+    $row()
+     $col("center")$text("Birth Date:", "datatag")$text(c.bd)
+     $col()$ctag("&nbsp")
+     $col()$ctag("&nbsp")
+   endif	
   $endtable($funcname)				    
+  if mode = "DATAENTRY"
+   $br()$text("Diagnosis Staff: ")$text(e_docname)$text(`"  (" + c_dx10_staff + ")"`)
+  endif
   $br(2)       
   $fieldset("Diagnosis Codes")
    $table($funcname,,table_nobgcolor)
@@ -717,12 +736,17 @@ function Page2() is null
   endif
   $br(2)$text("Comments:")
   $br()$text(c_dx10_comment)
-  {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID) 
+'Change Later PV - No Save for Now
+  if $uc($seg($mscname,1,5)) = "HELEN"
+   {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID) 
+  endif 
  $sendform($funcname)	  
 end Page2
  
 function Validate1() is i
- last_date is d
+ s.enc.sttp06 is x
+ s.qualcode   is x
+ last_date    is d
  last_date = PreviousDXDt()
  $clear(errors[])
 
@@ -741,7 +765,29 @@ function Validate1() is i
  if c_dx10_pimary_ax !dp
   (void)$arrpush(errors[],"Primary Axis is required") 
  endif
-
+ 
+ if mode = "DATAENTRY" 
+  if c_dx10_staff !dp
+   (void)$arrpush(errors[],"Diagnosis Staff is required for data entry mode")  
+  endif
+  if c_dx10_staff dp
+   select $custnumber
+'Helen Farabee and Pecan Valley
+    case 256
+     select $uc($seg($mscname,1,5))
+      case "HELEN" (void)$dbread(3,c_dx10_staff,s.enc.sttp06)
+                   if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
+                    (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+                   endif 
+	  case "PECAN" (void)$dbread(3,c_dx10_staff,s.qualcode)
+                   if s.qualcode = "G" or s.qualcode = "H" or s.qualcode = "I" or s.qualcode = "J" or s.qualcode = "K" or s.qualcode = "M" or s.qualcode = "R" or s.qualcode !dp
+                    (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+                   endif
+     endselect
+   endselect			  
+  endif 
+ endif
+ 
 'R-01-2
  if c_dx10_dt > $today
   (void)$arrpush(errors[],"The Diagnosis Date cannot be future dated")
@@ -756,17 +802,29 @@ function Validate1() is i
  endif
 
 'R-04-02/R-07-1
+' select c_dx10_pimary_ax
+'  case "1" if (comp_axis1_10_dx[1] = "R69" or comp_axis1_10_dx[1] =  "Z0389" or comp_axis1_10_dx[1] = "Z03.89" or comp_axis1_10_dx[1] !dp)
+'            (void)$arrpush(errors[],"The Primary Axis cannot be I when no Axis I value is present")            
+'		   endif
+'  case "2" if (comp_axis2_10_dx[1] = "R69" or comp_axis2_10_dx[1] =  "Z0389" or comp_axis2_10_dx[1] = "Z03.89" or comp_axis2_10_dx[1] !dp)
+'            (void)$arrpush(errors[],"The Primary Axis cannot be II when no Axis II value is present")            
+'		   endif
+'  case "3" if (comp_axis3_10_dx[1] = "R69" or comp_axis3_10_dx[1] =  "None" or comp_axis3_10_dx[1] =  "NONE" or comp_axis3_10_dx[1] !dp)
+'            (void)$arrpush(errors[],"The Primary Axis cannot be III when no Axis III value is present")            
+'		   endif
+' endselect
+'More research required 
  select c_dx10_pimary_ax
-  case "1" if (comp_axis1_10_dx[1] = "R69" or comp_axis1_10_dx[1] =  "Z0389" or comp_axis1_10_dx[1] = "Z03.89" or comp_axis1_10_dx[1] !dp)
+  case "1" if comp_axis1_10_dx[1] !dp
             (void)$arrpush(errors[],"The Primary Axis cannot be I when no Axis I value is present")            
 		   endif
-  case "2" if (comp_axis2_10_dx[1] = "R69" or comp_axis2_10_dx[1] =  "Z0389" or comp_axis2_10_dx[1] = "Z03.89" or comp_axis2_10_dx[1] !dp)
+  case "2" if comp_axis2_10_dx[1] !dp
             (void)$arrpush(errors[],"The Primary Axis cannot be II when no Axis II value is present")            
 		   endif
-  case "3" if (comp_axis3_10_dx[1] = "R69" or comp_axis3_10_dx[1] =  "None" or comp_axis3_10_dx[1] =  "NONE" or comp_axis3_10_dx[1] !dp)
+  case "3" if comp_axis3_10_dx[1] !dp
             (void)$arrpush(errors[],"The Primary Axis cannot be III when no Axis III value is present")            
 		   endif
- endselect
+ endselect 
  
 'R-07-02
  if $maxarray(comp_axis1_10_dx[]) > 1 and ($find("R69",comp_axis1_10_dx[]) > 0 or $find("Z0389",comp_axis1_10_dx[]) > 0 or $find("Z03.89",comp_axis1_10_dx[]) > 0)
@@ -933,7 +991,7 @@ function SaveData() is i
 
  $dblock()
  SaveData = $dbpoint(2,$regid,c.dx10.rh)
-' c.dx10.snapid = {"l_snapLibSC"}sn_GetSnapID()
+ c.dx10.snapid = {"l_snapLibSC"}sn_GetSnapID()
  if c.dx10.comment dp
   bad_char_index = 0
   do while bad_char_index++ < $maxarray(bad_char[])
@@ -943,8 +1001,8 @@ function SaveData() is i
  c.dx10.rh[effd] = c_dx10_dt
  NewUID = c.dx10.rh[uid] 
  c.dx10.entstaff = $operstaffid
- if dxservice = "M"
-  c.dx10.staff = e_doc
+ if mode = "DATAENTRY"
+  c.dx10.staff = c_dx10_staff 
  else
   c.dx10.staff = $operstaffid 
  endif  
@@ -978,6 +1036,7 @@ function SaveData() is i
   $clear(c.dx10.curr.abl,c.dx10.pot.abl)
  endif 
  c.dx10.comment   = c_dx10_comment
+ c.dx10.converted = "N"
 
 'shrink this section later
   index = 1  
@@ -1284,7 +1343,12 @@ function SaveData() is i
    c.dx10.dxrank.16 = index
    c.dx10.uniq.16   = UniqID
   endif  
- SaveData = $dbadddst(2,$regid,dx10_dstlist) 
+'Change Later PV - No Save for Now
+  if $uc($seg($mscname,1,5)) = "HELEN"
+   SaveData = $dbadddst(2,$regid,dx10_dstlist) 
+  else
+   SaveData = 0
+  endif 
  if SaveData = 0
   $brmsg("ICD-10 Diagnosis Successfully saved to Database!",1,"W","Process Complete")
  elseif SaveData = 4
@@ -1354,3 +1418,4 @@ function PreviousDXDt() is d
   PreviousDxDt = c.dx10.dt
  endif
 end PreviousDXDt
+
