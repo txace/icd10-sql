@@ -115,6 +115,11 @@ start DX10(parmfile,option,client,retcode)
  s.qualcode         is x
  s_qualcode         is x
  email_staff[]      is x
+
+ Title              is x
+ RptTitle           is x
+ ReportID           is x
+ %global ReportID,RptTitle, Title
   				   
  Page = "OnLoad"
  if $regid !dp

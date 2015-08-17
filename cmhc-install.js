@@ -27,7 +27,7 @@ var options = {
 var mis = util(options);
 
 mis.script.runonce('./dst/ICD10DST.usc', [config.scripts.dststart, config.scripts.trace, config.scripts.gaf_dct, 
-      config.scripts.status_dct, config.scripts.parmary_axis_dct, config.scritps.abl_dct, config.scripts.reason_dct])
+      config.scripts.status_dct, config.scripts.primary_axis_dct, config.scripts.abl_dct, config.scripts.reason_dct])
 .then(function() {
 return mis.deploy.usc()
 .then(function(scripts) { 
