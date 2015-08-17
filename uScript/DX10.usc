@@ -120,6 +120,10 @@ start DX10(parmfile,option,client,retcode)
  RptTitle           is x
  ReportID           is x
  %global ReportID,RptTitle, Title
+
+ dosnapshot         is x
+ dosave             is x
+ %global dosnapshot, dosave
   				   
  Page = "OnLoad"
  if $regid !dp
@@ -263,11 +267,8 @@ function Onload(parmfile, option) is null
  ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]" 
 '*****End Defaults****
 
- if parmfile dp 
-'read in the parm and option settings
-  getparm(parmfile)
-  getoption(option)      
- endif
+ getparm(parmfile)
+ getoption(option)      
  
  SHOWLEGAX   = $uc(SHOWLEGAX)
  9DOTTED     = $uc(9DOTTED)
@@ -276,6 +277,8 @@ function Onload(parmfile, option) is null
  PULLFW      = $uc(PULLFW)
  PULLABLFW   = $uc(PULLABLFW)
  c_dx10_stat = $uc(c_dx10_stat)
+ dosave      = $uc(dosave)
+ dosnapshot  = $uc(dosnapshot)
 '****************************
 
 {"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
@@ -647,6 +650,7 @@ end Page1
  
 function Page2() is null
  e_docname is x
+ save      is x
  if mode = "DATAENTRY"
   (void)$dbalpha(3,c_dx10_staff,e_docname)
  endif 
@@ -741,10 +745,15 @@ function Page2() is null
   endif
   $br(2)$text("Comments:")
   $br()$text(c_dx10_comment)
-'Change Later PV - No Save for Now
-  if $uc($seg($mscname,1,5)) = "HELEN"
+
+  if dosnapshot = "Y" then 
    {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID) 
+
+  else 
+     $br(2)
+     $submit(save, "Save")
   endif 
+
  $sendform($funcname)	  
 end Page2
  
@@ -1348,12 +1357,16 @@ function SaveData() is i
    c.dx10.dxrank.16 = index
    c.dx10.uniq.16   = UniqID
   endif  
-'Change Later PV - No Save for Now
-  if $uc($seg($mscname,1,5)) = "HELEN"
+
+  if dosave = "Y" then
    SaveData = $dbadddst(2,$regid,dx10_dstlist) 
+
   else
    SaveData = 0
+   $brmsg("**Warning** this Script is *NOT* configured to acutally save the DX Record", 2, "C")
+   $brmsg("The Record Has NOT BEEN SAVED", 3, "C")
   endif 
+
  if SaveData = 0
   $brmsg("ICD-10 Diagnosis Successfully saved to Database!",1,"W","Process Complete")
  elseif SaveData = 4
