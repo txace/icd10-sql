@@ -256,8 +256,8 @@ end DX_Uniq_Query
 
 function PreviousGaf() is x
  rc            is i
- c.dsmiiir     is h
- c.dxaxvc      is x
+ 'c.dsmiiir     is h
+ 'c.dxaxvc      is x
  rc = $dbread(2,$regid,c.dx10.rh,c.dx10.a5.gaf)
  if c.dx10.rh dp
   if c.dx10.a5.gaf dp
@@ -266,12 +266,12 @@ function PreviousGaf() is x
    $clear(PreviousGaf)
   endif 
  else
-  rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
-  if c.dxaxvc dp
-   PreviousGaf = c.dxaxvc
-  else
+  'rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
+  'if c.dxaxvc dp
+   'PreviousGaf = c.dxaxvc
+  'else
    $clear(PreviousGaf)
-  endif   
+  'endif   
  endif 
 end PreviousGaf
 

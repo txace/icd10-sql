@@ -1,4 +1,12 @@
 * Example DX10 Script Parmfile configuration
+* For use with the DX10 Script
+* http://github.com/txace/icd10-sql
+*
+* Used to capture User input of a individual's
+*  diagnosis
+*
+* actually save the record
+DOSAVE Y
 *
 * show the dsm 4 axis table
 SHOWLEGAX Y
@@ -32,7 +40,136 @@ o_ds sqlhost
 o_db sqldb
 *
 * Snapshot settings
+DOSNAPSHOT Y
 Title Diagnostic Report
 RptTitle Diagnostic Report
 ReportID IRMSDXREPORTID
+*
+*
+*
+* The following parameters are for
+*  the CONVICD10_9 Script
+* http://github.com/txace/icd10-sql
+*  
+* Used for converting the 
+* dx icd 10 record to a legacy
+* dx icd 9 record
+*
+*
+* map the dst names
+*
+MAP_c.dsmiiir 'DSM-IIIR DIAGNOSIS RECORD      
+MAP_c.who.diag 'WHO DIAGNOSED CLIENT(?)        
+MAP_c.dx.by 'DIAGNOSIS MADE BY              
+MAP_c.dxdate 'DIAGNOSIS DATE                 
+MAP_c.dxaxiiidt 'AXIS III DIAGNOSIS DATE        
+MAP_c.dxreason 'REASON FOR DIAGNOSIS           
+MAP_c.prdxaxis 'PRINCIPAL DIAGNOSIS AXIS       
+MAP_c.dx.comment 'DIAGNOSIS COMMENTS             
+MAP_c.dx.stat 'DIAGNOSIS STATUS               
+MAP_c.dx.isn 'DIAGNOSIS ISN REFERENCE        
+* only set following if you need to map comments 
+*  to 2 seperate dsts in the record
+MAP_c.dx.comme 
+*
+* care batch flag
+MAP_c.dxflag 'DIAGNOSIS CARE DATE            
+*
+*axis 1
+MAP_c.diag 'AXIS I LEVEL 1                 
+MAP_c.dxaxi2 'AXIS I LEVEL 2                 
+MAP_c.dxaxi3 'AXIS I LEVEL 3                 
+MAP_c.dxaxi4 'AXIS I LEVEL 4                 
+MAP_c.dxaxi5 'AXIS I LEVEL 5                 
+MAP_c.dxaxi6 'AXIS I LEVEL 6                 
+*
+* exra axis 1 level 1 map
+*  leave the mapping blank unless you need
+*  to map an extra dst in the legacy record
+*  to the axis 1 level 1 value
+MAP_c.axis1extra
+*
+*axis 2
+MAP_c.dxaxii1 'AXIS II LEVEL 1                
+MAP_c.dxaxii2 'AXIS II LEVEL 2                
+MAP_c.dxaxii3 'AXIS II LEVEL 3                
+MAP_c.dxaxii4 'AXIS II LEVEL 4                
+MAP_c.dxaxii5 'AXIS II LEVEL 5                
+MAP_c.dxaxii6 'AXIS II LEVEL 6                
+*
+* exra axis 2 level 1 map
+*  leave the mapping blank unless you need
+*  to map an extra dst in the legacy record
+*  to the axis 2 level 1 value
+MAP_c.axis2extra
+*
+*axis 3
+MAP_c.dxaxiii1 'AXIS III LEVEL 1               
+MAP_c.dxaxiii2 'AXIS III LEVEL 2               
+MAP_c.dxaxiii3 'AXIS III LEVEL 3               
+MAP_c.dxaxiii4 'AXIS III LEVEL 4               
+MAP_c.dxaxiii5 'AXIS III LEVEL 5               
+MAP_c.dxaxiii6 'AXIS III LEVEL 6               
+*
+*axis 4
+MAP_c.dx.ax4.a 'AXIS IV A                      
+MAP_c.dx.ax4.b 'DSM-IV AXIS IV LEVEL B         
+MAP_c.dx.ax4.c 'DSM-IV AXIS IV LEVEL C         
+MAP_c.dx.ax4.d 'DSM-IV AXIS IV LEVEL D         
+MAP_c.dx.ax4.e 'DSM-IV AXIS IV LEVEL E         
+MAP_c.dx.ax4.f 'DSM-IV AXIS IV LEVEL F         
+MAP_c.dx.ax4.g 'DSM-IV AXIS IV LEVEL G         
+MAP_c.dx.ax4.h 'DSM-IV AXIS IV LEVEL H         
+MAP_c.dx.ax4.i 'DSM-IV AXIS IV LEVEL I         
+MAP_c.dx.ax4.j 'DSM-IV, AXIS IV LEVEL J        
+*
+*axis 5
+MAP_c.dxaxvc 'AXIS V-CURRENT GLOBAL ASSESS.  
+MAP_c.dxaxvp 'AXIS V-PAST GLOBAL ASSESSMENT  
+* only set following if you need to map gaf 
+*  to 2 seperate dsts in the record
+MAP_c.dxaxiv                         
+*
+*abl
+MAP_c.cabl 'CURRENT ABL                    
+MAP_c.pabl 'POTENTIAL ABL                  
+*
+* service data
+MAP_c.dx.ser 'DIAGNOSIS SERVICE CODE         
+MAP_c.dx.time 'DIAGNOSIS START TIME           
+MAP_c.dx.dur 'DIAGNOSIS DURATION             
+MAP_c.dx.ru 'DIAGNOSIS RU                   
+MAP_c.dx.loc 'DIAGNOSIS LOCATION CODE        
+MAP_c.dx.proj 'DIAGNOSIS PROJECT CODE         
+MAP_c.dx.serv 'DX SERVICE WITH COUNSELING     
+*
+* unmapped / unused dsts
+*
+*MAP_c.dx.when 'reason (A=ADM,E=EST,D=DISCH)    
+*MAP_c.dx4 'DSM-IV AXIS I & II CODES       
+*MAP_c.dxaxiv-a 'AXIS IV (01/01/95 VERSION)     
+*MAP_c.pabl 'POTENTIAL ABL                  
+*MAP_c.dx.ax4.a 'AXIS IV A                      
+*MAP_c.dx.sys 'DIAGNOSIS SYSTEM               
+*
+*MAP_c.dx.fill 'CLIENT DSM-IV FILLER           
+*MAP_c.paamd 'PRIMARY AAMD                   
+*MAP_c.saamd 'SECONDARY AAMD                 
+*MAP_c.taamd 'TERTIARY AAMD                  
+*MAP_c.genetic 'GENETIC                        
+*MAP_c.c.anomal 'CRANIAL ANOMALY                
+*MAP_c.sen.imp 'SENSORY IMPARIAMENT            
+*MAP_c.precept 'PRECEPTION                     
+*MAP_c.conv.dis 'CONVULSIVE DISORDER            
+*MAP_c.psy.impa 'PSYCH IMPARMENT                
+*MAP_c.motor.dy 'MOTOR DYSFUCTION               
+*MAP_c.aamd.dat 'AAMD DATE                      
+*MAP_c.iq.score 'IQ SCORE                       
+*MAP_c.iq.date 'IQ TEST DATE                   
+*MAP_c.iq.type 'IQ SCORE TYPE                  
+*MAP_c.sq.score 'SQ SCORE                       
+*MAP_c.sq.date 'SQ TEST DATE                   
+*MAP_c.sq.type 'SQ TEST TYPE                   
+*MAP_c.dx.prese 'PRESENTING ISSUE               
+*MAP_c.dx.needed 'NEW DIAGNOSIS NEEDED FLAG
 
