@@ -303,7 +303,7 @@ end NoDX_Lookup
 function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[]) is i
  client_id    is x
  as_of_date   is d
- dx_rec       is h
+ dx_rec       is uid
  dx_date      is d
  dx_time      is t
  dx_primary   is x
@@ -324,19 +324,23 @@ function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
  if as_of_date !dp
   as_of_date = $today
  endif
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+
+ $dblock()
  getClientDx = $dbread(2,client_id,dx10_dstlist)
  do while c.dx10.dt > as_of_date
   getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
  enddo
- fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ dx_batchdt = c.dx10.caredt
+
+ $dbunlock()
 end getclientdx
 
 function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
    dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[]) is i
  client_id    is x
  as_of_date   is d
- dx_rec       is h
+ dx_rec       is uid
  dx_date      is d
  dx_time      is t
  dx_primary   is x
@@ -358,26 +362,39 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
   as_of_date = $today
  endif
 
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
 
- getUnbatchCltDx = $dbread(2,client_id,dx10_dstlist)
- do while c.dx10.dt > as_of_date
-  getUnbatchCltDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
- enddo
+
+ getUnbatchCltDx = getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[], axis1[], axis2[], axis3[])
+ '$dblock()
+ 'getUnbatchCltDx = $dbread(2,client_id,dx10_dstlist)
+ 'do while c.dx10.dt > as_of_date
+  'getUnbatchCltDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
+ 'enddo
  if dx_batchdt !dp then
-   fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+   'getUnbatchCltDx = fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+      'dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+
+   ' we want to find the earliest unbatched layer
+   $dblock()
+   getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
    do while c.dx10.caredt !dp and getUnbatchCltDx < 2
+      getUnbatchCltDx = fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+         dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+
       getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
-      if dx_rec dp and dx_batchdt !dp then
-         fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
-      endif
    enddo
+ else 
+   $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+
  endif 
+ $dbunlock()
 
 end getUnbatchCltDx
 
 private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt, dx_cat[], DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[]) is i 
- dx_rec       is n
+ dx_rec       is uid
  dx_date      is d
  dx_time      is t
  dx_primary   is x
@@ -398,7 +415,8 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
 
  $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
 
- dx_rec = $castn(c.dx10.rh)
+ 'dx_rec = $castn(c.dx10.rh)
+ dx_rec = c.dx10.rh[uid]
  dx_date = c.dx10.dt
  dx_time = c.dx10.time
  dx_primary = c.dx10.pimary.ax
@@ -568,24 +586,73 @@ function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axi
  sortDxByV4Axis = delim_str
 end sortDxByV4Axis
 
+public dynamic function getClientAxis4(client_id, as_of_date, dx_rec, dx_date, dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j) is i
+ client_id  is x
+ as_of_date is d
+ dx_rec     is uid
+ dx_date    is d
+
+ dx_4_a     is x
+ dx_4_b     is x
+ dx_4_c     is x
+ dx_4_d     is x
+ dx_4_e     is x
+ dx_4_f     is x
+ dx_4_g     is x
+ dx_4_h     is x
+ dx_4_i     is x
+ dx_4_j     is x
+
+ $clear(dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j)
+ $allowupdate(dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j)
+ if dx_rec dp then
+    getClientAxis4 = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
+ else 
+    if as_of_date !dp then
+       as_of_date = $today
+    endif
+
+    getClientAxis4 = $dbread(2,client_id,dx10_dstlist)
+   do while c.dx10.dt > as_of_date
+    getClientAxis4 = $dbreadnextdst(2,client_id,dx10_dstlist) 
+   enddo 
+ endif
+
+ dx_4_a  = c.dx10.a4.supgrp
+ dx_4_b  = c.dx10.a4.socenv
+ dx_4_c  = c.dx10.a4.edu
+ dx_4_d  = c.dx10.a4.occ
+ dx_4_e  = c.dx10.a4.housng
+ dx_4_f  = c.dx10.a4.eco
+ dx_4_g  = c.dx10.a4.health
+ dx_4_h  = c.dx10.a4.legal
+ dx_4_i  = c.dx10.a4.psyenv
+ dx_4_j  = c.dx10.a4.none
+end getClientAxis4
+
 function getClientGaf(client_id, as_of_date, dx_rec, dx_date, dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot) is i
  client_id  is x
  as_of_date is d
- dx_rec     is h
+ dx_rec     is uid
  dx_date    is d
  dx_gaf_cur is b
  dx_gaf_pre is b
  dx_abl_cur is x
  dx_abl_pot is x
 
- if as_of_date !dp
-  as_of_date = $today
- endif
  $allowupdate(dx_gaf_cur, dx_gaf_pre)
- getClientGaf = $dbread(2,client_id,dx10_dstlist)
- do while c.dx10.dt > as_of_date
-  getClientGaf = $dbreadnextdst(2,client_id,dx10_dstlist) 
- enddo 
+
+ if dx_rec dp then
+    getClientGaf = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
+ else
+   if as_of_date !dp
+    as_of_date = $today
+   endif
+   getClientGaf = $dbread(2,client_id,dx10_dstlist)
+   do while c.dx10.dt > as_of_date
+    getClientGaf = $dbreadnextdst(2,client_id,dx10_dstlist) 
+   enddo 
+ endif
  dx_date = c.dx10.dt
  dx_gaf_cur = c.dx10.a5.gaf
  dx_abl_cur = c.dx10.curr.abl
@@ -599,7 +666,7 @@ end getClientGaf
 function getClientAamd(client_id, as_of_date, dx_rec, dx_date, dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, dx_aamd_mloc, dx_aamd_msev) is i
  client_id    is x
  as_of_date   is d
- dx_rec       is h
+ dx_rec       is uid
  dx_date      is d
  dx_aamd_date is d
  dx_aamd_1    is x
@@ -614,20 +681,29 @@ function getClientAamd(client_id, as_of_date, dx_rec, dx_date, dx_aamd_date, dx_
  dx_aamd_moto is x
  dx_aamd_mloc is x
  dx_aamd_msev is x
- if as_of_date !dp
-  as_of_date = $today
+
+ if dx_rec dp then
+    getClientAamd = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
+ else
+   if as_of_date !dp
+    as_of_date = $today
+   endif
+   getClientAamd = $dbread(2,client_id,dx10_dstlist)
+   do while c.dx10.dt > as_of_date
+    getClientAamd = $dbreadnextdst(2,client_id,dx10_dstlist) 
+   enddo 
  endif
- getClientAamd = $dbread(2,client_id,dx10_dstlist)
- do while c.dx10.dt > as_of_date
-  getClientAamd = $dbreadnextdst(2,client_id,dx10_dstlist) 
- enddo 
+
+ 'variable assignments
+ 'not implemented
+
  $allowupdate(dx_date, dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, dx_aamd_mloc, dx_aamd_msev) 
 end getClientAamd 
 
 function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date) is i
  client_id  is x
  as_of_date is d
- dx_rec     is h
+ dx_rec     is uid
  dx_date    is d
  dx_iq      is x
  dx_iq_test is x
@@ -635,17 +711,43 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
  dx_sq      is x
  dx_sq_test is x
  dx_sq_date is d
- if as_of_date !dp
-  as_of_date = $today
+
+ if dx_rec dp then
+    getClientIq = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
+ else
+   if as_of_date !dp
+    as_of_date = $today
+   endif
+   getClientIq = $dbread(2,client_id,dx10_dstlist)
+   do while c.dx10.dt > as_of_date
+    getClientIq = $dbreadnextdst(2,client_id,dx10_dstlist) 
+   enddo 
  endif
- getClientIq = $dbread(2,client_id,dx10_dstlist)
- do while c.dx10.dt > as_of_date
-  getClientIq = $dbreadnextdst(2,client_id,dx10_dstlist) 
- enddo 
+
+ 'variable assignments
+ 'not implemented
+
  $allowupdate(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 
  $clear(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 end getClientIq
+
+public dynamic function MarkAsBatched(client_id, batchdate, record) is i
+
+client_id   is x
+batchdate   is d
+record      is uid
+
+if record !dp then
+   MarkAsBatched = 99
+   return
+endif
+c.dx10.caredt = batchdate
+$dblock()
+MarkAsBatched = $dbupdateuid(record, 2, client_id, c.dx10.rh, c.dx10.caredt)
+$dbunlock()
+
+end MarkAsBatched
 
 function DX_9Code_Query(diag_code,legacy_axis,9DOTTED,results[],text) is null
  diag_code   is x
