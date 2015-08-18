@@ -275,11 +275,6 @@ function PreviousGaf() is x
  endif 
 end PreviousGaf
 
-
-
-
-
-
 function NoDX_Lookup(axis) is x
  axis    is x
  rc      is i
@@ -324,14 +319,17 @@ function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
  if as_of_date !dp
   as_of_date = $today
  endif
- $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+ $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
 
  $dblock()
  getClientDx = $dbread(2,client_id,dx10_dstlist)
  do while c.dx10.dt > as_of_date
   getClientDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
  enddo
- dx_batchdt = c.dx10.caredt
+ fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+    dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],
+    DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
 
  $dbunlock()
 end getclientdx
@@ -362,31 +360,28 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
   as_of_date = $today
  endif
 
- $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+ $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
 
 
  getUnbatchCltDx = getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
-   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[], axis1[], axis2[], axis3[])
- '$dblock()
- 'getUnbatchCltDx = $dbread(2,client_id,dx10_dstlist)
- 'do while c.dx10.dt > as_of_date
-  'getUnbatchCltDx = $dbreadnextdst(2,client_id,dx10_dstlist) 
- 'enddo
- if dx_batchdt !dp then
-   'getUnbatchCltDx = fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
-      'dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[], DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
 
+ ' we only want unbatched records
+ if dx_batchdt !dp then
    ' we want to find the earliest unbatched layer
    $dblock()
    getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
    do while c.dx10.caredt !dp and getUnbatchCltDx < 2
       getUnbatchCltDx = fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
-         dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+         dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],
+         DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
 
       getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
    enddo
  else 
-   $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],axis1[],axis2[],axis3[])
+   ' return nothing if everything is batched
+   $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
 
  endif 
  $dbunlock()
