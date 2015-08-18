@@ -124,6 +124,22 @@ start DX10(parmfile,option,client,retcode)
  dosnapshot         is x
  dosave             is x
  %global dosnapshot, dosave
+
+ Exclude_staff_by    is x
+ force_mode          is x
+
+ staff_access_dct    is b
+ %global staff_access_dct
+
+ entry_creds[]       is x
+ creds_dst           is x
+ creds_dst_dct       is b
+ creds_dst_dct_op    is x
+ %global Exclude_staff_by, force_mode, entry_creds, 
+ %global creds_dst, creds_dst_dct, creds_dst_dct_op
+
+ allowed_groups[]    is b
+ %global allowed_groups[]
   				   
  Page = "OnLoad"
  if $regid !dp
@@ -145,28 +161,33 @@ start DX10(parmfile,option,client,retcode)
  if option = "reportonly" or option = "bigreport"
   Page = "Report"
  endif
- 
- select $custnumber
-'Helen Farabee and Pecan Valley
-  case 256
-   select $uc($seg($mscname,1,5))
-    case "HELEN" (void)$dbread(3,$operstaffid,s.enc.sttp06)
-                 if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
-                  mode = "DATAENTRY"
-                 endif
-    case "PECAN" (void)$dbread(3,$operstaffid,s.qualcode)
-                 s_qualcode = $dct(301,s.qualcode,"1")
-                 if s_qualcode = "G" or s_qualcode = "H" or s_qualcode = "I" or s_qualcode = "J" or s_qualcode = "K" or s_qualcode = "M" or s_qualcode = "R" or s_qualcode !dp
-                  mode = "DATAENTRY"
-                 endif 
-   endselect
-   if Page != "Report"
-    if $dct(9722,$operstaffid) !dp
-     $brmsg("You are not Authorized for this Function",1,"WC") 
-     Page = "Exit" 
-    endif
-   endif   
- endselect				  
+
+ 'let anyone see the report. Otherwise restrict access
+ if page != "Report" then
+ endif
+
+' if mode !dp then
+' select $custnumber
+''Helen Farabee and Pecan Valley
+'  case 256
+'   select $uc($seg($mscname,1,5))
+'    case "HELEN" (void)$dbread(3,$operstaffid,s.enc.sttp06)
+'                 if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
+'                  mode = "DATAENTRY"
+'                 endif
+'    case "PECAN" (void)$dbread(3,$operstaffid,s.qualcode)
+'                 s_qualcode = $dct(301,s.qualcode,"1")
+'                 if s_qualcode = "G" or s_qualcode = "H" or s_qualcode = "I" or s_qualcode = "J" or s_qualcode = "K" or s_qualcode = "M" or s_qualcode = "R" or s_qualcode !dp
+'                  mode = "DATAENTRY"
+'                 endif 
+'   endselect
+'   if Page != "Report"
+'    if $dct(9722,$operstaffid) !dp
+'     $brmsg("You are not Authorized for this Function",1,"WC") 
+'     Page = "Exit" 
+'    endif
+'   endif   
+' endselect				  
 
  do while 1 = 1
   select page
@@ -220,8 +241,8 @@ start DX10(parmfile,option,client,retcode)
 					endif
    case "LookUp" LookUp()
                  Page = "1"
-   case "OnLoad" OnLoad(parmfile, option)
-                 Page = "1"
+   case "OnLoad" Page = OnLoad(parmfile, option)
+                 'Page = "1"
    case "SaveData" select SaveData()
                     case "0" Page = "Exit"
 					        if CONVLEGC = "Y"
@@ -240,7 +261,7 @@ end DX10
 %include inc_GetParm
 %include inc_GetOption
 
-function Onload(parmfile, option) is null
+function Onload(parmfile, option) is x
  rc          is i
  parmfile    is x
  option      is x
@@ -250,6 +271,9 @@ function Onload(parmfile, option) is null
  o_db        is x
  ICD10_Table is x
  ICD9_Table  is x
+
+ groupmembership[]   is b
+ groupaccess[]       is b
 
 '***Parmfile releated/etc
 '*****Defaults*********
@@ -265,6 +289,19 @@ function Onload(parmfile, option) is null
  ReportID = "IRMSDXREPORTID"
  ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]" 
  ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]" 
+ 
+ entry_creds[1] = "G"
+ entry_creds[2] = "H"
+ entry_creds[3] = "I"
+ entry_creds[4] = "J"
+ entry_creds[5] = "K"
+ entry_creds[6] = "M"
+ entry_creds[7] = "R"
+ creds_dst = "s.enc.sttp06"
+ 'creds_dst = "s.qualcode"
+
+ staff_access_dct = 9722
+
 '*****End Defaults****
 
  getparm(parmfile)
@@ -279,7 +316,58 @@ function Onload(parmfile, option) is null
  c_dx10_stat = $uc(c_dx10_stat)
  dosave      = $uc(dosave)
  dosnapshot  = $uc(dosnapshot)
+
+ $setvarname(creds_dst, creds_dst)
 '****************************
+'do the security
+   select Exclude_staff_by
+     case "BYSTAFFDST"  if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y" then
+                           Onload = "Exit"
+                           return
+                        endif
+
+     case "DCT"     if $dct(staff_access_dct, $operstaffid) !dp then
+                       $brmsg("You are not Authorized for this Function", 1, "WC")
+                       'Page = "Exit"
+                       Onload = "Exit"
+                       return
+                    endif
+     case "GROUP"   (void)$getopergroups($oper, groupmembership[], groupaccess[])
+                    'we are ignoring the groupaccess list
+                    index = 0
+                    do while index++ < $maxarray(groupmembership[])
+                       rc = $find(groupmembership[index], allowed_groups[], 1, "F")
+                       if rc > 0 then
+                          index = $maxarray(groupmembership[])
+                       endif
+                    enddo
+                    if rc = 0 then
+                       $brmsg("You are not Authorized for this Function", 1, "WC")
+                       'Page = "Exit"
+                       Onload = "Exit"
+                       return
+                    endif
+     case other     'no staff are excluded from using
+   endselect
+
+   select force_mode 
+     case "BYSTAFFDST"  if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y" then
+                           mode = "DATAENTRY"
+                        endif
+     'case "BYSTAFFDCTDST"  if    
+
+     '(void)$dbread(3, $operstaffid, creds_dst)
+     'recode
+     'creds_dst = $dct(creds_dst_dct, creds_dst, creds_dst_dct_op)
+     'rc = $find(creds_dst, entry_creds[], 1, "F")
+
+                       '(void)$dbread(3, $operstaffid, creds_dst)
+                       'rc = $find(creds_dst, entry_creds[], 1, "F")
+                       'if rc > 1 or creds_dst !dp then
+                       '   mode = "DATAENTRY"
+                       'endif
+     case other        mode = force_mode
+   endselect
 
 {"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
 
@@ -393,6 +481,7 @@ function Onload(parmfile, option) is null
    c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
   endif
  endif 
+ OnLoad = "1"
 end OnLoad 
 
 function LookUp() is null
@@ -785,20 +874,23 @@ function Validate1() is i
    (void)$arrpush(errors[],"Diagnosis Staff is required for data entry mode")  
   endif
   if c_dx10_staff dp
-   select $custnumber
-'Helen Farabee and Pecan Valley
-    case 256
-     select $uc($seg($mscname,1,5))
-      case "HELEN" (void)$dbread(3,c_dx10_staff,s.enc.sttp06)
-                   if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
-                    (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-                   endif 
-	  case "PECAN" (void)$dbread(3,c_dx10_staff,s.qualcode)
-                   if s.qualcode = "G" or s.qualcode = "H" or s.qualcode = "I" or s.qualcode = "J" or s.qualcode = "K" or s.qualcode = "M" or s.qualcode = "R" or s.qualcode !dp
-                    (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-                   endif
-     endselect
-   endselect			  
+     if isStaffDstInList(c_dx10_staff, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y" then
+        (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+     endif
+   'select $custnumber
+'He'len Farabee and Pecan Valley
+   ' case 256
+   '  select $uc($seg($mscname,1,5))
+   '   case "HELEN" (void)$dbread(3,c_dx10_staff,s.enc.sttp06)
+   '                if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
+   '                 (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+   '                endif 
+   '       case "PECAN" (void)$dbread(3,c_dx10_staff,s.qualcode)
+   '                if s.qualcode = "G" or s.qualcode = "H" or s.qualcode = "I" or s.qualcode = "J" or s.qualcode = "K" or s.qualcode = "M" or s.qualcode = "R" or s.qualcode !dp
+   '                 (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+   '                endif
+   '  endselect
+   'endselect			  
   endif 
  endif
  
@@ -1436,4 +1528,33 @@ function PreviousDXDt() is d
   PreviousDxDt = c.dx10.dt
  endif
 end PreviousDXDt
+
+dynamic function isStaffDstInList(staff-id, lookup-dst, lookup-list[], dct-edit, dct-recode) is x
+staff-id       is x
+lookup-dst     is v
+lookup-list[]  is x
+found-idx      is b
+dct-edit       is b
+dct-recode     is x
+
+isStaffDstInList = "N"
+
+(void)$dbread(3, staff-id, lookup-dst)
+
+if lookup-dst !dp then
+   isStaffDstInList = "Y"
+   return 
+endif
+
+if dct-edit dp and dct-recode dp then
+   lookup-dst = $dct(dct-edit, lookup-dst, dct-recode)
+endif
+
+found-idx = $find(lookup-dst, lookup-list[], 1, "F")
+if found-idx > 1 then
+   isStaffDstInList = "Y"
+endif
+
+return
+end isStaffDstInList
 
