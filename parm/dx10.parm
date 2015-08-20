@@ -5,6 +5,60 @@
 * Used to capture User input of a individual's
 *  diagnosis
 *
+* settings for user access *
+* exclude_staff_by STAFFDST|DCT|GROUP
+exclude_staff_by STAFFDST
+*
+* STAFFDST Settings
+creds_dst S.ID
+creds_dst_dct 2071
+creds_dst_dct_opt 1
+entry_creds-1 1869
+*
+* DCT Settings
+staff_access_dct 2071
+*
+* GROUP Settings
+allowed_groups-1 99
+allowed_groups-2 1
+*
+*
+* Control the UI Mode
+* available modes = VIEW|DATENTRY|!DP
+force_mode DATAENTRY
+*
+* Force the UI Mode based on user
+* force_mode_by STAFFDST|DCT|GROUP|!dp
+force_mode_by GROUP
+*
+* STAFFDST Settings
+* uses creds_* settings
+*
+* DCT Settings
+* uses staff_access_dct setting
+*
+* Group Settings
+* uses allowed_groups settings
+*
+* DATAENTRY Mode
+* DX Staff Validation
+* allowed_to_dx GROUP|DCT|STAFFDST|!dp
+*
+allowed_to_dx GROUP
+*
+* STAFFDST Settings
+dx_dst S.ID
+dx_dst_dct 2071
+dx_dst_dct_opt 1
+dx_creds-1 1869
+*
+* DCT Settings
+staff_dx_dct 2071
+*
+* GROUP Settings
+dx_groups-1 99
+dx_groups-2 1
+
 * actually save the record
 DOSAVE Y
 *
@@ -45,6 +99,14 @@ Title Diagnostic Report
 RptTitle Diagnostic Report
 ReportID IRMSDXREPORTID
 *
+* Option to save without making snap
+* Change to Y to show a save button
+* NOTE * if you have SHOWSAVEBUTTON and DOSNAPSHOT
+* both set to Y then the user will be
+* presented with a button to sign with snapshot
+* AND to save without snapshot
+* You should probably only use one or the other
+SHOWSAVEBUTTON N
 *
 *
 * The following parameters are for
