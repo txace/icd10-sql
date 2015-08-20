@@ -17,7 +17,7 @@ start DX10(parmfile,option,client,retcode)
  %define row_color4 "bgcolor='LemonChiffon'" 
  %define col_color_multi "bgcolor='LightGrey'"  
  %global client,retcode
- %global SHOWLEGAX,10DOTTED,9DOTTED,CONVLEGC,PULLFW,PULLABLFW
+ %global SHOWLEGAX,10DOTTED,9DOTTED,CONVLEGC,PULLABLFW
  %global UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,EffDt,EndDt
  %global Selection,index ,lookup_btn,up_btn,down_btn,delete_btn
  %global c_dx10_icd10,c_dx10_icd10_des,c_dx10_icd9,c_dx10_icd9_des, c_dx10_legax,c_dx10_dxcat
@@ -107,7 +107,6 @@ start DX10(parmfile,option,client,retcode)
  RequireABL         is x
  e_doc              is x
  CONVLEGC           is x
- PULLFW             is x
  PULLABLFW          is x
  mode               is x
  c_dx10_staff       is x
@@ -123,10 +122,12 @@ start DX10(parmfile,option,client,retcode)
 
  dosnapshot         is x
  dosave             is x
- %global dosnapshot, dosave
+ showsavebutton     is x
+ %global dosnapshot, dosave, showsavebutton
 
  Exclude_staff_by    is x
  force_mode          is x
+ force_mode_by       is x
 
  staff_access_dct    is b
  %global staff_access_dct
@@ -135,12 +136,25 @@ start DX10(parmfile,option,client,retcode)
  creds_dst           is x
  creds_dst_dct       is b
  creds_dst_dct_op    is x
- %global Exclude_staff_by, force_mode, entry_creds, 
+ %global Exclude_staff_by, force_mode, force_mode_by, entry_creds, 
  %global creds_dst, creds_dst_dct, creds_dst_dct_op
 
- allowed_groups[]    is b
+ allowed_groups[]    is x
  %global allowed_groups[]
   				   
+ allowed_to_dx       is x
+ dx_dst              is x
+ dx_creds[]          is x
+ dx_dst_dct          is b
+ dx_dst_dct_op       is x
+ %global allowed_to_dx, dx_dst, dx_creds[], dx_dst_dct, dx_dst_dct_op
+
+ dx_groups[]         is x
+ %global dx_groups[]
+
+ staff_dx_dct        is b
+ %global staff_dx_dct
+
  Page = "OnLoad"
  if $regid !dp
   if client dp
@@ -165,29 +179,6 @@ start DX10(parmfile,option,client,retcode)
  'let anyone see the report. Otherwise restrict access
  if page != "Report" then
  endif
-
-' if mode !dp then
-' select $custnumber
-''Helen Farabee and Pecan Valley
-'  case 256
-'   select $uc($seg($mscname,1,5))
-'    case "HELEN" (void)$dbread(3,$operstaffid,s.enc.sttp06)
-'                 if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
-'                  mode = "DATAENTRY"
-'                 endif
-'    case "PECAN" (void)$dbread(3,$operstaffid,s.qualcode)
-'                 s_qualcode = $dct(301,s.qualcode,"1")
-'                 if s_qualcode = "G" or s_qualcode = "H" or s_qualcode = "I" or s_qualcode = "J" or s_qualcode = "K" or s_qualcode = "M" or s_qualcode = "R" or s_qualcode !dp
-'                  mode = "DATAENTRY"
-'                 endif 
-'   endselect
-'   if Page != "Report"
-'    if $dct(9722,$operstaffid) !dp
-'     $brmsg("You are not Authorized for this Function",1,"WC") 
-'     Page = "Exit" 
-'    endif
-'   endif   
-' endselect				  
 
  do while 1 = 1
   select page
@@ -253,6 +244,8 @@ start DX10(parmfile,option,client,retcode)
 				   endselect									 				   
    case "Report" Report()
                  Page = "Exit" 
+   case "VIEW"   Page2()
+                 Page = "Exit"
    case "Exit" return
   endselect
  enddo
@@ -272,8 +265,11 @@ function Onload(parmfile, option) is x
  ICD10_Table is x
  ICD9_Table  is x
 
- groupmembership[]   is b
- groupaccess[]       is b
+ groupmembership[]   is x
+ groupaccess[]       is x
+
+ PULLFW      is x
+ ForcePullFw is x
 
 '***Parmfile releated/etc
 '*****Defaults*********
@@ -302,6 +298,7 @@ function Onload(parmfile, option) is x
 
  staff_access_dct = 9722
 
+ mode = "VIEW"
 '*****End Defaults****
 
  getparm(parmfile)
@@ -318,64 +315,85 @@ function Onload(parmfile, option) is x
  dosnapshot  = $uc(dosnapshot)
 
  $setvarname(creds_dst, creds_dst)
+ $setvarname(dx_dst, dx_dst)
 '****************************
-'do the security
+'do the security(void)
+
+   (void)$getopergroups($oper, groupmembership[], groupaccess[])
    select Exclude_staff_by
-     case "BYSTAFFDST"  if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y" then
+     case "STAFFDST"    if isStaffDstInList($operstaffid, creds_dst, entry_creds[], 
+                           creds_dst_dct, creds_dst_dct_op) = "Y" then
+
                            Onload = "Exit"
                            return
                         endif
 
-     case "DCT"     if $dct(staff_access_dct, $operstaffid) !dp then
-                       $brmsg("You are not Authorized for this Function", 1, "WC")
-                       'Page = "Exit"
-                       Onload = "Exit"
-                       return
-                    endif
-     case "GROUP"   (void)$getopergroups($oper, groupmembership[], groupaccess[])
-                    'we are ignoring the groupaccess list
-                    index = 0
-                    do while index++ < $maxarray(groupmembership[])
-                       rc = $find(groupmembership[index], allowed_groups[], 1, "F")
-                       if rc > 0 then
-                          index = $maxarray(groupmembership[])
-                       endif
-                    enddo
-                    if rc = 0 then
-                       $brmsg("You are not Authorized for this Function", 1, "WC")
-                       'Page = "Exit"
-                       Onload = "Exit"
-                       return
-                    endif
-     case other     'no staff are excluded from using
-   endselect
-
-   select force_mode 
-     case "BYSTAFFDST"  if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y" then
-                           mode = "DATAENTRY"
+     case "DCT"         if $dct(staff_access_dct, $operstaffid) !dp then
+                           $brmsg("You are not Authorized for this Function", 1, "WC")
+                           'Page = "Exit"
+                           Onload = "Exit"
+                           return
                         endif
-     'case "BYSTAFFDCTDST"  if    
-
-     '(void)$dbread(3, $operstaffid, creds_dst)
-     'recode
-     'creds_dst = $dct(creds_dst_dct, creds_dst, creds_dst_dct_op)
-     'rc = $find(creds_dst, entry_creds[], 1, "F")
-
-                       '(void)$dbread(3, $operstaffid, creds_dst)
-                       'rc = $find(creds_dst, entry_creds[], 1, "F")
-                       'if rc > 1 or creds_dst !dp then
-                       '   mode = "DATAENTRY"
-                       'endif
-     case other        mode = force_mode
+     case "GROUP"       'we are ignoring the groupaccess list
+                        index = 0
+                        rc = 0
+                        do while index++ < $maxarray(groupmembership[])
+                           rc = $find(groupmembership[index], allowed_groups[], 1, "F")
+                           if rc > 0 then
+                              index = $maxarray(groupmembership[])
+                           endif
+                        enddo
+                        if rc = 0 then
+                           $brmsg("You are not Authorized for this Function", 1, "WC")
+                           'Page = "Exit"
+                           Onload = "Exit"
+                           return
+                        endif
+     case other         'no staff are excluded from using
    endselect
 
-{"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
+
+   select force_mode_by
+     case "STAFFDST"    if isStaffDstInList($operstaffid, creds_dst, entry_creds[], 
+                           creds_dst_dct, creds_dst_dct_op) = "Y" then
+
+                           mode = force_mode '"DATAENTRY"
+                        endif
+     case "DCT"         if $dct(staff_access_dct, $operstaffid) !dp then
+                           mode = force_mode '"DATAENTRY"
+                        endif
+     case "GROUP"       index = 0
+                        rc = 0
+                        do while index++ < $maxarray(groupmembership[])
+                           rc = $find(groupmembership[index], allowed_groups[], 1, "F")
+                           if rc > 0 then
+                              index = $maxarray(groupmembership[])
+                           endif
+                        enddo
+                        if rc > 0 then
+                           mode = force_mode '"DATAENTRY"
+                        endif
+     case dp           mode = force_mode
+   endselect
+
+ 'passed the security configuration checks
+ OnLoad = "1"
+
+ 'Special Handling for view mode
+ if mode = "VIEW" then
+    ForcePullFw = "Y"
+    OnLoad = "VIEW"
+    dosnapshot = "N"
+    showsavebutton = "N"
+ endif
+
+ {"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
 
  rc = $dbread(2,$regid,c.fn,c.mn,c.ln,c.bd)
  rc = $dbread(2,$regid,dx10_dstlist)
  c_dx10_a5_pgaf = {"lib_DX10"}PreviousGAF()
  if c.dx10.dt dp and c.dx10.converted != "Y"
-  If PromptPullFW() = "Y" 
+  If PromptPullFW(PULLFW, ForcePullFw) = "Y" 
    index = 1
    $clear(c.dx10.dt)
    c_dx10_dxrank[index]    = c.dx10.dxrank.1
@@ -481,7 +499,6 @@ function Onload(parmfile, option) is x
    c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
   endif
  endif 
- OnLoad = "1"
 end OnLoad 
 
 function LookUp() is null
@@ -740,7 +757,7 @@ end Page1
 function Page2() is null
  e_docname is x
  save      is x
- if mode = "DATAENTRY"
+ if mode = "DATAENTRY" or mode = "VIEW" then
   (void)$dbalpha(3,c_dx10_staff,e_docname)
  endif 
  $submitopt("off","")
@@ -761,7 +778,7 @@ function Page2() is null
      $col()$ctag("&nbsp")
    endif	
   $endtable($funcname)				    
-  if mode = "DATAENTRY"
+  if mode = "DATAENTRY" or mode = "VIEW" then
    $br()$text("Diagnosis Staff: ")$text(e_docname)$text(`"  (" + c_dx10_staff + ")"`)
   endif
   $br(2)       
@@ -837,8 +854,9 @@ function Page2() is null
 
   if dosnapshot = "Y" then 
    {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID) 
+  endif
 
-  else 
+  if showsavebutton = "Y" then
      $br(2)
      $submit(save, "Save")
   endif 
@@ -850,6 +868,12 @@ function Validate1() is i
  s.enc.sttp06 is x
  s.qualcode   is x
  last_date    is d
+
+ groupmembership[]   is x
+ groupaccess[]       is x
+
+ rc            is b
+
  last_date = PreviousDXDt()
  $clear(errors[])
 
@@ -874,23 +898,31 @@ function Validate1() is i
    (void)$arrpush(errors[],"Diagnosis Staff is required for data entry mode")  
   endif
   if c_dx10_staff dp
-     if isStaffDstInList(c_dx10_staff, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y" then
-        (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-     endif
-   'select $custnumber
-'He'len Farabee and Pecan Valley
-   ' case 256
-   '  select $uc($seg($mscname,1,5))
-   '   case "HELEN" (void)$dbread(3,c_dx10_staff,s.enc.sttp06)
-   '                if s.enc.sttp06 = "G" or s.enc.sttp06 = "H" or s.enc.sttp06 = "I" or s.enc.sttp06 = "J" or s.enc.sttp06 = "K" or s.enc.sttp06 = "M" or s.enc.sttp06 = "R" or s.enc.sttp06 !dp
-   '                 (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-   '                endif 
-   '       case "PECAN" (void)$dbread(3,c_dx10_staff,s.qualcode)
-   '                if s.qualcode = "G" or s.qualcode = "H" or s.qualcode = "I" or s.qualcode = "J" or s.qualcode = "K" or s.qualcode = "M" or s.qualcode = "R" or s.qualcode !dp
-   '                 (void)$arrpush(errors[],"The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-   '                endif
-   '  endselect
-   'endselect			  
+   select allowed_to_dx
+     case "STAFFDST"    if isStaffDstInList(c_dx10_staff, dx_dst, dx_creds[], 
+                           dx_dst_dct, dx_dst_dct_op) != "Y" then
+
+                           (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+                        endif
+
+     case "DCT"         if $dct(staff_dx_dct, $operstaffid) !dp then
+                           (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+                        endif
+     case "GROUP"       'we are ignoring the groupaccess list
+                        (void)$getopergroups(c_dx10_staff, groupmembership[], groupaccess[])
+                        index = 0
+                        rc = 0
+                        do while index++ < $maxarray(groupmembership[])
+                           rc = $find(groupmembership[index], dx_groups[], 1, "F")
+                           if rc > 0 then
+                              index = $maxarray(groupmembership[])
+                           endif
+                        enddo
+                        if rc = 0 then
+                           (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+                        endif
+     case other         'all staff are allowed to dx
+   endselect
   endif 
  endif
  
@@ -1095,8 +1127,6 @@ function SaveData() is i
  bad_char[2] = ">"
  bad_char[3] = "&"
 
- $dblock()
- SaveData = $dbpoint(2,$regid,c.dx10.rh)
  c.dx10.snapid = {"l_snapLibSC"}sn_GetSnapID()
  if c.dx10.comment dp
   bad_char_index = 0
@@ -1451,6 +1481,8 @@ function SaveData() is i
   endif  
 
   if dosave = "Y" then
+   $dblock()
+   SaveData = $dbpoint(2,$regid,c.dx10.rh)
    SaveData = $dbadddst(2,$regid,dx10_dstlist) 
 
   else
@@ -1485,10 +1517,20 @@ function ResortDXRecord() is null
  (void)$arrcompress(comp_axis3_10_ds[]) 
 end ResortDXRecord 
 
-function PromptPullFW() is x
+function PromptPullFW(PULLFW, ForcePullFw) is x
+ PULLFW        is x
+ ForcePullFw   is x
+ yes_btn       is x
+ no_btn        is x
+
+ PromptPullFw = "N"
+
+ if ForcePullFw = "Y" then
+    PromptPullFw = "Y"
+    return
+ endif
+
  if PULLFW = "Y"
-  yes_btn  is x
-  no_btn   is x
   $submitopt("off","Yes")
   $cancelopt("off","No")
   $form($funcname) 
@@ -1502,8 +1544,6 @@ function PromptPullFW() is x
   $sendform($funcname) 
   if $endbutton = "SUBMIT" or yes_btn = "Y"
    PromptPullFW = "Y"
-  else
-   PromptPullFW = "N"   
   endif 
  endif
 end PromptPullFW
@@ -1551,7 +1591,7 @@ if dct-edit dp and dct-recode dp then
 endif
 
 found-idx = $find(lookup-dst, lookup-list[], 1, "F")
-if found-idx > 1 then
+if found-idx > 0 then
    isStaffDstInList = "Y"
 endif
 

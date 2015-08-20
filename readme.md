@@ -101,3 +101,185 @@ edit config.ignore with your system settings. Required settings:
      * inc_DX10.usc
      * lib_DX10.usc
   * Install all of the files in the Resources directory to /your/bui/installed/path/our_images/ where /your/bui/installed/path is the path to your bui installation. For Example: /c0/cmhcweb/cmchbui/cmhcbuilocal/.
+
+## DX10.usc UI Modes
+
+There are 4 UI modes supported by the DX10.usc script
+
+   * REPORT
+   * VIEW
+   * DATAENTRY
+   * !DP
+
+### Report Mode
+
+Report mode restricts users to only viewing the most recent snapshot of the category id set by the `irmsreportid` parameter.
+
+### View Mode
+
+View mode restricts users to a display only page of the top layer of the DX 10 record for the active client
+
+### Dataentry Mode
+
+DateEntry mode lets users enter DX10 records for other staff who completed the diagnosis. The UI exposes an extra field required field for the users to select the staff id of the staff who completed the diagnosis.
+
+### Not Data Present Mode
+
+If the Mode is not set then staff have access to enter DX10 records as diagnosing staff.
+
+## DX10.usc Configuration
+
+### User Access Settings
+
+You can restrict access to the DX10 script by setting the `Exclude_staff_by` parameter. There are 4 valid options for this parm:
+   * `STAFFDST`
+   * `DCT`
+   * `GROUP`
+   * `!dp`
+
+#### `Exclude_staff_by STAFFDST`
+
+`STAFFDST` Does a `$dbread` of the `$operstaffid` looking up the dst configured by the `creds_dst` setting. The value retrieved will be compaired to the items in the list set by `entry_creds`. If `creds_dst_dct` and `creds_dst_dct_op` are set then the value retrieve by the `$dbread` is edited against the dct / alternate code of `creds_dst_dct` / `creds_dst_dct_op`. 
+
+If the value is found in the `entry_creds[]` list then access to the program is denied
+
+##### Examples
+
+```
+exclude_staff_by STAFFDST
+creds dst S.ENC.CRED
+creds_dst_dct 601
+creds_dst_dct_op 1
+entry_creds-1 H
+```
+
+In this example the current operator will be checked for a value in their S.ENC.CRED _stand alone_ dst. The value is then edited against dct number 601's alt 1 value. If that value matchs 'H' then the staff is _excluded_ from continuing
+
+#### `Exclude_staff_by DCT`
+
+`DCT` Does a `$dct()` lookup to see if the value of `$operstaffid` is present in the DCT. If the staff id is _NOT_ present to in the DCT then the user is _excluded_ from continuing.
+
+##### Examples
+
+```
+exclude_staff_by DCT
+staff_access_dct 2071
+```
+
+#### `Exclude_staff_by GROUP`
+
+`GROUP` Does a `$getopergroups()` to look up the `$oper` signon groups. Only the group membership is considered. Group membership is compared to the `allowed_groups[]` list. If the user is a _NOT_ a member of a group that is present in the `allowed_groups[]` list then the user is _excluded_ from continuing.
+
+##### Examples
+
+```
+exclude_staff_by GROUP
+allowed_groups-1 1
+allowed_groups-2 99
+```
+
+#### `Exclude_staff_by `
+
+When `Exclude_staff_by` value is Not Data Present then no users are restricted from accessing the script.
+
+### Force Mode Settings
+
+You can force the UI `mode` by setting the `force_mode_by` parameter. There are 4 valid options for this parm:
+   * `STAFFDST`
+   * `DCT`
+   * `GROUP`
+   * `!dp`
+
+#### `force_mode_by STAFFDST`
+
+`STAFFDST` Does a `$dbread` of the `$operstaffid` looking up the dst configured by the `creds_dst` setting. The value retrieved will be compaired to the items in the list set by `entry_creds`. If `creds_dst_dct` and `creds_dst_dct_op` are set then the value retrieve by the `$dbread` is edited against the dct / alternate code of `creds_dst_dct` / `creds_dst_dct_op`. 
+
+If the value is found in the `entry_creds[]` list then the UI `mode` is changed to the value of the `force_mode` parameter.
+
+##### Examples
+
+```
+force_mode DATAENTRY
+force_mode_by STAFFDST
+creds dst S.ENC.CRED
+creds_dst_dct 601
+creds_dst_dct_op 1
+entry_creds-1 H
+```
+
+In this example the current operator will be checked for a value in their S.ENC.CRED _stand alone_ dst. The value is then edited against dct number 601's alt 1 value. If that value matchs 'H' then the script's UI `mode` is set to `"DATAENTRY"`.
+
+#### `force_mode_by DCT`
+
+`DCT` Does a `$dct()` lookup to see if the value of `$operstaffid` is present in the DCT. If the staff id is _NOT_ present to in the DCT then the script's UI `mode` is set to value of the `force_mode` parameter.
+
+##### Examples
+
+```
+force_mode_by DCT
+staff_access_dct 2071
+```
+
+#### `force_mode_by GROUP`
+
+`GROUP` Does a `$getopergroups()` to look up the `$oper` signon groups. Only the group membership is considered. Group membership is compared to the `allowed_groups[]` list. If the user is a _NOT_ a member of a group that is present in the `allowed_groups[]` list then the script's UI `mode` is set to the value of the `force_mode` parameter.
+
+##### Examples
+
+```
+force_mode_by GROUP
+allowed_groups-1 1
+allowed_groups-2 99
+```
+
+### Allowed to Diagnosis Settings
+
+When the UI Mode is set to `DATAENTRY` you can validate the staff id that is entered as the diangosing staff. To enable this validation use the `allowed_to_dx` parameter. There are 4 valid options for `allowed_to_dx`
+
+   * `STAFFDST`
+   * `DCT`
+   * `GROUP`
+   * `!dp`
+
+#### `allowed_to_dx STAFFDST`
+
+`STAFFDST` Does a `$dbread` of the `$operstaffid` looking up the dst configured by the `dx_dst` setting. The value retrieved will be compaired to the items in the list set by `dx_creds[]`. If `dx_dst_dct` and `dx_dst_dct_op` are set then the value retrieve by the `$dbread` is edited against the dct / alternate code of `dx_dst_dct` / `dx_dst_dct_op`. 
+
+If the value is found in the `entry_creds[]` list then the UI `mode` is changed to the value of the `force_mode` parameter.
+
+##### Examples
+
+```
+force_mode DATAENTRY
+allowed_to_dx STAFFDST
+dx_dst S.ENC.CRED
+dx_dst_dct 601
+dx_dst_dct_op 1
+dx_creds-1 H
+```
+
+In this example the current operator will be checked for a value in their S.ENC.CRED _stand alone_ dst. The value is then edited against dct number 601's alt 1 value. If that value matchs 'H' then the script accepts that staff id as a valid id for completing a diagnosis.
+
+#### `allowed_to_dx DCT`
+
+`DCT` Does a `$dct()` lookup to see if the value of `$operstaffid` is present in the DCT. If the staff id is present to in the DCT then the script accepts that staff id as a valid id for completing a diagnosis.
+
+##### Examples
+
+```
+allowed_to_dx DCT
+staff_access_dct 2071
+```
+
+#### `allowed_to_dx GROUP`
+
+`GROUP` Does a `$getopergroups()` to look up the `$oper` signon groups. Only the group membership is considered. Group membership is compared to the `dx_groups[]` list. If the user is a member of a group that is present in the `dx_groups[]` list then the script accepts that staff id as a valid id for completing a diagnosis.
+
+##### Examples
+
+```
+allowed_to_dx GROUP
+dx_groups-1 1
+dx_groups-2 99
+```
+
