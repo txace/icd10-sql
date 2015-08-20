@@ -319,12 +319,15 @@ function Onload(parmfile, option) is x
  $setvarname(dx_dst, dx_dst)
 '****************************
 'do the security(void)
-
-   (void)$getopergroups($oper, groupmembership[], groupaccess[])
+ (void)$getopergroups($oper, groupmembership[], groupaccess[])
+ if mode = "REPORT"
+  Onload = "Report"
+  return
+ endif
+ 
    select Exclude_staff_by
      case "STAFFDST"    if isStaffDstInList($operstaffid, creds_dst, entry_creds[], 
                            creds_dst_dct, creds_dst_dct_op) = "Y" then
-
                            Onload = "Exit"
                            return
                         endif
@@ -357,7 +360,6 @@ function Onload(parmfile, option) is x
    select force_mode_by
      case "STAFFDST"    if isStaffDstInList($operstaffid, creds_dst, entry_creds[], 
                            creds_dst_dct, creds_dst_dct_op) = "Y" then
-
                            mode = force_mode '"DATAENTRY"
                         endif
      case "DCT"         if $dct(staff_access_dct, $operstaffid) !dp then
@@ -377,8 +379,8 @@ function Onload(parmfile, option) is x
      case dp           mode = force_mode
    endselect
 
- 'passed the security configuration checks
- OnLoad = "1"
+'passed the security configuration checks
+  OnLoad = "1"
 
  'Special Handling for view mode
  if mode = "VIEW" then
@@ -387,7 +389,7 @@ function Onload(parmfile, option) is x
     dosnapshot = "N"
     showsavebutton = "N"
  endif
-
+ 
  {"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
 
  rc = $dbread(2,$regid,c.fn,c.mn,c.ln,c.bd)
