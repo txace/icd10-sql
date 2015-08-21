@@ -314,6 +314,7 @@ function Onload(parmfile, option) is x
  dosave      = $uc(dosave)
  dosnapshot  = $uc(dosnapshot)
 
+ creds_dst = $uc(creds_dst)
  $setvarname(creds_dst, creds_dst)
  $setvarname(dx_dst, dx_dst)
 '****************************
@@ -1576,6 +1577,7 @@ lookup-list[]  is x
 found-idx      is b
 dct-edit       is b
 dct-recode     is x
+s.enc.sttp06 is x
 
 isStaffDstInList = "N"
 
@@ -1596,5 +1598,4 @@ if found-idx > 0 then
 endif
 
 return
-end isStaffDstInList
-
+end isStaffDstInList 
