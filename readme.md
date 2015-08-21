@@ -102,42 +102,38 @@ edit config.ignore with your system settings. Required settings:
      * lib_DX10.usc
   * Install all of the files in the Resources directory to /your/bui/installed/path/our_images/ where /your/bui/installed/path is the path to your bui installation. For Example: /c0/cmhcweb/cmchbui/cmhcbuilocal/.
 
-## DX10.usc UI Modes
 
-There are 4 UI modes supported by the DX10.usc script
 
-   * REPORT
-   * VIEW
-   * DATAENTRY
-   * !DP
+## DX10.usc
 
-### Report Mode
+1. UI Modes
+ There are 4 UI modes supported by the DX10.usc script
+  A. REPORT
+  B. VIEW
+  C. DATAENTRY
+  D. !DP
 
-Report mode restricts users to only viewing the most recent snapshot of the category id set by the `irmsreportid` parameter.
+A. REPORT Mode
+  Report mode restricts users to only viewing the most recent snapshot of the category id set by the `irmsreportid` parameter.
 
-### View Mode
+B. View Mode
+   View mode restricts users to a display only page of the top layer of the DX 10 record for the active client
 
-View mode restricts users to a display only page of the top layer of the DX 10 record for the active client
+C. Dataentry Mode
+   DateEntry mode lets users enter DX10 records for other staff who completed the diagnosis. The UI exposes an extra field required field for the users to select the staff id of the staff who completed the diagnosis.
 
-### Dataentry Mode
+D. Not Data Present Mode
+  If the Mode is not set then staff have access to enter DX10 records as diagnosing staff.
 
-DateEntry mode lets users enter DX10 records for other staff who completed the diagnosis. The UI exposes an extra field required field for the users to select the staff id of the staff who completed the diagnosis.
+2. DX10.usc Configuration
+  A. User Access Settings
+     You can restrict access to the DX10 script by setting the `Exclude_staff_by` parameter. There are 4 valid options for this parm:
+   I. STAFFDST
+   II. DCT
+   III. GROUP
+   IV. !dp
 
-### Not Data Present Mode
-
-If the Mode is not set then staff have access to enter DX10 records as diagnosing staff.
-
-## DX10.usc Configuration
-
-### User Access Settings
-
-You can restrict access to the DX10 script by setting the `Exclude_staff_by` parameter. There are 4 valid options for this parm:
-   * `STAFFDST`
-   * `DCT`
-   * `GROUP`
-   * `!dp`
-
-#### `Exclude_staff_by STAFFDST`
+I.#### `Exclude_staff_by STAFFDST`
 
 `STAFFDST` Does a `$dbread` of the `$operstaffid` looking up the dst configured by the `creds_dst` setting. The value retrieved will be compaired to the items in the list set by `entry_creds`. If `creds_dst_dct` and `creds_dst_dct_op` are set then the value retrieve by the `$dbread` is edited against the dct / alternate code of `creds_dst_dct` / `creds_dst_dct_op`. 
 
@@ -147,7 +143,7 @@ If the value is found in the `entry_creds[]` list then access to the program is 
 
 ```
 exclude_staff_by STAFFDST
-creds dst S.ENC.CRED
+creds_dst S.ENC.CRED
 creds_dst_dct 601
 creds_dst_dct_op 1
 entry_creds-1 H
@@ -282,4 +278,8 @@ allowed_to_dx GROUP
 dx_groups-1 1
 dx_groups-2 99
 ```
+
+### ICD9 Gaf DST
+ icd9_gaf_dst DST_NAME
+ ex.) icd9_gaf_dst c.dxaxvc
 

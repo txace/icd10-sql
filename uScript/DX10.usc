@@ -149,6 +149,9 @@ start DX10(parmfile,option,client,retcode)
  dx_dst_dct_op       is x
  %global allowed_to_dx, dx_dst, dx_creds[], dx_dst_dct, dx_dst_dct_op
 
+ icd9_gaf_dst         is x
+ %global icd9_gaf_dst
+
  dx_groups[]         is x
  %global dx_groups[]
 
@@ -315,6 +318,7 @@ function Onload(parmfile, option) is x
  dosnapshot  = $uc(dosnapshot)
 
  creds_dst = $uc(creds_dst)
+ dx_dst = $uc(dx_dst)
  $setvarname(creds_dst, creds_dst)
  $setvarname(dx_dst, dx_dst)
 '****************************
@@ -394,7 +398,7 @@ function Onload(parmfile, option) is x
 
  rc = $dbread(2,$regid,c.fn,c.mn,c.ln,c.bd)
  rc = $dbread(2,$regid,dx10_dstlist)
- c_dx10_a5_pgaf = {"lib_DX10"}PreviousGAF()
+ c_dx10_a5_pgaf = {"lib_DX10"}PreviousGAF(icd9_gaf_dst)
  if c.dx10.dt dp and c.dx10.converted != "Y"
   If PromptPullFW(PULLFW, ForcePullFw) = "Y" 
    index = 1
@@ -1116,12 +1120,6 @@ function Validate2() is i
 end Validate2
  
 function SaveData() is i
- dx_icd10_code   is v
- dx_icd9_code    is v
- dx_legax        is v
- dx_dxcat        is v
- dx_dxrank       is v
- dx_uniqid       is v
  NewUID          is n
  save_selected[] is x
  bad_char_index  is i 
