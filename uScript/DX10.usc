@@ -158,6 +158,10 @@ start DX10(parmfile,option,client,retcode)
  staff_dx_dct        is b
  %global staff_dx_dct
 
+ if parmfile !dp
+  parmfile = "DX10"
+ endif
+
  Page = "OnLoad"
  if $regid !dp
   if client dp
@@ -505,6 +509,18 @@ function Onload(parmfile, option) is x
    c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl,
    c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
   endif
+ else
+  $clear(c.dx10.rh,c.dx10.staff,c.dx10.entstaff,c.dx10.dt,c.dx10.time,c.dx10.entdt,c.dx10.enttm,c.dx10.caredt,c.dx10.reason,c.dx10.expire,c.dx10.pimary.ax,
+  c.dx10.icd10.1,c.dx10.icd9.1,c.dx10.legax.1,c.dx10.dxcat.1,c.dx10.dxrank.1,c.dx10.uniq.1,c.dx10.icd10.2,c.dx10.icd9.2,c.dx10.legax.2,c.dx10.dxcat.2,c.dx10.dxrank.2,c.dx10.uniq.2,
+  c.dx10.icd10.3,c.dx10.icd9.3,c.dx10.legax.3,c.dx10.dxcat.3,c.dx10.dxrank.3,c.dx10.uniq.3,c.dx10.icd10.4,c.dx10.icd9.4,c.dx10.legax.4,c.dx10.dxcat.4,c.dx10.dxrank.4,c.dx10.uniq.4,
+  c.dx10.icd10.5,c.dx10.icd9.5,c.dx10.legax.5,c.dx10.dxcat.5,c.dx10.dxrank.5,c.dx10.uniq.5,c.dx10.icd10.6,c.dx10.icd9.6,c.dx10.legax.6,c.dx10.dxcat.6,c.dx10.dxrank.6,c.dx10.uniq.6,
+  c.dx10.icd10.7,c.dx10.icd9.7,c.dx10.legax.7,c.dx10.dxcat.7,c.dx10.dxrank.7,c.dx10.uniq.7,c.dx10.icd10.8,c.dx10.icd9.8,c.dx10.legax.8,c.dx10.dxcat.8,c.dx10.dxrank.8,c.dx10.uniq.8,
+  c.dx10.icd10.9,c.dx10.icd9.9,c.dx10.legax.9,c.dx10.dxcat.9,c.dx10.dxrank.9,c.dx10.uniq.9,c.dx10.icd10.10,c.dx10.icd9.10,c.dx10.legax.10,c.dx10.dxcat.10,c.dx10.dxrank.10,c.dx10.uniq.10,
+  c.dx10.icd10.11,c.dx10.icd9.11,c.dx10.legax.11,c.dx10.dxcat.11,c.dx10.dxrank.11,c.dx10.uniq.11,c.dx10.icd10.12,c.dx10.icd9.12,c.dx10.legax.12,c.dx10.dxcat.12,c.dx10.dxrank.12,c.dx10.uniq.12,
+  c.dx10.icd10.13,c.dx10.icd9.13,c.dx10.legax.13,c.dx10.dxcat.13,c.dx10.dxrank.13,c.dx10.uniq.13,c.dx10.icd10.14,c.dx10.icd9.14,c.dx10.legax.14,c.dx10.dxcat.14,c.dx10.dxrank.14,c.dx10.uniq.14,
+  c.dx10.icd10.15,c.dx10.icd9.15,c.dx10.legax.15,c.dx10.dxcat.15,c.dx10.dxrank.15,c.dx10.uniq.15,c.dx10.icd10.16,c.dx10.icd9.16,c.dx10.legax.16,c.dx10.dxcat.16,c.dx10.dxrank.16,c.dx10.uniq.16,
+  c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl,
+  c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
  endif 
 end OnLoad 
 
@@ -586,6 +602,16 @@ function Page1() is null
   if mode = "DATAENTRY"
    $br(2)$text("Diagnosis Staff: ","datatag")$textbox(c_dx10_staff ,"DB``03",6,,"Y")$editmsg(c_dx10_staff )
   endif  
+
+'HFC Temp DX History
+
+  $br()
+  DIAG_HX($regid)
+  $br()
+
+
+
+
   $br(2)
   $fieldset("Diagnosis Codes",,"datatag")
    $br()$submit(lookup_btn,"Lookup")
@@ -1599,3 +1625,69 @@ endif
 
 return
 end isStaffDstInList 
+
+
+
+
+'HFC Temp DX History
+function DIAG_HX(clid) is null
+%include inc_DX
+ staffname        is x
+ count            is i
+ showdx           is x
+ rc1              is i
+ clid             is x
+ rc1 = $dbread(2, clid, c.dsmiiir, c.who.diag, c.dxdate, c.dxreason, c.diag, c.dxaxii1, c.dxaxvc)
+ staffname = SetStaffName(c.who.diag)
+ $br()$checkbox(showdx,"Show ICD 9 Diagnosis History","Y",,,"SHOWDX","SHOWDX","font:bold 'arial';color:red:")
+ $br()$block("SHOWDX","SHOWDX")
+       $br()$tag("<CENTER>")$text("ICD9 Diagnosis History","H2")$tag("</CENTER>")
+       $br()$tag("<CENTER>")$text("Shown for Historical Purposes ONLY","H2")$tag("</CENTER>")	   
+       $br(2)$table("dxhx",,"width='95%' border='0' cellspacing='1' bgcolor='gainsboro'")
+	         $row()
+	          $col("center",,"8%")$text("Date of DX","datatag")
+	          $col("center",,"16%")$text("Who Diagnosed","datatag")
+	          $col("center",,"15%")$text("Reason for DX","datatag")
+	          $col("center",,"28%")$text("Axis I, Level I","datatag")
+	          $col("center",,"28%")$text("Axis II, Level I","datatag")
+	          $col("center",,"5%")$text("GAF","datatag")
+              if rc1 = 2 
+	           $row(,"bgcolor='white'")
+	            $col(,,,"6")$text("No Diagnosis Data on File")
+              else
+	           $row(,"bgcolor='white'")
+	            $col("center")$text(c.dxdate)
+	            $col("center")$text(staffname)
+	            $col("center")$text($ncs($dct(55, c.dxreason, "D")))
+	            $col()$text(`c.diag + "-" + $ncs($dct(400,c.diag,"D"))`)
+	            $col()$text(`c.dxaxii1 + "-" + $ncs($dct(401,c.dxaxii1,"D"))`)
+	            $col("center")$text(c.dxaxvc)
+               count = 1
+               do while rc1 < 2 and count <= 15	
+           	    $clear(c.dsmiiir, c.who.diag, c.dxdate, c.dxreason, c.diag, c.dxaxii1, c.dxaxvc)
+                rc1 = $dbreadnextdst(2, clid, c.dsmiiir, c.who.diag, c.dxdate, c.dxreason, c.diag, c.dxaxii1, c.dxaxvc)
+	            staffname = SetStaffName(c.who.diag)
+                select $mod(count,2)
+	             case 0     $row(, "bgcolor='White'")
+	             case other $row(, "bgcolor='LightSkyBlue'")
+                endselect 
+	            $col("center")$text(c.dxdate)
+	            $col("center")$text(staffname)
+	            $col("center")$text($ncs($dct(55, c.dxreason, "D")))
+	            $col()$text(`c.diag + "-" + $ncs($dct(400,c.diag,"D"))`)
+	            $col()$text(`c.dxaxii1 + "-" + $ncs($dct(401,c.dxaxii1,"D"))`)
+	            $col("center")$text(c.dxaxvc)
+                count++ 
+               enddo
+              endif 
+             $endtable("dxhx")
+      $endblock("SHOWDX","SHOWDX")
+end DIAG_HX
+function setStaffName(id) is x
+ id   is x
+ s.fn is x 
+ s.ln is x
+ rc1  is b
+ rc1 = $dbread(3, id, s.fn, s.ln)
+ setStaffName = $ncs(s.fn) + " " + $ncs(s.ln)
+end setStaffName
