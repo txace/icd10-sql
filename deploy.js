@@ -42,6 +42,8 @@ mis.deploy.usc()
 console.log('parms');
 mis.parm.fromflatfile('parm/dx10.ignore')
 .then(mis.parm.tofile.bind(mis, 'build/DX10.parm'))
+.then(mis.parm.fromflatfile.bind(mis, 'parm/dx10entr.ignore'))
+.then(mis.parm.tofile.bind(mis, 'build/DX10ENTR.parm'))
 .then(mis.deploy.parm);
 
 //deploy the resources
