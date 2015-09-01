@@ -553,6 +553,9 @@ function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axi
  $clear(axis1[],axis2[],axis3[])
  index = 0
  do while index++ < $maxarray(dx_code[])
+  	if stripdots = "TRUE"
+  		dx_code[index] = $replace(".","",dx_code[index])
+  	endif
   select dx_axis[index]
    case "1" (void)$arrpush(axis1[],dx_code[index])
    case "2" (void)$arrpush(axis2[],dx_code[index])
