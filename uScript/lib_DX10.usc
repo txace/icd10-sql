@@ -209,17 +209,22 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  enddo
 end DX_Lookup 
 
-function 10_Desc_lookup(UniqID) is x
- UniqID      is x
- o_sql       is x
- results     is x
- db			 is i 
- rc          is i
- dsn         is x
+function 10_Desc_lookup(UniqID,ICD10_9) is x
+ UniqID  is x
+ ICD10_9 is x
+ o_sql   is x
+ results is x
+ db		 is i 
+ rc      is i
+ dsn     is x
  rc = $loadlib(db, "LIB-freetds")
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
- o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ select ICD10_9
+  case "ICD10" o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD9"  o_sql = "select [ICD-9_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case other   o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ endselect
  rc = db:q(o_sql, results)
  10_Desc_Lookup = results
 end 10_Desc_Lookup
@@ -553,6 +558,9 @@ function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axi
  $clear(axis1[],axis2[],axis3[])
  index = 0
  do while index++ < $maxarray(dx_code[])
+  	if stripdots = "TRUE"
+  		dx_code[index] = $replace(".","",dx_code[index])
+  	endif
   select dx_axis[index]
    case "1" (void)$arrpush(axis1[],dx_code[index])
    case "2" (void)$arrpush(axis2[],dx_code[index])
@@ -830,8 +838,9 @@ function DX_10Code_Query(diag_code,legacy_axis,9DOTTED,results[]) is null
  $allowupdate(results[])
 end DX_10Code_Query
 
-function DX_Code_Query(UniqID) is x
+function DX_Code_Query(UniqID,ICD10_9) is x
  UniqID  is x
+ ICD10_9 is x
  o_sql   is x
  results is x
  db		 is i 
@@ -840,7 +849,11 @@ function DX_Code_Query(UniqID) is x
  rc = $loadlib(db, "LIB-freetds")
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
- o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ select ICD10_9
+  case "ICD10" o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD9"  o_sql = "select [ICD-9_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case other   o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ endselect 
  rc = db:q(o_sql, results)
  results = $replace("|","",results)
  DX_Code_Query = results
