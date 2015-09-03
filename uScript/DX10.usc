@@ -17,7 +17,7 @@ start DX10(parmfile,option,client,retcode)
  %define row_color4 "bgcolor='LemonChiffon'" 
  %define col_color_multi "bgcolor='LightGrey'"  
  %global client,retcode
- %global SHOWLEGAX,10DOTTED,9DOTTED,CONVLEGC,PULLABLFW
+ %global SHOWLEGAX,10DOTTED,9DOTTED,CONVLEGC,PULLABLFW,SHOWABL
  %global UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,EffDt,EndDt
  %global Selection,index ,lookup_btn,up_btn,down_btn,delete_btn
  %global c_dx10_icd10,c_dx10_icd10_des,c_dx10_icd9,c_dx10_icd9_des, c_dx10_legax,c_dx10_dxcat
@@ -108,6 +108,7 @@ start DX10(parmfile,option,client,retcode)
  e_doc              is x
  CONVLEGC           is x
  PULLABLFW          is x
+ SHOWABL            is x
  mode               is x
  c_dx10_staff       is x
  s.enc.sttp06       is x
@@ -149,11 +150,18 @@ start DX10(parmfile,option,client,retcode)
  dx_dst_dct_op       is x
  %global allowed_to_dx, dx_dst, dx_creds[], dx_dst_dct, dx_dst_dct_op
 
+ icd9_gaf_dst         is x
+ %global icd9_gaf_dst
+
  dx_groups[]         is x
  %global dx_groups[]
 
  staff_dx_dct        is b
  %global staff_dx_dct
+ 
+ if parmfile !dp
+  parmfile = "DX10"
+ endif
 
  Page = "OnLoad"
  if $regid !dp
@@ -177,7 +185,7 @@ start DX10(parmfile,option,client,retcode)
  endif
 
  'let anyone see the report. Otherwise restrict access
- if page != "Report" then
+ if page != "Report"
  endif
 
  do while 1 = 1
@@ -273,6 +281,7 @@ function Onload(parmfile, option) is x
 
 '***Parmfile releated/etc
 '*****Defaults*********
+ SHOWABL   = "N"
  SHOWLEGAX = "Y"
  9DOTTED   = "Y"
  10DOTTED  = "Y"
@@ -313,86 +322,83 @@ function Onload(parmfile, option) is x
  c_dx10_stat = $uc(c_dx10_stat)
  dosave      = $uc(dosave)
  dosnapshot  = $uc(dosnapshot)
+ SHOWABL     = $uc(SHOWABL)
 
  creds_dst = $uc(creds_dst)
+ dx_dst = $uc(dx_dst)
  $setvarname(creds_dst, creds_dst)
  $setvarname(dx_dst, dx_dst)
 '****************************
 'do the security(void)
+ (void)$getopergroups($oper, groupmembership[], groupaccess[])
+ if mode = "REPORT"
+  Onload = "Report"
+  return
+ endif
+ 
+ select Exclude_staff_by
+  case "STAFFDST" if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y"
+                   Onload = "Exit"
+                   return
+                  endif
+  case "DCT" if $dct(staff_access_dct, $operstaffid) !dp
+              $brmsg("You are not Authorized for this Function", 1, "WC")
+              Onload = "Exit"
+              return
+             endif
+'we are ignoring the groupaccess list
+  case "GROUP" index = 0
+               rc = 0
+               do while index++ < $maxarray(groupmembership[])
+                rc = $find(groupmembership[index], allowed_groups[], 1, "F")
+                if rc > 0
+                 index = $maxarray(groupmembership[])
+                endif
+               enddo
+               if rc = 0
+                $brmsg("You are not Authorized for this Function", 1, "WC")
+                Onload = "Exit"
+                return
+               endif
+  case other 'no staff are excluded from using
+ endselect
+ select force_mode_by
+  case "STAFFDST" if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y"
+                   mode = force_mode '"DATAENTRY"
+                  endif
+   case "DCT" if $dct(staff_access_dct, $operstaffid) !dp
+               mode = force_mode
+              endif
+   case "GROUP" index = 0
+                rc = 0
+                do while index++ < $maxarray(groupmembership[])
+                 rc = $find(groupmembership[index], allowed_groups[], 1, "F")
+                 if rc > 0
+                  index = $maxarray(groupmembership[])
+                 endif
+                enddo
+                if rc > 0
+                 mode = force_mode '"DATAENTRY"
+                endif
+   case dp mode = force_mode
+  endselect
 
-   (void)$getopergroups($oper, groupmembership[], groupaccess[])
-   select Exclude_staff_by
-     case "STAFFDST"    if isStaffDstInList($operstaffid, creds_dst, entry_creds[], 
-                           creds_dst_dct, creds_dst_dct_op) = "Y" then
-
-                           Onload = "Exit"
-                           return
-                        endif
-
-     case "DCT"         if $dct(staff_access_dct, $operstaffid) !dp then
-                           $brmsg("You are not Authorized for this Function", 1, "WC")
-                           'Page = "Exit"
-                           Onload = "Exit"
-                           return
-                        endif
-     case "GROUP"       'we are ignoring the groupaccess list
-                        index = 0
-                        rc = 0
-                        do while index++ < $maxarray(groupmembership[])
-                           rc = $find(groupmembership[index], allowed_groups[], 1, "F")
-                           if rc > 0 then
-                              index = $maxarray(groupmembership[])
-                           endif
-                        enddo
-                        if rc = 0 then
-                           $brmsg("You are not Authorized for this Function", 1, "WC")
-                           'Page = "Exit"
-                           Onload = "Exit"
-                           return
-                        endif
-     case other         'no staff are excluded from using
-   endselect
-
-
-   select force_mode_by
-     case "STAFFDST"    if isStaffDstInList($operstaffid, creds_dst, entry_creds[], 
-                           creds_dst_dct, creds_dst_dct_op) = "Y" then
-
-                           mode = force_mode '"DATAENTRY"
-                        endif
-     case "DCT"         if $dct(staff_access_dct, $operstaffid) !dp then
-                           mode = force_mode '"DATAENTRY"
-                        endif
-     case "GROUP"       index = 0
-                        rc = 0
-                        do while index++ < $maxarray(groupmembership[])
-                           rc = $find(groupmembership[index], allowed_groups[], 1, "F")
-                           if rc > 0 then
-                              index = $maxarray(groupmembership[])
-                           endif
-                        enddo
-                        if rc > 0 then
-                           mode = force_mode '"DATAENTRY"
-                        endif
-     case dp           mode = force_mode
-   endselect
-
- 'passed the security configuration checks
- OnLoad = "1"
+'passed the security configuration checks
+  OnLoad = "1"
 
  'Special Handling for view mode
- if mode = "VIEW" then
-    ForcePullFw = "Y"
-    OnLoad = "VIEW"
-    dosnapshot = "N"
-    showsavebutton = "N"
+ if mode = "VIEW"
+  ForcePullFw = "Y"
+  OnLoad = "VIEW"
+  dosnapshot = "N"
+  showsavebutton = "N"
  endif
-
+ 
  {"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
 
  rc = $dbread(2,$regid,c.fn,c.mn,c.ln,c.bd)
  rc = $dbread(2,$regid,dx10_dstlist)
- c_dx10_a5_pgaf = {"lib_DX10"}PreviousGAF()
+ c_dx10_a5_pgaf = {"lib_DX10"}PreviousGAF(icd9_gaf_dst)
  if c.dx10.dt dp and c.dx10.converted != "Y"
   If PromptPullFW(PULLFW, ForcePullFw) = "Y" 
    index = 1
@@ -499,6 +505,18 @@ function Onload(parmfile, option) is x
    c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl,
    c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
   endif
+ else
+  $clear(c.dx10.rh,c.dx10.staff,c.dx10.entstaff,c.dx10.dt,c.dx10.time,c.dx10.entdt,c.dx10.enttm,c.dx10.caredt,c.dx10.reason,c.dx10.expire,c.dx10.pimary.ax,
+  c.dx10.icd10.1,c.dx10.icd9.1,c.dx10.legax.1,c.dx10.dxcat.1,c.dx10.dxrank.1,c.dx10.uniq.1,c.dx10.icd10.2,c.dx10.icd9.2,c.dx10.legax.2,c.dx10.dxcat.2,c.dx10.dxrank.2,c.dx10.uniq.2,
+  c.dx10.icd10.3,c.dx10.icd9.3,c.dx10.legax.3,c.dx10.dxcat.3,c.dx10.dxrank.3,c.dx10.uniq.3,c.dx10.icd10.4,c.dx10.icd9.4,c.dx10.legax.4,c.dx10.dxcat.4,c.dx10.dxrank.4,c.dx10.uniq.4,
+  c.dx10.icd10.5,c.dx10.icd9.5,c.dx10.legax.5,c.dx10.dxcat.5,c.dx10.dxrank.5,c.dx10.uniq.5,c.dx10.icd10.6,c.dx10.icd9.6,c.dx10.legax.6,c.dx10.dxcat.6,c.dx10.dxrank.6,c.dx10.uniq.6,
+  c.dx10.icd10.7,c.dx10.icd9.7,c.dx10.legax.7,c.dx10.dxcat.7,c.dx10.dxrank.7,c.dx10.uniq.7,c.dx10.icd10.8,c.dx10.icd9.8,c.dx10.legax.8,c.dx10.dxcat.8,c.dx10.dxrank.8,c.dx10.uniq.8,
+  c.dx10.icd10.9,c.dx10.icd9.9,c.dx10.legax.9,c.dx10.dxcat.9,c.dx10.dxrank.9,c.dx10.uniq.9,c.dx10.icd10.10,c.dx10.icd9.10,c.dx10.legax.10,c.dx10.dxcat.10,c.dx10.dxrank.10,c.dx10.uniq.10,
+  c.dx10.icd10.11,c.dx10.icd9.11,c.dx10.legax.11,c.dx10.dxcat.11,c.dx10.dxrank.11,c.dx10.uniq.11,c.dx10.icd10.12,c.dx10.icd9.12,c.dx10.legax.12,c.dx10.dxcat.12,c.dx10.dxrank.12,c.dx10.uniq.12,
+  c.dx10.icd10.13,c.dx10.icd9.13,c.dx10.legax.13,c.dx10.dxcat.13,c.dx10.dxrank.13,c.dx10.uniq.13,c.dx10.icd10.14,c.dx10.icd9.14,c.dx10.legax.14,c.dx10.dxcat.14,c.dx10.dxrank.14,c.dx10.uniq.14,
+  c.dx10.icd10.15,c.dx10.icd9.15,c.dx10.legax.15,c.dx10.dxcat.15,c.dx10.dxrank.15,c.dx10.uniq.15,c.dx10.icd10.16,c.dx10.icd9.16,c.dx10.legax.16,c.dx10.dxcat.16,c.dx10.dxrank.16,c.dx10.uniq.16,
+  c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl,
+  c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
  endif 
 end OnLoad 
 
@@ -544,6 +562,7 @@ function LookUp() is null
 end LookUp     
  
 function Page1() is null
+ showabl_btn is x
  if comp_axis2_10_dx[1] dp and (comp_axis2_10_dx[1] != "R69" and comp_axis2_10_dx[1] != "Z0389" and comp_axis2_10_dx[1] != "Z03.89"  and
    comp_axis2_10_dx[1] != "F21" and
    comp_axis2_10_dx[1] != "F600" and
@@ -561,6 +580,10 @@ function Page1() is null
  else
   RequireABL = "N" 
  endif
+
+'?Alter ShowABL based on returned DX, etc
+ 'ShowABL
+ 
  $clear(lookup_btn,up_btn[],down_btn[],delete_btn[])  
  $submitopt("off","Save")
  $cancelopt("off","Cancel")
@@ -580,6 +603,7 @@ function Page1() is null
   if mode = "DATAENTRY"
    $br(2)$text("Diagnosis Staff: ","datatag")$textbox(c_dx10_staff ,"DB``03",6,,"Y")$editmsg(c_dx10_staff )
   endif  
+
   $br(2)
   $fieldset("Diagnosis Codes",,"datatag")
    $br()$submit(lookup_btn,"Lookup")
@@ -749,6 +773,12 @@ function Page1() is null
    $text("AAMD Adaptive Behavior Level")
    $text("Current ABL")$textbox(c_dx10_curr_abl,"DCVA``102",2,2)
    $br()$text("Potential ABL")$textbox(c_dx10_pot_abl,"DCVA``102",2,2)
+  elseif ShowABL = "Y"
+   $br(2)$checkbox(ShowABL_btn,"Show ABL","Y",,,"SHOWABL","SHOWABL","font:bold 'arial';color:red:")
+   $br()$block("SHOWABL","SHOWABL")
+         $br()$text("AAMD Adaptive Behavior Level")$text("Current ABL")$textbox(c_dx10_curr_abl,"DCVA``102",2,2)
+         $br()$text("Potential ABL")$textbox(c_dx10_pot_abl,"DCVA``102",2,2)
+        $endblock("SHOWABL","SHOWABL")   
   endif 
   $br(2)$text("Comments:", "datatag")
   $br()$textblock(c_dx10_comment,8,90,,,10000)$countbox(c_dx10_comment, "(max chars is 10000)")  
@@ -758,7 +788,7 @@ end Page1
 function Page2() is null
  e_docname is x
  save      is x
- if mode = "DATAENTRY" or mode = "VIEW" then
+ if mode = "DATAENTRY" or mode = "VIEW"
   (void)$dbalpha(3,c_dx10_staff,e_docname)
  endif 
  $submitopt("off","")
@@ -779,7 +809,7 @@ function Page2() is null
      $col()$ctag("&nbsp")
    endif	
   $endtable($funcname)				    
-  if mode = "DATAENTRY" or mode = "VIEW" then
+  if mode = "DATAENTRY" or mode = "VIEW"
    $br()$text("Diagnosis Staff: ")$text(e_docname)$text(`"  (" + c_dx10_staff + ")"`)
   endif
   $br(2)       
@@ -844,7 +874,7 @@ function Page2() is null
   $endfieldset()
   $br(2)
   $text("Axis of Primary DX: ")$text(c_dx10_pimary_ax)$text(" - ")$text($dct(2087,c_dx10_pimary_ax))
-  if RequireABL = "Y"
+  if RequireABL = "Y" or ShowABL = "Y"
    $br(2)
    $text("AAMD Adaptive Behavior Level")
    $text("Current ABL: ")$text(c_dx10_curr_abl)
@@ -853,13 +883,12 @@ function Page2() is null
   $br(2)$text("Comments:")
   $br()$text(c_dx10_comment)
 
-  if dosnapshot = "Y" then 
+  if dosnapshot = "Y"
    {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID) 
   endif
 
-  if showsavebutton = "Y" then
-     $br(2)
-     $submit(save, "Save")
+  if showsavebutton = "Y"
+   $br(2)$submit(save, "Save")
   endif 
 
  $sendform($funcname)	  
@@ -900,29 +929,27 @@ function Validate1() is i
   endif
   if c_dx10_staff dp
    select allowed_to_dx
-     case "STAFFDST"    if isStaffDstInList(c_dx10_staff, dx_dst, dx_creds[], 
-                           dx_dst_dct, dx_dst_dct_op) != "Y" then
+    case "STAFFDST" if isStaffDstInList(c_dx10_staff, dx_dst, dx_creds[], dx_dst_dct, dx_dst_dct_op) != "Y"
+                     (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+                    endif
 
-                           (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-                        endif
-
-     case "DCT"         if $dct(staff_dx_dct, $operstaffid) !dp then
-                           (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-                        endif
-     case "GROUP"       'we are ignoring the groupaccess list
-                        (void)$getopergroups(c_dx10_staff, groupmembership[], groupaccess[])
-                        index = 0
-                        rc = 0
-                        do while index++ < $maxarray(groupmembership[])
-                           rc = $find(groupmembership[index], dx_groups[], 1, "F")
-                           if rc > 0 then
-                              index = $maxarray(groupmembership[])
-                           endif
-                        enddo
-                        if rc = 0 then
-                           (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
-                        endif
-     case other         'all staff are allowed to dx
+    case "DCT" if $dct(staff_dx_dct, $operstaffid) !dp
+                (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+               endif
+'we are ignoring the groupaccess list
+    case "GROUP" (void)$getopergroups(c_dx10_staff, groupmembership[], groupaccess[])
+                 index = 0
+                 rc = 0
+                 do while index++ < $maxarray(groupmembership[])
+                  rc = $find(groupmembership[index], dx_groups[], 1, "F")
+                  if rc > 0
+                   index = $maxarray(groupmembership[])
+                  endif
+                 enddo
+                 if rc = 0
+                  (void)$arrpush(errors[], "The selected Diagnosis Staff does not have the correct encounter credential to complete a diagnosis")      
+                 endif
+    case other 'all staff are allowed to dx
    endselect
   endif 
  endif
@@ -1114,12 +1141,6 @@ function Validate2() is i
 end Validate2
  
 function SaveData() is i
- dx_icd10_code   is v
- dx_icd9_code    is v
- dx_legax        is v
- dx_dxcat        is v
- dx_dxrank       is v
- dx_uniqid       is v
  NewUID          is n
  save_selected[] is x
  bad_char_index  is i 
@@ -1166,7 +1187,7 @@ function SaveData() is i
  c.dx10.a4.psyenv = c_dx10_a4_psyenv 
  c.dx10.a4.none   = c_dx10_a4_none   
  c.dx10.a5.gaf    = c_dx10_a5_gaf    
- if RequireABL = "Y"
+ if RequireABL = "Y" or (ShowABL = "Y" and c_dx10_curr_abl dp and c_dx10_pot_abl dp)
   c.dx10.curr.abl  = c_dx10_curr_abl  
   c.dx10.pot.abl   = c_dx10_pot_abl    
  else
@@ -1183,12 +1204,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.1 = ICD_Code_DotNt
    else
-    c.dx10.icd10.1  = ICD_Code
+    c.dx10.icd10.1 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.1   =  ICD_Code_DotNt2
+    c.dx10.icd9.1  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.1   = ICD_Code2
+    c.dx10.icd9.1  = ICD_Code2
    endif	
    c.dx10.legax.1  = DSM_4_Axis
    c.dx10.dxcat.1  = DX_Cat
@@ -1202,12 +1223,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.2 = ICD_Code_DotNt
    else
-    c.dx10.icd10.2  = ICD_Code
+    c.dx10.icd10.2 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.2   =  ICD_Code_DotNt2
+    c.dx10.icd9.2  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.2   = ICD_Code2
+    c.dx10.icd9.2  = ICD_Code2
    endif
    c.dx10.legax.2  = DSM_4_Axis
    c.dx10.dxcat.2  = DX_Cat
@@ -1221,12 +1242,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.3 = ICD_Code_DotNt
    else
-    c.dx10.icd10.3  = ICD_Code
+    c.dx10.icd10.3 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.3   =  ICD_Code_DotNt2
+    c.dx10.icd9.3  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.3   = ICD_Code2
+    c.dx10.icd9.3  = ICD_Code2
    endif	
    c.dx10.legax.3  = DSM_4_Axis
    c.dx10.dxcat.3  = DX_Cat
@@ -1240,12 +1261,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.4 = ICD_Code_DotNt
    else
-    c.dx10.icd10.4  = ICD_Code
+    c.dx10.icd10.4 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.4   =  ICD_Code_DotNt2
+    c.dx10.icd9.4  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.4   = ICD_Code2
+    c.dx10.icd9.4  = ICD_Code2
    endif	
    c.dx10.legax.4  = DSM_4_Axis
    c.dx10.dxcat.4  = DX_Cat
@@ -1259,12 +1280,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.5 = ICD_Code_DotNt
    else
-    c.dx10.icd10.5  = ICD_Code
+    c.dx10.icd10.5 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.5   =  ICD_Code_DotNt2
+    c.dx10.icd9.5  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.5   = ICD_Code2
+    c.dx10.icd9.5  = ICD_Code2
    endif
    c.dx10.legax.5  = DSM_4_Axis
    c.dx10.dxcat.5  = DX_Cat
@@ -1278,12 +1299,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.6 = ICD_Code_DotNt
    else
-    c.dx10.icd10.6  = ICD_Code
+    c.dx10.icd10.6 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.6   =  ICD_Code_DotNt2
+    c.dx10.icd9.6  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.6   = ICD_Code2
+    c.dx10.icd9.6  = ICD_Code2
    endif	
    c.dx10.legax.6  = DSM_4_Axis
    c.dx10.dxcat.6  = DX_Cat
@@ -1297,12 +1318,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.7 = ICD_Code_DotNt
    else
-    c.dx10.icd10.7  = ICD_Code
+    c.dx10.icd10.7 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.7   =  ICD_Code_DotNt2
+    c.dx10.icd9.7  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.7   = ICD_Code2
+    c.dx10.icd9.7  = ICD_Code2
    endif
    c.dx10.legax.7  = DSM_4_Axis
    c.dx10.dxcat.7  = DX_Cat
@@ -1316,12 +1337,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.8 = ICD_Code_DotNt
    else
-    c.dx10.icd10.8  = ICD_Code
+    c.dx10.icd10.8 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.8   =  ICD_Code_DotNt2
+    c.dx10.icd9.8  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.8   = ICD_Code2
+    c.dx10.icd9.8  = ICD_Code2
    endif	
    c.dx10.legax.8  = DSM_4_Axis
    c.dx10.dxcat.8  = DX_Cat
@@ -1335,12 +1356,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.9 = ICD_Code_DotNt
    else
-    c.dx10.icd10.9  = ICD_Code
+    c.dx10.icd10.9 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.9   =  ICD_Code_DotNt2
+    c.dx10.icd9.9  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.9   = ICD_Code2
+    c.dx10.icd9.9  = ICD_Code2
    endif	
    c.dx10.legax.9  = DSM_4_Axis
    c.dx10.dxcat.9  = DX_Cat
@@ -1354,12 +1375,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.10 = ICD_Code_DotNt
    else
-    c.dx10.icd10.10  = ICD_Code
+    c.dx10.icd10.10 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.10   =  ICD_Code_DotNt2
+    c.dx10.icd9.10  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.10   = ICD_Code2
+    c.dx10.icd9.10  = ICD_Code2
    endif
    c.dx10.legax.10  = DSM_4_Axis
    c.dx10.dxcat.10  = DX_Cat
@@ -1373,12 +1394,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.11 = ICD_Code_DotNt
    else
-    c.dx10.icd10.11  = ICD_Code
+    c.dx10.icd10.11 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.11   =  ICD_Code_DotNt2
+    c.dx10.icd9.11  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.11   = ICD_Code2
+    c.dx10.icd9.11  = ICD_Code2
    endif
    c.dx10.legax.11  = DSM_4_Axis
    c.dx10.dxcat.11  = DX_Cat
@@ -1392,12 +1413,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.12 = ICD_Code_DotNt
    else
-    c.dx10.icd10.12  = ICD_Code
+    c.dx10.icd10.12 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.12   =  ICD_Code_DotNt2
+    c.dx10.icd9.12  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.12   = ICD_Code2
+    c.dx10.icd9.12  = ICD_Code2
    endif	
    c.dx10.legax.12  = DSM_4_Axis
    c.dx10.dxcat.12  = DX_Cat
@@ -1411,12 +1432,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.13 = ICD_Code_DotNt
    else
-    c.dx10.icd10.13  = ICD_Code
+    c.dx10.icd10.13 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.13   =  ICD_Code_DotNt2
+    c.dx10.icd9.13  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.13   = ICD_Code2
+    c.dx10.icd9.13  = ICD_Code2
    endif
    c.dx10.legax.13  = DSM_4_Axis
    c.dx10.dxcat.13  = DX_Cat
@@ -1430,12 +1451,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.14 = ICD_Code_DotNt
    else
-    c.dx10.icd10.14  = ICD_Code
+    c.dx10.icd10.14 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.14   =  ICD_Code_DotNt2
+    c.dx10.icd9.14  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.14   = ICD_Code2
+    c.dx10.icd9.14  = ICD_Code2
    endif
    c.dx10.legax.14  = DSM_4_Axis
    c.dx10.dxcat.14  = DX_Cat
@@ -1449,12 +1470,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.15 = ICD_Code_DotNt
    else
-    c.dx10.icd10.15  = ICD_Code
+    c.dx10.icd10.15 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.15   =  ICD_Code_DotNt2
+    c.dx10.icd9.15  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.15   = ICD_Code2
+    c.dx10.icd9.15  = ICD_Code2
    endif
    c.dx10.legax.15  = DSM_4_Axis
    c.dx10.dxcat.15  = DX_Cat
@@ -1468,12 +1489,12 @@ function SaveData() is i
    if 10DOTTED = "Y"
     c.dx10.icd10.16 = ICD_Code_DotNt
    else
-    c.dx10.icd10.16  = ICD_Code
+    c.dx10.icd10.16 = ICD_Code
    endif
    if 9DOTTED = "Y"
-    c.dx10.icd9.16   =  ICD_Code_DotNt2
+    c.dx10.icd9.16  =  ICD_Code_DotNt2
    else
-    c.dx10.icd9.16   = ICD_Code2
+    c.dx10.icd9.16  = ICD_Code2
    endif	
    c.dx10.legax.16  = DSM_4_Axis
    c.dx10.dxcat.16  = DX_Cat
@@ -1481,7 +1502,7 @@ function SaveData() is i
    c.dx10.uniq.16   = UniqID
   endif  
 
-  if dosave = "Y" then
+  if dosave = "Y"
    $dblock()
    SaveData = $dbpoint(2,$regid,c.dx10.rh)
    SaveData = $dbadddst(2,$regid,dx10_dstlist) 
@@ -1526,9 +1547,9 @@ function PromptPullFW(PULLFW, ForcePullFw) is x
 
  PromptPullFw = "N"
 
- if ForcePullFw = "Y" then
-    PromptPullFw = "Y"
-    return
+ if ForcePullFw = "Y"
+  PromptPullFw = "Y"
+  return
  endif
 
  if PULLFW = "Y"
@@ -1571,31 +1592,28 @@ function PreviousDXDt() is d
 end PreviousDXDt
 
 dynamic function isStaffDstInList(staff-id, lookup-dst, lookup-list[], dct-edit, dct-recode) is x
-staff-id       is x
-lookup-dst     is v
-lookup-list[]  is x
-found-idx      is b
-dct-edit       is b
-dct-recode     is x
-s.enc.sttp06 is x
+ staff-id      is x
+ lookup-dst    is v
+ lookup-list[] is x
+ found-idx     is b
+ dct-edit      is b
+ dct-recode    is x
 
-isStaffDstInList = "N"
+ isStaffDstInList = "N"
+ (void)$dbread(3, staff-id, lookup-dst)
 
-(void)$dbread(3, staff-id, lookup-dst)
+ if lookup-dst !dp
+  isStaffDstInList = "Y"
+  return 
+ endif
 
-if lookup-dst !dp then
-   isStaffDstInList = "Y"
-   return 
-endif
+ if dct-edit dp and dct-recode dp
+  lookup-dst = $dct(dct-edit, lookup-dst, dct-recode)
+ endif
 
-if dct-edit dp and dct-recode dp then
-   lookup-dst = $dct(dct-edit, lookup-dst, dct-recode)
-endif
-
-found-idx = $find(lookup-dst, lookup-list[], 1, "F")
-if found-idx > 0 then
-   isStaffDstInList = "Y"
-endif
-
-return
-end isStaffDstInList 
+ found-idx = $find(lookup-dst, lookup-list[], 1, "F")
+ if found-idx > 0
+  isStaffDstInList = "Y"
+ endif
+ return
+end isStaffDstInList

@@ -209,17 +209,22 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  enddo
 end DX_Lookup 
 
-function 10_Desc_lookup(UniqID) is x
- UniqID      is x
- o_sql       is x
- results     is x
- db			 is i 
- rc          is i
- dsn         is x
+function 10_Desc_lookup(UniqID,ICD10_9) is x
+ UniqID  is x
+ ICD10_9 is x
+ o_sql   is x
+ results is x
+ db		 is i 
+ rc      is i
+ dsn     is x
  rc = $loadlib(db, "LIB-freetds")
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
- o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ select ICD10_9
+  case "ICD10" o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD9"  o_sql = "select [ICD-9_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case other   o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ endselect
  rc = db:q(o_sql, results)
  10_Desc_Lookup = results
 end 10_Desc_Lookup
@@ -254,10 +259,9 @@ function DX_Uniq_Query(UniqID) is x
  DX_Uniq_Query = results
 end DX_Uniq_Query
 
-function PreviousGaf() is x
- rc            is i
- 'c.dsmiiir     is h
- 'c.dxaxvc      is x
+function PreviousGaf(gaf_dst) is x
+ rc      is i
+ gaf_dst is x
  rc = $dbread(2,$regid,c.dx10.rh,c.dx10.a5.gaf)
  if c.dx10.rh dp
   if c.dx10.a5.gaf dp
@@ -265,13 +269,8 @@ function PreviousGaf() is x
   else
    $clear(PreviousGaf)
   endif 
- else
-  'rc = $dbread(2,$regid,c.dsmiiir,c.dxaxvc) 
-  'if c.dxaxvc dp
-   'PreviousGaf = c.dxaxvc
-  'else
-   $clear(PreviousGaf)
-  'endif   
+ elseif gaf_dst dp
+  PreviousGaf = dst_value($regid,,gaf_dst)
  endif 
 end PreviousGaf
 
@@ -559,6 +558,9 @@ function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axi
  $clear(axis1[],axis2[],axis3[])
  index = 0
  do while index++ < $maxarray(dx_code[])
+  	if stripdots = "TRUE"
+  		dx_code[index] = $replace(".","",dx_code[index])
+  	endif
   select dx_axis[index]
    case "1" (void)$arrpush(axis1[],dx_code[index])
    case "2" (void)$arrpush(axis2[],dx_code[index])
@@ -836,8 +838,9 @@ function DX_10Code_Query(diag_code,legacy_axis,9DOTTED,results[]) is null
  $allowupdate(results[])
 end DX_10Code_Query
 
-function DX_Code_Query(UniqID) is x
+function DX_Code_Query(UniqID,ICD10_9) is x
  UniqID  is x
+ ICD10_9 is x
  o_sql   is x
  results is x
  db		 is i 
@@ -846,7 +849,11 @@ function DX_Code_Query(UniqID) is x
  rc = $loadlib(db, "LIB-freetds")
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
- o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ select ICD10_9
+  case "ICD10" o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD9"  o_sql = "select [ICD-9_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case other   o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+ endselect 
  rc = db:q(o_sql, results)
  results = $replace("|","",results)
  DX_Code_Query = results
@@ -1018,3 +1025,35 @@ select rtdxtype
 endselect
 
 end GETDXFROM10
+
+function dst_value(regid,dst_number,dst_name) is x
+ regid        is x
+ dst_number   is i
+ dst_name     is x
+ myvar_hdr    is var
+ myvar        is var
+ dst_info[]   is x
+ dst_edit_num is i
+ dst_code     is x
+ rc_dstinfo   is i
+ rc_dbread    is i
+ if dst_number dp
+  rc_dstinfo = $dstinfo(dst_number,dst_info[],dst_edit_num,dst_code)
+ else
+  dst_name = $uc(dst_name) 
+  rc_dstinfo = $dstinfo(dst_name,dst_info[],dst_edit_num,dst_code)  
+ endif 
+ if rc_dstinfo = 0
+  $setvarname(myvar,dst_info[2])
+  $setvartype(myvar,dst_info[5])
+  if dst_info[9] !dp
+   rc_dbread = $dbread($casti(dst_info[4]),regid,myvar)
+  else
+   $setvarname(myvar_hdr,dst_info[16])
+   $setvartype(myvar_hdr,"H")
+   rc_dbread = $dbread($casti(dst_info[4]),regid,myvar_hdr,myvar)
+  endif
+ endif
+ dst_value = myvar
+end dst_value
+
