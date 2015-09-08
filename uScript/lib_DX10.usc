@@ -639,7 +639,7 @@ function getClientGaf(client_id, as_of_date, dx_rec, dx_date, dx_gaf_cur, dx_gaf
  dx_abl_cur is x
  dx_abl_pot is x
 
- $allowupdate(dx_gaf_cur, dx_gaf_pre)
+ $allowupdate(dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot)
 
  if dx_rec dp then
     getClientGaf = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
@@ -1060,7 +1060,7 @@ dx09_code[]       is x
 
 dx_axis_vers      is x
 dx_axis3_vers     is x
-dx_aamd_vers      is x
+'dx_aamd_vers      is x
 trans_aamd_ver    is x
 dx_rec_type       is i
 
@@ -1314,7 +1314,7 @@ outrec += putPhysicalTrans(rec_length,
    dx_sq, "999",
    dx_sq_test, "99",
    dx_sq_date, "YYYYMMDD",
-   dx_aamd_vers, "~~",
+   trans_aamd_ver, "~~",
    dx_axis_vers, "~~",
    dx_axis3_vers, "~~",
    dx_gaf_cur, "~~",
