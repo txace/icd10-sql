@@ -1,0 +1,53 @@
+start lib-batch-test(client)
+
+client is x
+
+rc is b
+
+lib-dx is b
+
+rc = $loadlib(lib-dx, "lib_DX10")
+
+rec is uid
+asofdate is d
+compcode is b
+batchno is x
+trans_date is d
+transcount is b
+userid is x
+
+client_careid is x
+client_last is x
+client_sufx is x
+client_first is x
+client_middle is x
+
+batch is x
+
+asofdate = $today
+compcode = 100
+batchno = "T1"
+trans_date = $today
+transcount = 123
+userid = "A0001"
+
+client_careid = "000123456"
+client_last = "FAKERSON"
+client_sufx = "SR"
+client_first = "FAKIE"
+client_middle = "MAC"
+
+batch = lib-dx:getDxBatchTrans(rec, asofdate, compcode, batchno, trans_date, transcount, userid,
+   client, client_careid, client_last, client_sufx, client_first, client_middle)
+
+'batch = $replace(x"a0", "{br}", batch)
+
+'$form()
+'$tag(batch)
+'$sendform()
+
+rc = $putfile(batch, "/c1/FRSH/SCRIPT/S/batch.test")
+
+rc = $unloadlib(lib-dx)
+
+end lib-batch-test
