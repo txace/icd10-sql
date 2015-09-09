@@ -1,4 +1,5 @@
 start DX10(parmfile,option,client,retcode)
+ %version 1.1.002 09/09/2015
  $looplimit = 0
  parmfile is x
  option   is x
@@ -111,9 +112,6 @@ start DX10(parmfile,option,client,retcode)
  SHOWABL            is x
  mode               is x
  c_dx10_staff       is x
- s.enc.sttp06       is x
- s.qualcode         is x
- s_qualcode         is x
  email_staff[]      is x
 
  Title              is x
@@ -603,7 +601,6 @@ function Page1() is null
   if mode = "DATAENTRY"
    $br(2)$text("Diagnosis Staff: ","datatag")$textbox(c_dx10_staff ,"DB``03",6,,"Y")$editmsg(c_dx10_staff )
   endif  
-
   $br(2)
   $fieldset("Diagnosis Codes",,"datatag")
    $br()$submit(lookup_btn,"Lookup")
@@ -767,17 +764,33 @@ function Page1() is null
    endif	
   $endfieldset()
    $br(2)
-  $text("Axis of Primary DX")$textbox(c_dx10_pimary_ax,"DCVA``2087",1,2)$editmsg(c_dx10_pimary_ax)
+  $text("Axis of Primary DX","datatag")$textbox(c_dx10_pimary_ax,"DCVA``2087",1,2)$editmsg(c_dx10_pimary_ax)
   if RequireABL = "Y"
-   $br(2)
-   $text("AAMD Adaptive Behavior Level")
-   $text("Current ABL")$textbox(c_dx10_curr_abl,"DCVA``102",2,2)
-   $br()$text("Potential ABL")$textbox(c_dx10_pot_abl,"DCVA``102",2,2)
+   $br(2)$text("AAMD Adaptive Behavior Level","datatag")
+   $br()$text("Current ABL")$radio(c_dx10_curr_abl,"NRTDD - Not Retarded", "0")
+                            $radio(c_dx10_curr_abl,"0 - Mild", "1")
+                            $radio(c_dx10_curr_abl,"1 - Moderate", "2")
+                            $radio(c_dx10_curr_abl,"2 - Severe", "3")
+                            $radio(c_dx10_curr_abl,"3 - Profound", "4")
+   $br()$text("Potential ABL")$radio(c_dx10_pot_abl,"NRTDD - Not Retarded", "0")
+                              $radio(c_dx10_pot_abl,"0 - Mild", "1")
+                              $radio(c_dx10_pot_abl,"1 - Moderate", "2")
+                              $radio(c_dx10_pot_abl,"2 - Severe", "3")
+                              $radio(c_dx10_pot_abl,"3 - Profound", "4")        
   elseif ShowABL = "Y"
    $br(2)$checkbox(ShowABL_btn,"Show ABL","Y",,,"SHOWABL","SHOWABL","font:bold 'arial';color:red:")
    $br()$block("SHOWABL","SHOWABL")
-         $br()$text("AAMD Adaptive Behavior Level")$text("Current ABL")$textbox(c_dx10_curr_abl,"DCVA``102",2,2)
-         $br()$text("Potential ABL")$textbox(c_dx10_pot_abl,"DCVA``102",2,2)
+         $br()$text("AAMD Adaptive Behavior Level","datatag")
+         $br()$text("Current ABL")$radio(c_dx10_curr_abl,"NRTDD - Not Retarded", "0")
+                                  $radio(c_dx10_curr_abl,"0 - Mild", "1")
+                                  $radio(c_dx10_curr_abl,"1 - Moderate", "2")
+                                  $radio(c_dx10_curr_abl,"2 - Severe", "3")
+                                  $radio(c_dx10_curr_abl,"3 - Profound", "4")
+         $br()$text("Potential ABL")$radio(c_dx10_pot_abl,"NRTDD - Not Retarded", "0")
+                                    $radio(c_dx10_pot_abl,"0 - Mild", "1")
+                                    $radio(c_dx10_pot_abl,"1 - Moderate", "2")
+                                    $radio(c_dx10_pot_abl,"2 - Severe", "3")
+                                    $radio(c_dx10_pot_abl,"3 - Profound", "4")        
         $endblock("SHOWABL","SHOWABL")   
   endif 
   $br(2)$text("Comments:", "datatag")
@@ -875,10 +888,21 @@ function Page2() is null
   $br(2)
   $text("Axis of Primary DX: ")$text(c_dx10_pimary_ax)$text(" - ")$text($dct(2087,c_dx10_pimary_ax))
   if RequireABL = "Y" or ShowABL = "Y"
-   $br(2)
-   $text("AAMD Adaptive Behavior Level")
-   $text("Current ABL: ")$text(c_dx10_curr_abl)
-   $br()$text("Potential ABL: ")$text(c_dx10_pot_abl)
+   $br(2)$text("AAMD Adaptive Behavior Level")
+   $br()$text("Current ABL: ")select c_dx10_curr_abl
+                          case "0" $text("NRTDD - Not Retarded")
+                          case "1" $text("0 - Mild")
+                          case "2" $text("1 - Moderate")
+                          case "3" $text("2 - Severe")
+                          case "4" $text("3 - Profound")
+                         endselect		                       
+   $br()$text("Potential ABL: ")select c_dx10_pot_abl
+                                 case "0" $text("NRTDD - Not Retarded")
+                                 case "1" $text("0 - Mild")
+                                 case "2" $text("1 - Moderate")
+                                 case "3" $text("2 - Severe")
+                                 case "4" $text("3 - Profound")
+                                endselect	    
   endif
   $br(2)$text("Comments:")
   $br()$text(c_dx10_comment)
@@ -895,17 +919,13 @@ function Page2() is null
 end Page2
  
 function Validate1() is i
- s.enc.sttp06 is x
- s.qualcode   is x
- last_date    is d
+ last_date         is d
+ groupmembership[] is x
+ groupaccess[]     is x
+ rc                is b
 
- groupmembership[]   is x
- groupaccess[]       is x
-
- rc            is b
-
- last_date = PreviousDXDt()
  $clear(errors[])
+ last_date = PreviousDXDt()
 
  if c_dx10_dt !dp
   (void)$arrpush(errors[],"Diagnosis Date is required") 
@@ -1601,16 +1621,13 @@ dynamic function isStaffDstInList(staff-id, lookup-dst, lookup-list[], dct-edit,
 
  isStaffDstInList = "N"
  (void)$dbread(3, staff-id, lookup-dst)
-
  if lookup-dst !dp
   isStaffDstInList = "Y"
   return 
  endif
-
  if dct-edit dp and dct-recode dp
   lookup-dst = $dct(dct-edit, lookup-dst, dct-recode)
  endif
-
  found-idx = $find(lookup-dst, lookup-list[], 1, "F")
  if found-idx > 0
   isStaffDstInList = "Y"

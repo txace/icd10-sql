@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.1.001 08/14/2015
+ %version 1.1.002 09/09/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -730,20 +730,17 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
 end getClientIq
 
 public dynamic function MarkAsBatched(client_id, batchdate, record) is i
-
-client_id   is x
-batchdate   is d
-record      is uid
-
-if record !dp then
-   MarkAsBatched = 99
-   return
-endif
-c.dx10.caredt = batchdate
-$dblock()
-MarkAsBatched = $dbupdateuid(record, 2, client_id, c.dx10.rh, c.dx10.caredt)
-$dbunlock()
-
+ client_id is x
+ batchdate is d
+ record    is uid
+ if record !dp
+  MarkAsBatched = 99
+  return
+ endif
+ c.dx10.caredt = batchdate
+ $dblock()
+ MarkAsBatched = $dbupdateuid(record, 2, client_id, c.dx10.rh, c.dx10.caredt)
+ $dbunlock()
 end MarkAsBatched
 
 function DX_9Code_Query(diag_code,legacy_axis,9DOTTED,results[],text) is null
@@ -860,170 +857,141 @@ function DX_Code_Query(UniqID,ICD10_9) is x
 end DX_Code_Query
 
 public dynamic function icd10recavail(cid) is x
-
-rc	is i
-cid is x
-'c.dx10.rh		is h
-'c.dx10.dt		is d
-
-rc = $dbread(02,cid,dx10_dstlist)
-
-if c.dx10.dt dp
-	icd10recavail = "Y"
-else
-	icd10recavail = "N"
-endif
-
+ rc	is i
+ cid is x
+ rc = $dbread(02,cid,dx10_dstlist)
+ if c.dx10.dt dp
+  icd10recavail = "Y"
+ else
+  icd10recavail = "N"
+ endif
 end icd10recavail
 
-
 public dynamic function GETDXFROM10(cid,icd_ver,rtdxtype) is x
-
-cid          is x
-rtdxtype     is x
-icd_ver      is x
-
-as_of_date   is x
-dx_rec       is h
-dx_date      is d
-dx_time      is t
-dx_primary   is x
-dx_reason    is x
-dx10_code[]  is x
-dx_rank[]    is x
-dx_axis[]    is x
-dx9_code[]   is x
-dx_cat[]     is x
-
-arr_index    is i
-
-DX_TP				 is x
-DX_PP				 is x
-DX_IP				 is x
-DX_SA				 is x
-DX_ID				 is x
-DX_PH				 is x
-
+ cid         is x
+ rtdxtype    is x
+ icd_ver     is x
+ as_of_date  is x
+ dx_rec      is h
+ dx_date     is d
+ dx_time     is t
+ dx_primary  is x
+ dx_reason   is x
+ dx10_code[] is x
+ dx_rank[]   is x
+ dx_axis[]   is x
+ dx9_code[]  is x
+ dx_cat[]    is x  
+ arr_index   is i
+ DX_TP		 is x
+ DX_PP		 is x
+ DX_IP		 is x
+ DX_SA		 is x
+ DX_ID		 is x
+ DX_PH		 is x
 
 'Get the arrays of dx10 codes, dx9 codes and dx categories.
-{"lib_DX10"}getClientDx(cid,,,,,,, dx10_code[],,, dx9_code[],, dx_cat[])
+ {"lib_DX10"}getClientDx(cid,,,,,,, dx10_code[],,, dx9_code[],, dx_cat[])
 
 'Find Target Population and set the variable TX_TP
-$clear(arr_index)
-arr_index = $find("TP_",dx_cat[],,"P") 
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_TP = dx10_code[arr_index]
-			case "9"
-				DX_TP = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_TP)
-	endif
+ $clear(arr_index)
+ arr_index = $find("TP_",dx_cat[],,"P") 
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_TP = dx10_code[arr_index]
+   case "9"  DX_TP = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_TP)
+ endif
 
 'Find Priority Population and set the variable TX_PP
-$clear(arr_index)
-arr_index = $find("PP",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_PP = dx10_code[arr_index]
-			case "9"
-				DX_PP = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_PP)
-	endif
+ $clear(arr_index)
+ arr_index = $find("PP",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_PP = dx10_code[arr_index]
+   case "9"  DX_PP = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_PP)
+ endif
 
 'Find Ineligible Population and set the variable TX_IP
-$clear(arr_index)
-arr_index = $find("IP",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_IP = dx10_code[arr_index]
-			case "9"
-				DX_IP = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_IP)
-	endif
+ $clear(arr_index)
+ arr_index = $find("IP",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_IP = dx10_code[arr_index]
+   case "9"  DX_IP = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_IP)
+ endif
 
 'Find Substance Abuse and set the variable TX_SA
-$clear(arr_index)
-arr_index = $find("SA",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_SA = dx10_code[arr_index]
-			case "9"
-				DX_SA = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_SA)
-	endif
+ $clear(arr_index)
+ arr_index = $find("SA",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_SA = dx10_code[arr_index]
+   case "9"  DX_SA = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_SA)
+ endif
 
 'Find Intellectual Disability and set the variable TX_ID
-$clear(arr_index)
-arr_index = $find("ID",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_ID = dx10_code[arr_index]
-			case "9"
-				DX_ID = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_ID)
-	endif
+ $clear(arr_index)
+ arr_index = $find("ID",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_ID = dx10_code[arr_index]
+   case "9"  DX_ID = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_ID)
+ endif
 
 'Find Physical Health and set the variable TX_PH
 $clear(arr_index)
-arr_index = $find("PH",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_PH = dx10_code[arr_index]
-			case "9"
-				DX_PH = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_PH)
-	endif
+ arr_index = $find("PH",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_PH = dx10_code[arr_index]
+   case "9"  DX_PH = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_PH)
+ endif
 
 'Determine which DX to the function returns to the script
-select rtdxtype
-	case "MH"
-		if     DX_TP dp
-			getdxfrom10 = DX_TP
-		elseif DX_PP dp
-			getdxfrom10 = DX_PP
-		elseif DX_PP dp
-			getdxfrom10 = DX_PP
-		else
-			$clear(getdxfrom10)
-		endif
-	case "SA"
-		if DX_SA dp
-			getdxfrom10 = DX_SA
-		else
-			$clear(getdxfrom10)
-		endif
-	case "IDD"
-		if DX_ID dp
-			getdxfrom10 = DX_ID
-		else
-			$clear(getdxfrom10)
-		endif
-	case "PH"
-		if DX_PH dp
-			getdxfrom10 = DX_PH
-		else
-			$clear(getdxfrom10)
-		endif
-endselect
-
+ select rtdxtype
+  case "MH"	if DX_TP dp
+			 getdxfrom10 = DX_TP
+		    elseif DX_PP dp
+			 getdxfrom10 = DX_PP
+		    elseif DX_PP dp
+			 getdxfrom10 = DX_PP
+		    else
+			 $clear(getdxfrom10)
+		    endif
+  case "SA" if DX_SA dp
+			 getdxfrom10 = DX_SA
+		    else
+			 $clear(getdxfrom10)
+		    endif
+  case "IDD" if DX_ID dp
+			  getdxfrom10 = DX_ID
+		     else
+		   	  $clear(getdxfrom10)
+		     endif
+  case "PH" if DX_PH dp
+			 getdxfrom10 = DX_PH
+		    else
+			 $clear(getdxfrom10)
+		    endif
+ endselect
 end GETDXFROM10
 
 function dst_value(regid,dst_number,dst_name) is x
@@ -1056,4 +1024,3 @@ function dst_value(regid,dst_number,dst_name) is x
  endif
  dst_value = myvar
 end dst_value
-
