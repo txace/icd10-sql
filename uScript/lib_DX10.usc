@@ -554,32 +554,29 @@ function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axi
  rc        is i
  index     is i
  delim_str is x
- rc = $sort(dx_rank[],,dx_code[],dx_axis[])
  $clear(axis1[],axis2[],axis3[])
- index = 0
- do while index++ < $maxarray(dx_code[])
-  	if stripdots = "TRUE"
-  		dx_code[index] = $replace(".","",dx_code[index])
-  	endif
-  select dx_axis[index]
-   case "1" (void)$arrpush(axis1[],dx_code[index])
-   case "2" (void)$arrpush(axis2[],dx_code[index])
-   case "3" (void)$arrpush(axis3[],dx_code[index])
-  endselect
- enddo
  $allowupdate(axis1[],axis2[],axis3[])
  index = 0
- do while index++ < $maxarray(axis1[])
-  delim_str += axis1[index] + "|"
+ do while index++ < $maxarray(rank[])
+  axis = $casti(axis[index])
+  level = $casti(rank[index])
+  if stripdots = "TRUE" then
+   dx_code[index] = $replace(".","",dx_code[index])
+  endif
+  dx[axis,level] = dx_code[index]
  enddo
- index = 0
- do while index++ < $maxarray(axis2[])
-  delim_str += axis2[index] + "|"
- enddo
- index = 0
- do while index++ < $maxarray(axis3[])
-  delim_str += axis3[index] + "|"
- enddo
+ axis1[] = dx[1]
+ axis2[] = dx[2]
+ axis3[] = dx[3]
+ $arrcompress(axis1[])
+ $arrcompress(axis2[])
+ $arrcompress(axis3[])
+
+ rc = $putds(axis1[], delim_str, "|")
+ delim_str += "|"
+ rc = $putds(axis2[], delim_str, "|")
+ delim_str += "|"
+ rc = $putds(axis3[], delim_str, "|")
  sortDxByV4Axis = delim_str
 end sortDxByV4Axis
 
