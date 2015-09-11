@@ -222,12 +222,13 @@ function 10_Desc_lookup(UniqID,ICD10_9) is x
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  select ICD10_9
-  case "ICD10" o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
-  case "ICD9"  o_sql = "select [ICD-9_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
-  case other   o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD10"  o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
   case "ICD9"   o_sql = "select [ICD-9_Description] from " + ICD9_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD109" o_sql = "select [ICD-10_Description] from " + ICD9_table + " where [UniqID] = '" + uniqid + "'" 
+  case other    o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
  endselect
  rc = db:q(o_sql, results)
+ results = $replace("|","",results)
  10_Desc_Lookup = results
 end 10_Desc_Lookup
 
@@ -1031,7 +1032,6 @@ end dst_value
 
 public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, trans_date, transcount, userid, 
    client-id, client_careid, client_last, client_sufx, client_first, client_middle) is x
-trans_date        is d
  dx_rec         is uid
  asofdate       is d
  compcode       is i
