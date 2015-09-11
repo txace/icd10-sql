@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.1.001 08/14/2015
+ %version 1.1.002 09/09/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -9,6 +9,8 @@ library lib_DX10()
  %define row_color3 "bgcolor='PaleGreen'"
  %define row_color4 "bgcolor='LemonChiffon'" 
  %define col_color_multi "bgcolor='LightGrey'"
+
+ %define ICD10_date 9/1/2015
  on load do: 
   %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table 
   o_user      is x
@@ -543,7 +545,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
 end fillclientdx  
 
 'To be removed, required by CARE-SUBMIT script
-function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[]) is x
+dynamic function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[]) is x
  dx_code[] is x
  dx_rank[] is x
  dx_axis[] is x
@@ -554,32 +556,32 @@ function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axi
  rc        is i
  index     is i
  delim_str is x
- rc = $sort(dx_rank[],,dx_code[],dx_axis[])
- $clear(axis1[],axis2[],axis3[])
- index = 0
- do while index++ < $maxarray(dx_code[])
-  	if stripdots = "TRUE"
-  		dx_code[index] = $replace(".","",dx_code[index])
-  	endif
-  select dx_axis[index]
-   case "1" (void)$arrpush(axis1[],dx_code[index])
-   case "2" (void)$arrpush(axis2[],dx_code[index])
-   case "3" (void)$arrpush(axis3[],dx_code[index])
-  endselect
- enddo
+ dx[,]     is x
+ axis      is i
+ level     is i
+ $clear(axis1[],axis2[],axis3[], dx[,])
  $allowupdate(axis1[],axis2[],axis3[])
  index = 0
- do while index++ < $maxarray(axis1[])
-  delim_str += axis1[index] + "|"
+ do while index++ < $maxarray(dx_code[])
+  axis = $casti(dx_axis[index])
+  level = $casti(dx_rank[index])
+  if stripdots = "TRUE" then
+   dx_code[index] = $replace(".","",dx_code[index])
+  endif
+  dx[axis,level] = dx_code[index]
  enddo
- index = 0
- do while index++ < $maxarray(axis2[])
-  delim_str += axis2[index] + "|"
- enddo
- index = 0
- do while index++ < $maxarray(axis3[])
-  delim_str += axis3[index] + "|"
- enddo
+ axis1[] = dx[1]
+ axis2[] = dx[2]
+ axis3[] = dx[3]
+ rc = $arrcompress(axis1[])
+ rc = $arrcompress(axis2[])
+ rc = $arrcompress(axis3[])
+
+ rc = $putds(axis1[], delim_str, "|")
+ delim_str += "|"
+ rc = $putds(axis2[], delim_str, "|")
+ delim_str += "|"
+ rc = $putds(axis3[], delim_str, "|")
  sortDxByV4Axis = delim_str
 end sortDxByV4Axis
 
@@ -637,7 +639,7 @@ function getClientGaf(client_id, as_of_date, dx_rec, dx_date, dx_gaf_cur, dx_gaf
  dx_abl_cur is x
  dx_abl_pot is x
 
- $allowupdate(dx_gaf_cur, dx_gaf_pre)
+ $allowupdate(dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot)
 
  if dx_rec dp then
     getClientGaf = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
@@ -730,20 +732,17 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
 end getClientIq
 
 public dynamic function MarkAsBatched(client_id, batchdate, record) is i
-
-client_id   is x
-batchdate   is d
-record      is uid
-
-if record !dp then
-   MarkAsBatched = 99
-   return
-endif
-c.dx10.caredt = batchdate
-$dblock()
-MarkAsBatched = $dbupdateuid(record, 2, client_id, c.dx10.rh, c.dx10.caredt)
-$dbunlock()
-
+ client_id is x
+ batchdate is d
+ record    is uid
+ if record !dp
+  MarkAsBatched = 99
+  return
+ endif
+ c.dx10.caredt = batchdate
+ $dblock()
+ MarkAsBatched = $dbupdateuid(record, 2, client_id, c.dx10.rh, c.dx10.caredt)
+ $dbunlock()
 end MarkAsBatched
 
 function DX_9Code_Query(diag_code,legacy_axis,9DOTTED,results[],text) is null
@@ -860,170 +859,141 @@ function DX_Code_Query(UniqID,ICD10_9) is x
 end DX_Code_Query
 
 public dynamic function icd10recavail(cid) is x
-
-rc	is i
-cid is x
-'c.dx10.rh		is h
-'c.dx10.dt		is d
-
-rc = $dbread(02,cid,dx10_dstlist)
-
-if c.dx10.dt dp
-	icd10recavail = "Y"
-else
-	icd10recavail = "N"
-endif
-
+ rc	is i
+ cid is x
+ rc = $dbread(02,cid,dx10_dstlist)
+ if c.dx10.dt dp
+  icd10recavail = "Y"
+ else
+  icd10recavail = "N"
+ endif
 end icd10recavail
 
-
 public dynamic function GETDXFROM10(cid,icd_ver,rtdxtype) is x
-
-cid          is x
-rtdxtype     is x
-icd_ver      is x
-
-as_of_date   is x
-dx_rec       is h
-dx_date      is d
-dx_time      is t
-dx_primary   is x
-dx_reason    is x
-dx10_code[]  is x
-dx_rank[]    is x
-dx_axis[]    is x
-dx9_code[]   is x
-dx_cat[]     is x
-
-arr_index    is i
-
-DX_TP				 is x
-DX_PP				 is x
-DX_IP				 is x
-DX_SA				 is x
-DX_ID				 is x
-DX_PH				 is x
-
+ cid         is x
+ rtdxtype    is x
+ icd_ver     is x
+ as_of_date  is x
+ dx_rec      is h
+ dx_date     is d
+ dx_time     is t
+ dx_primary  is x
+ dx_reason   is x
+ dx10_code[] is x
+ dx_rank[]   is x
+ dx_axis[]   is x
+ dx9_code[]  is x
+ dx_cat[]    is x  
+ arr_index   is i
+ DX_TP		 is x
+ DX_PP		 is x
+ DX_IP		 is x
+ DX_SA		 is x
+ DX_ID		 is x
+ DX_PH		 is x
 
 'Get the arrays of dx10 codes, dx9 codes and dx categories.
-{"lib_DX10"}getClientDx(cid,,,,,,, dx10_code[],,, dx9_code[],, dx_cat[])
+ {"lib_DX10"}getClientDx(cid,,,,,,, dx10_code[],,, dx9_code[],, dx_cat[])
 
 'Find Target Population and set the variable TX_TP
-$clear(arr_index)
-arr_index = $find("TP_",dx_cat[],,"P") 
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_TP = dx10_code[arr_index]
-			case "9"
-				DX_TP = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_TP)
-	endif
+ $clear(arr_index)
+ arr_index = $find("TP_",dx_cat[],,"P") 
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_TP = dx10_code[arr_index]
+   case "9"  DX_TP = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_TP)
+ endif
 
 'Find Priority Population and set the variable TX_PP
-$clear(arr_index)
-arr_index = $find("PP",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_PP = dx10_code[arr_index]
-			case "9"
-				DX_PP = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_PP)
-	endif
+ $clear(arr_index)
+ arr_index = $find("PP",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_PP = dx10_code[arr_index]
+   case "9"  DX_PP = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_PP)
+ endif
 
 'Find Ineligible Population and set the variable TX_IP
-$clear(arr_index)
-arr_index = $find("IP",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_IP = dx10_code[arr_index]
-			case "9"
-				DX_IP = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_IP)
-	endif
+ $clear(arr_index)
+ arr_index = $find("IP",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_IP = dx10_code[arr_index]
+   case "9"  DX_IP = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_IP)
+ endif
 
 'Find Substance Abuse and set the variable TX_SA
-$clear(arr_index)
-arr_index = $find("SA",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_SA = dx10_code[arr_index]
-			case "9"
-				DX_SA = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_SA)
-	endif
+ $clear(arr_index)
+ arr_index = $find("SA",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_SA = dx10_code[arr_index]
+   case "9"  DX_SA = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_SA)
+ endif
 
 'Find Intellectual Disability and set the variable TX_ID
-$clear(arr_index)
-arr_index = $find("ID",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_ID = dx10_code[arr_index]
-			case "9"
-				DX_ID = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_ID)
-	endif
+ $clear(arr_index)
+ arr_index = $find("ID",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_ID = dx10_code[arr_index]
+   case "9"  DX_ID = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_ID)
+ endif
 
 'Find Physical Health and set the variable TX_PH
 $clear(arr_index)
-arr_index = $find("PH",dx_cat[],,"F")
-	if arr_index > 0
-		select icd_ver
-			case "10"
-				DX_PH = dx10_code[arr_index]
-			case "9"
-				DX_PH = dx9_code[arr_index]
-		endselect
-	else
-		$clear(DX_PH)
-	endif
+ arr_index = $find("PH",dx_cat[],,"F")
+ if arr_index > 0
+  select icd_ver
+   case "10" DX_PH = dx10_code[arr_index]
+   case "9"  DX_PH = dx9_code[arr_index]
+  endselect
+ else
+  $clear(DX_PH)
+ endif
 
 'Determine which DX to the function returns to the script
-select rtdxtype
-	case "MH"
-		if     DX_TP dp
-			getdxfrom10 = DX_TP
-		elseif DX_PP dp
-			getdxfrom10 = DX_PP
-		elseif DX_PP dp
-			getdxfrom10 = DX_PP
-		else
-			$clear(getdxfrom10)
-		endif
-	case "SA"
-		if DX_SA dp
-			getdxfrom10 = DX_SA
-		else
-			$clear(getdxfrom10)
-		endif
-	case "IDD"
-		if DX_ID dp
-			getdxfrom10 = DX_ID
-		else
-			$clear(getdxfrom10)
-		endif
-	case "PH"
-		if DX_PH dp
-			getdxfrom10 = DX_PH
-		else
-			$clear(getdxfrom10)
-		endif
-endselect
-
+ select rtdxtype
+  case "MH"	if DX_TP dp
+			 getdxfrom10 = DX_TP
+		    elseif DX_PP dp
+			 getdxfrom10 = DX_PP
+		    elseif DX_PP dp
+			 getdxfrom10 = DX_PP
+		    else
+			 $clear(getdxfrom10)
+		    endif
+  case "SA" if DX_SA dp
+			 getdxfrom10 = DX_SA
+		    else
+			 $clear(getdxfrom10)
+		    endif
+  case "IDD" if DX_ID dp
+			  getdxfrom10 = DX_ID
+		     else
+		   	  $clear(getdxfrom10)
+		     endif
+  case "PH" if DX_PH dp
+			 getdxfrom10 = DX_PH
+		    else
+			 $clear(getdxfrom10)
+		    endif
+ endselect
 end GETDXFROM10
 
 function dst_value(regid,dst_number,dst_name) is x
@@ -1056,4 +1026,481 @@ function dst_value(regid,dst_number,dst_name) is x
  endif
  dst_value = myvar
 end dst_value
+
+
+public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, trans_date, transcount, userid, 
+   client-id, client_careid, client_last, client_sufx, client_first, client_middle) is x
+
+dx_rec            is uid
+asofdate          is d
+compcode          is i
+batchno           is x
+trans_date        is d
+transcount        is i
+userid            is x
+client-id         is x
+client_Careid     is x
+client_last       is x
+client_sufx       is x
+client_first      is x
+client_middle     is x
+
+'transaction
+trans_code_dx     is i
+trans_vers_dx     is x
+'dx
+dx_date           is d
+dx_time           is t
+dx_primary        is x
+dx_reason         is x
+dx10_code[]       is x
+dx_rank[]         is x
+dx_axis[]         is x
+dx09_code[]       is x
+
+dx_axis_vers      is x
+dx_axis3_vers     is x
+'dx_aamd_vers      is x
+trans_aamd_ver    is x
+dx_rec_type       is i
+
+dx_4_a            is x
+dx_4_b            is x 
+dx_4_c            is x
+dx_4_d            is x
+dx_4_e            is x
+dx_4_f            is x
+dx_4_g            is x
+dx_4_h            is x
+dx_4_i            is x
+dx_4_j            is x
+
+dx_gaf_cur        is x
+dx_gaf_pre        is x
+dx_abl_cur        is x
+dx_abl_pot        is x
+
+dx_aamd_1         is x
+dx_aamd_2         is x
+dx_aamd_3         is x
+dx_aamd_gen       is x
+dx_aamd_anom      is x
+dx_aamd_sens      is x
+dx_aamd_prec      is x
+dx_aamd_conv      is x
+dx_aamd_phys      is x
+dx_aamd_moto      is x
+dx_aamd_mloc      is x
+dx_aamd_msev      is x
+dx_aamd_date      is d
+dx_iq             is i
+dx_iq_test        is i
+dx_iq_date        is d
+dx_sq             is i
+dx_sq_test        is i
+dx_sq_date        is d
+
+dx_code[]         is x
+axis1[]           is x
+axis2[]           is x
+axis3[]           is x
+
+stripdots         is x
+
+phys_rec_num      is i
+rec_length        is i
+
+outrec            is x
+prefix            is x
+
+
+%define LEVEL_ONE 1
+%define LEVEL_TWO 2
+%define LEVEL_THREE 3
+%define LEVEL_FOUR 4
+%define LEVEL_FIVE 5
+%define LEVEL_SIX 6
+%define CN_axis_ver_9 "04"
+%define CN_axis3_ver_9 "09"
+%define CN_axis_ver_10 "10"
+%define CN_axis3_ver_10 "10"
+
+$allowupdate(dx_rec)
+
+'Batch requires No Dots
+stripdots = "TRUE"
+rec_length = 80
+trans_code_dx = 15
+trans_vers_dx = "C"
+trans_aamd_ver = "77"
+dx_rec_type = 1
+
+$clear(getDxBatchTrans)
+
+'get the earliest unbatched dx record
+getUnbatchCltDx(client-id, trans_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+   dx10_code[], dx_rank[], dx_axis[], dx09_code[])
+
+'bail if we don't have an unbatched dx record
+if dx_rec !dp then
+   return
+endif
+
+'unsubmitted records a year or older cannot be submitted
+if dx_date <= `$dateoffset(trans_date, -365)` then
+   return
+endif 
+
+if $today < icd10_date then
+   dx_code[] = dx09_code[]
+   dx_axis_vers = CN_axis_ver_9
+   dx_axis3_vers = CN_axis3_ver_9
+else 
+   dx_code[] = dx10_code[]
+   dx_axis_vers = CN_axis_ver_10 
+   dx_axis3_vers = CN_axis3_ver_10
+endif
+
+sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[])
+
+'get the reset of the dx values
+getClientAxis4(client-id, $today, dx_rec, , 
+   dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j)
+
+getClientGaf(client-id, $today, dx_rec, , dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot)
+getClientAamd(client-id, $today, dx_rec, , dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, 
+   dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, 
+   dx_aamd_mloc, dx_aamd_msev)
+getClientIq(client-id, $today, dx_rec, , dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
+
+' map axis 4 for batch values
+if dx_4_j = "Y" then
+   dx_4_a = "J"
+   dx_4_b = ""
+   dx_4_c = ""
+   dx_4_d = ""
+   dx_4_e = ""
+   dx_4_f = ""
+   dx_4_g = ""
+   dx_4_h = ""
+   dx_4_i = ""
+else
+   if dx_4_a = "Y" then
+      dx_4_a = "A"
+   endif
+   if dx_4_b = "Y" then
+      dx_4_b = "B"
+   endif
+   if dx_4_c = "Y" then
+      dx_4_c = "C"
+   endif
+   if dx_4_d = "Y" then
+      dx_4_d = "D"
+   endif
+   if dx_4_e = "Y" then
+      dx_4_e = "E"
+   endif
+   if dx_4_f = "Y" then
+      dx_4_f = "F"
+   endif
+   if dx_4_g = "Y" then
+      dx_4_g = "G"
+   endif
+   if dx_4_H = "Y" then
+      dx_4_H = "H"
+   endif
+   if dx_4_i = "Y" then
+      dx_4_i = "I"
+   endif
+endif
+
+'build the physical record prefix
+prefix = putPhysicalTrans(13,
+   COMPCODE, "999",
+   dx_rec_type, "9",
+   trans_code_dx, "99",
+   trans_vers_dx, "~",
+   Transcount, "999999")
+
+'line 1
+phys_rec_num = 1
+
+'outrec = prefix
+outrec += putPhysicalTrans(rec_length,
+   COMPCODE, "999",
+   dx_rec_type, "9",
+   trans_code_dx, "99",
+   trans_vers_dx, "~",
+   Transcount, "999999",
+   phys_rec_num, "99",
+   BATCHNO, "~~",
+   trans_date, "YYYYMMDD",
+   USERID, "~~~~~",
+   client-id, "~~~~~~~~~~",
+   client_careid, "~~~~~~~~~~",
+   client_last, "~~~~~~~~~~~~~~~~",
+   client_sufx, "~~~",
+   client_first, "~~~~~~~~~~~")
+
+'line 2
+phys_rec_num = 2
+
+'outrec += prefix
+outrec += putPhysicalTrans(rec_length,
+   COMPCODE, "999",
+   dx_rec_type, "9",
+   trans_code_dx, "99",
+   trans_vers_dx, "~",
+   Transcount, "999999",
+   phys_rec_num, "99",
+   client_middle, "~~~~~~~~~~",
+   dx_date, "YYYYMMDD",
+   dx_time, "HHMM",
+   dx_reason, "~",
+   dx_primary, "~",
+   axis1[LEVEL_ONE], "~~~~~~~",
+   axis1[LEVEL_TWO], "~~~~~~~",
+   axis1[LEVEL_THREE], "~~~~~~~",
+   axis1[LEVEL_FOUR], "~~~~~~~",
+   axis1[LEVEL_FIVE], "~~~~~~~")
+
+'line 3
+phys_rec_num = 3
+'outrec += prefix
+outrec += putPhysicalTrans(rec_length,
+   COMPCODE, "999",
+   dx_rec_type, "9",
+   trans_code_dx, "99",
+   trans_vers_dx, "~",
+   Transcount, "999999",
+   phys_rec_num, "99",
+   axis1[LEVEL_SIX], "~~~~~~~",     'finish off the record we started in the last physical record
+   axis2[LEVEL_ONE], "~~~~~~~",
+   axis2[LEVEL_TWO], "~~~~~~~",
+   axis2[LEVEL_THREE], "~~~~~~~",
+   axis2[LEVEL_FOUR], "~~~~~~~",
+   "", "~~~~~~~~~~~~~~~",                'filler
+   dx_abl_cur, "~",
+   dx_abl_pot, "~",
+   dx_aamd_1, "~~~",
+   dx_aamd_2, "~~~",
+   dx_aamd_3, "~~~",
+   dx_aamd_gen, "~~",
+   dx_aamd_anom, "~~")
+
+'line 4
+phys_rec_num = 4
+'outrec += prefix
+
+outrec += putPhysicalTrans(rec_length,
+   COMPCODE, "999",
+   dx_rec_type, "9",
+   trans_code_dx, "99",
+   trans_vers_dx, "~",
+   Transcount, "999999",
+   phys_rec_num, "99",
+   dx_aamd_sens, "~~",
+   dx_aamd_prec, "~~",
+   dx_aamd_conv, "~~",
+   dx_aamd_phys, "~~",
+   dx_aamd_moto, "~~",
+   dx_aamd_mloc, "~",
+   dx_aamd_msev, "~",
+   dx_aamd_date, "YYYYMMDD",
+   dx_iq, "999",
+   dx_iq_test, "99",
+   dx_iq_date, "YYYYMMDD",
+   dx_sq, "999",
+   dx_sq_test, "99",
+   dx_sq_date, "YYYYMMDD",
+   trans_aamd_ver, "~~",
+   dx_axis_vers, "~~",
+   dx_axis3_vers, "~~",
+   dx_gaf_cur, "~~",
+   dx_gaf_pre, "~~",
+   dx_4_a, "~",
+   dx_4_b, "~",
+   dx_4_c, "~",
+   dx_4_d, "~",
+   dx_4_e, "~",
+   dx_4_f, "~",
+   dx_4_g, "~",
+   dx_4_h, "~",
+   dx_4_i, "~")
+
+'line 5
+phys_rec_num = 5
+'outrec += prefix
+
+outrec += putPhysicalTrans(rec_length,
+   COMPCODE, "999",
+   dx_rec_type, "9",
+   trans_code_dx, "99",
+   trans_vers_dx, "~",
+   Transcount, "999999",
+   phys_rec_num, "99",
+   axis3[LEVEL_ONE], "~~~~~~~",
+   axis3[LEVEL_TWO], "~~~~~~~",
+   axis3[LEVEL_THREE], "~~~~~~~",
+   axis3[LEVEL_FOUR], "~~~~~~~",
+   axis3[LEVEL_FIVE], "~~~~~~~",
+   axis3[LEVEL_SIX], "~~~~~~~",
+   dx_date, "YYYYMMDD")
+
+getDxBatchTrans = outrec
+
+end getDxBatchTrans
+
+private dynamic function putPhysicalTrans(
+   rec_length,
+   value0, format0,
+   value1, format1,
+   value2, format2,
+   value3, format3,
+   value4, format4,
+   value5, format5,
+   value6, format6,
+   value7, format7,
+   value8, format8,
+   value9, format9,
+   value10, format10,
+   value11, format11,
+   value12, format12,
+   value13, format13,
+   value14, format14,
+   value15, format15,
+   value16, format16,
+   value17, format17,
+   value18, format18,
+   value19, format19,
+   value20, format20,
+   value21, format21,
+   value22, format22,
+   value23, format23,
+   value24, format24,
+   value25, format25,
+   value26, format26,
+   value27, format27,
+   value28, format28,
+   value29, format29,
+   value31, format31,
+   value32, format32,
+   value33, format33,
+   value34, format34,
+   value35, format35,
+   value36, format36,
+   value37, format37,
+   value38, format38,
+   value39, format39) is x
+
+rec_length  is i
+value0   is v  format0  is x
+value1   is v  format1  is x
+value2   is v  format2  is x
+value3   is v  format3  is x
+value4   is v  format4  is x
+value5   is v  format5  is x
+value6   is v  format6  is x
+value7   is v  format7  is x
+value8   is v  format8  is x
+value9   is v  format9  is x
+value10   is v  format10  is x
+value11   is v  format11  is x
+value12   is v  format12  is x
+value13   is v  format13  is x
+value14   is v  format14  is x
+value15   is v  format15  is x
+value16   is v  format16  is x
+value17   is v  format17  is x
+value18   is v  format18  is x
+value19   is v  format19  is x
+value20   is v  format20  is x
+value21   is v  format21  is x
+value22   is v  format22  is x
+value23   is v  format23  is x
+value24   is v  format24  is x
+value25   is v  format25  is x
+value26   is v  format26  is x
+value27   is v  format27  is x
+value28   is v  format28  is x
+value29   is v  format29  is x
+value30   is v  format30  is x
+value31   is v  format31  is x
+value32   is v  format32  is x
+value33   is v  format33  is x
+value34   is v  format34  is x
+value35   is v  format35  is x
+value36   is v  format36  is x
+value37   is v  format37  is x
+value38   is v  format38  is x
+value39   is v  format39  is x
+
+pad   is i
+
+putPhysicalTrans = ""
+putPhysicalTrans += addField(value0, format0)
+putPhysicalTrans += addField(value1, format1)
+putPhysicalTrans += addField(value2, format2)
+putPhysicalTrans += addField(value3, format3)
+putPhysicalTrans += addField(value4, format4)
+putPhysicalTrans += addField(value5, format5)
+putPhysicalTrans += addField(value6, format6)
+putPhysicalTrans += addField(value7, format7)
+putPhysicalTrans += addField(value8, format8)
+putPhysicalTrans += addField(value9, format9)
+putPhysicalTrans += addField(value10, format10)
+putPhysicalTrans += addField(value11, format11)
+putPhysicalTrans += addField(value12, format12)
+putPhysicalTrans += addField(value13, format13)
+putPhysicalTrans += addField(value14, format14)
+putPhysicalTrans += addField(value15, format15)
+putPhysicalTrans += addField(value16, format16)
+putPhysicalTrans += addField(value17, format17)
+putPhysicalTrans += addField(value18, format18)
+putPhysicalTrans += addField(value19, format19)
+putPhysicalTrans += addField(value20, format20)
+putPhysicalTrans += addField(value21, format21)
+putPhysicalTrans += addField(value22, format22)
+putPhysicalTrans += addField(value23, format23)
+putPhysicalTrans += addField(value24, format24)
+putPhysicalTrans += addField(value25, format25)
+putPhysicalTrans += addField(value26, format26)
+putPhysicalTrans += addField(value27, format27)
+putPhysicalTrans += addField(value28, format28)
+putPhysicalTrans += addField(value29, format29)
+putPhysicalTrans += addField(value30, format30)
+putPhysicalTrans += addField(value31, format31)
+putPhysicalTrans += addField(value32, format32)
+putPhysicalTrans += addField(value33, format33)
+putPhysicalTrans += addField(value34, format34)
+putPhysicalTrans += addField(value35, format35)
+putPhysicalTrans += addField(value36, format36)
+putPhysicalTrans += addField(value37, format37)
+putPhysicalTrans += addField(value38, format38)
+putPhysicalTrans += addField(value39, format39)
+
+pad = rec_length - $len(putPhysicalTrans)
+if pad < 0 then
+   putPhysicalTrans = "Error - Physical Record Too Long"
+   $abort(1, putPhysicalTrans)
+   return
+endif
+if pad > 0 then
+   putPhysicalTrans += $mchar(" ", pad)
+endif
+
+putPhysicalTrans += x"0a"
+
+end putPhysicalTrans
+
+private dynamic function addField(val, form) is x
+val      is v
+form     is x
+
+addField = ""
+if form dp then
+   addField = $formatf(val, form)
+endif
+end addField
+
 
