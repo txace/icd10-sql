@@ -127,6 +127,12 @@ c.dx10.snapid    is x 'DX10 Snapshot ID
 c.dx10.isn       is x 'DX10 ISN ID
 c.dx10.stat      is x 'DX10 Status
 c.dx10.converted is x 'DX10 Converted record flag
+c.dx10.iq.score  is x
+c.dx10.iq.date   is d
+c.dx10.iq.test   is x
+c.dx10.sq.score  is x
+c.dx10.sq.date   is d
+c.dx10.sq.test   is x
 
 rc_dx10_dstlist = $dstlist(dx10_dstlist,02,
 c.dx10.rh,c.dx10.staff,c.dx10.entstaff,c.dx10.dt,c.dx10.time,c.dx10.entdt,c.dx10.enttm,c.dx10.caredt,c.dx10.reason,c.dx10.expire,c.dx10.pimary.ax,
@@ -139,7 +145,9 @@ c.dx10.icd10.11,c.dx10.icd9.11,c.dx10.legax.11,c.dx10.dxcat.11,c.dx10.dxrank.11,
 c.dx10.icd10.13,c.dx10.icd9.13,c.dx10.legax.13,c.dx10.dxcat.13,c.dx10.dxrank.13,c.dx10.uniq.13,c.dx10.icd10.14,c.dx10.icd9.14,c.dx10.legax.14,c.dx10.dxcat.14,c.dx10.dxrank.14,c.dx10.uniq.14,
 c.dx10.icd10.15,c.dx10.icd9.15,c.dx10.legax.15,c.dx10.dxcat.15,c.dx10.dxrank.15,c.dx10.uniq.15,c.dx10.icd10.16,c.dx10.icd9.16,c.dx10.legax.16,c.dx10.dxcat.16,c.dx10.dxrank.16,c.dx10.uniq.16,
 c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl,
-c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat, c.dx10.converted)
+c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat, c.dx10.converted,
+c.dx10.iq.score, c.dx10.iq.date, c.dx10.iq.test,
+c.dx10.sq.score, c.dx10.sq.date, c.dx10.sq.test)
 
 %global rc_dx10_dstlist, dx10_dstlist
 %global c.dx10.rh,c.dx10.staff,c.dx10.entstaff,c.dx10.dt,c.dx10.time,c.dx10.entdt,c.dx10.enttm,c.dx10.caredt,c.dx10.reason,c.dx10.expire,c.dx10.pimary.ax
@@ -153,3 +161,4 @@ c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat, c.dx10.converted)
 %global c.dx10.icd10.15,c.dx10.icd9.15,c.dx10.legax.15,c.dx10.dxcat.15,c.dx10.dxrank.15,c.dx10.uniq.15,c.dx10.icd10.16,c.dx10.icd9.16,c.dx10.legax.16,c.dx10.dxcat.16,c.dx10.dxrank.16,c.dx10.uniq.16
 %global c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl
 %global c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat,c.dx10.converted
+%global c.dx10.iq.score, c.dx10.iq.date, c.dx10.iq.test, c.dx10.sq.score, c.dx10.sq.date, c.dx10.sq.test

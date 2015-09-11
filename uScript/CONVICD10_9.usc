@@ -75,6 +75,12 @@ start CONVICD10_9(parmfile,option,client,retcode)
  c.dx.ax4.h      is x   'DSM-IV AXIS IV LEVEL H         
  c.dx.ax4.i      is x   'DSM-IV AXIS IV LEVEL I         
  c.dx.ax4.j      is x   'DSM-IV, AXIS IV LEVEL J        
+ c.iq            is x
+ c.iq.date       is d
+ c.iq.test       is x
+ c.sq            is x
+ c.sq.date       is d
+ c.sq.test       is x
 
  c.axis1extra        is x
  c.axis2extra        is x
@@ -129,6 +135,12 @@ start CONVICD10_9(parmfile,option,client,retcode)
  MAP_c.dx.ax4.h      is x   'DSM-IV AXIS IV LEVEL H         
  MAP_c.dx.ax4.i      is x   'DSM-IV AXIS IV LEVEL I         
  MAP_c.dx.ax4.j      is x   'DSM-IV, AXIS IV LEVEL J        
+ MAP_c.iq            is x
+ MAP_c.iq.date       is d
+ MAP_c.iq.test       is x
+ MAP_c.sq            is x
+ MAP_c.sq.date       is d
+ MAP_c.sq.test       is x
 
  MAP_c.axis1extra    is x
  MAP_c.axis2extra    is x
@@ -189,6 +201,12 @@ start CONVICD10_9(parmfile,option,client,retcode)
  MAP_c.dx.ax4.h      = $varname(c.dx.ax4.h     )     
  MAP_c.dx.ax4.i      = $varname(c.dx.ax4.i     )     
  MAP_c.dx.ax4.j      = $varname(c.dx.ax4.j     )     
+ MAP_c.iq            = $varname(c.iq           )
+ MAP_c.iq.date       = $varname(c.iq.date      )
+ MAP_c.iq.test       = $varname(c.iq.test      )
+ MAP_c.sq            = $varname(c.sq           )
+ MAP_c.sq.date       = $varname(c.sq.date      )
+ MAP_c.sq.test       = $varname(c.sq.test      )
 
  MAP_c.axis1extra    = $varname(c.axis1extra   )
  MAP_c.axis2extra    = $varname(c.axis2extra   )
@@ -248,6 +266,12 @@ start CONVICD10_9(parmfile,option,client,retcode)
  $setvarname(c.dx.ax4.h     , MAP_c.dx.ax4.h      )     
  $setvarname(c.dx.ax4.i     , MAP_c.dx.ax4.i      )     
  $setvarname(c.dx.ax4.j     , MAP_c.dx.ax4.j      )     
+ $setvarname(c.iq           , MAP_c.iq            )
+ $setvarname(c.iq.date      , MAP_c.iq.date       )
+ $setvarname(c.iq.test      , MAP_c.iq.test       )
+ $setvarname(c.sq           , MAP_c.sq            )
+ $setvarname(c.sq.date      , MAP_c.sq.date       )
+ $setvarname(c.sq.test      , MAP_c.sq.test       )
 
  $setvarname(c.axis1extra   , MAP_c.axis1extra    )
  $setvarname(c.axis2extra   , MAP_c.axis2extra    )
@@ -403,6 +427,13 @@ start CONVICD10_9(parmfile,option,client,retcode)
  c.dx.ax4.h      = c.dx10.a4.legal
  c.dx.ax4.i      = c.dx10.a4.psyenv
  c.dx.ax4.j      = c.dx10.a4.none 
+ c.iq            = c.dx10.iq.score
+ c.iq.date       = c.dx10.iq.date
+ c.iq.test       = c.dx10.iq.test
+ c.sq            = c.dx10.sq.score
+ c.sq.date       = c.dx10.sq.date
+ c.sq.test       = c.dx10.sq.test
+
  retcode = $dbadddst(2,client,c.dsmiiir,
    ' axis 1
    c.diag,c.dxaxi2,c.dxaxi3,c.dxaxi4,c.dxaxi5,c.dxaxi6,
@@ -425,7 +456,9 @@ start CONVICD10_9(parmfile,option,client,retcode)
    c.prdxaxis,c.dxreason,c.dx.comment,c.dxflag,c.dx.stat,c.dx.comme,
    ' dx service data
    c.dx.isn,c.dx.ser,c.dx.time,c.dx.dur,c.dx.ru,c.dx.loc,c.dx.proj,
-   
+   'iq and sq
+   c.iq, c.iq.date, c.iq.test, c.sq, c.sq.date, c.sq.test,
+
    c.dx.by,c.who.diag)
  $allowupdate(retcode)
 end CONVICD10_9
