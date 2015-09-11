@@ -545,7 +545,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
 end fillclientdx  
 
 'To be removed, required by CARE-SUBMIT script
-function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[]) is x
+dynamic function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[]) is x
  dx_code[] is x
  dx_rank[] is x
  dx_axis[] is x
@@ -559,7 +559,7 @@ function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axi
  dx[,]     is x
  axis      is i
  level     is i
- $clear(axis1[],axis2[],axis3[])
+ $clear(axis1[],axis2[],axis3[], dx[,])
  $allowupdate(axis1[],axis2[],axis3[])
  index = 0
  do while index++ < $maxarray(dx_code[])
@@ -1150,7 +1150,6 @@ endif
 if dx_date <= `$dateoffset(trans_date, -365)` then
    return
 endif 
-
 
 if $today < icd10_date then
    dx_code[] = dx09_code[]
