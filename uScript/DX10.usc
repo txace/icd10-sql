@@ -332,6 +332,7 @@ function Onload(parmfile, option) is x
  dosave      = $uc(dosave)
  dosnapshot  = $uc(dosnapshot)
  SHOWABL     = $uc(SHOWABL)
+ SHOWIQ      = $uc(SHOWIQ)
 
  creds_dst = $uc(creds_dst)
  dx_dst = $uc(dx_dst)
@@ -620,6 +621,13 @@ function Page1() is null
   if mode = "DATAENTRY"
    $br(2)$text("Diagnosis Staff: ","datatag")$textbox(c_dx10_staff ,"DB``03",6,,"Y")$editmsg(c_dx10_staff )
   endif  
+
+'HFC Temp DX History
+  $br()
+  DIAG_HX($regid)
+  $br()
+'********************
+
   $br(2)
   $fieldset("Diagnosis Codes",,"datatag")
    $br()$submit(lookup_btn,"Lookup")
@@ -1812,4 +1820,68 @@ dynamic function isStaffDstInList(staff-id, lookup-dst, lookup-list[], dct-edit,
   isStaffDstInList = "Y"
  endif
  return
-end isStaffDstInList
+end isStaffDstInList 
+
+'HFC Temp DX History
+function DIAG_HX(clid) is null
+%include inc_DX
+ staffname        is x
+ count            is i
+ showdx           is x
+ rc1              is i
+ clid             is x
+ rc1 = $dbread(2, clid, c.dsmiiir, c.who.diag, c.dxdate, c.dxreason, c.diag, c.dxaxii1, c.dxaxvc)
+ staffname = SetStaffName(c.who.diag)
+ $br()$checkbox(showdx,"Show ICD 9 Diagnosis History","Y",,,"SHOWDX","SHOWDX","font:bold 'arial';color:red:")
+ $br()$block("SHOWDX","SHOWDX")
+       $br()$tag("<CENTER>")$text("ICD9 Diagnosis History","H2")$tag("</CENTER>")
+       $br()$tag("<CENTER>")$text("Shown for Historical Purposes ONLY","H2")$tag("</CENTER>")	   
+       $br(2)$table("dxhx",,"width='95%' border='0' cellspacing='1' bgcolor='gainsboro'")
+	         $row()
+	          $col("center",,"8%")$text("Date of DX","datatag")
+	          $col("center",,"16%")$text("Who Diagnosed","datatag")
+	          $col("center",,"15%")$text("Reason for DX","datatag")
+	          $col("center",,"28%")$text("Axis I, Level I","datatag")
+	          $col("center",,"28%")$text("Axis II, Level I","datatag")
+	          $col("center",,"5%")$text("GAF","datatag")
+              if rc1 = 2 
+	           $row(,"bgcolor='white'")
+	            $col(,,,"6")$text("No Diagnosis Data on File")
+              else
+	           $row(,"bgcolor='white'")
+	            $col("center")$text(c.dxdate)
+	            $col("center")$text(staffname)
+	            $col("center")$text($ncs($dct(55, c.dxreason, "D")))
+	            $col()$text(`c.diag + "-" + $ncs($dct(400,c.diag,"D"))`)
+	            $col()$text(`c.dxaxii1 + "-" + $ncs($dct(401,c.dxaxii1,"D"))`)
+	            $col("center")$text(c.dxaxvc)
+               count = 1
+               do while rc1 < 2 and count <= 15	
+           	    $clear(c.dsmiiir, c.who.diag, c.dxdate, c.dxreason, c.diag, c.dxaxii1, c.dxaxvc)
+                rc1 = $dbreadnextdst(2, clid, c.dsmiiir, c.who.diag, c.dxdate, c.dxreason, c.diag, c.dxaxii1, c.dxaxvc)
+	            staffname = SetStaffName(c.who.diag)
+                select $mod(count,2)
+	             case 0     $row(, "bgcolor='White'")
+	             case other $row(, "bgcolor='LightSkyBlue'")
+                endselect 
+	            $col("center")$text(c.dxdate)
+	            $col("center")$text(staffname)
+	            $col("center")$text($ncs($dct(55, c.dxreason, "D")))
+	            $col()$text(`c.diag + "-" + $ncs($dct(400,c.diag,"D"))`)
+	            $col()$text(`c.dxaxii1 + "-" + $ncs($dct(401,c.dxaxii1,"D"))`)
+	            $col("center")$text(c.dxaxvc)
+                count++ 
+               enddo
+              endif 
+             $endtable("dxhx")
+      $endblock("SHOWDX","SHOWDX")
+end DIAG_HX
+function setStaffName(id) is x
+ id   is x
+ s.fn is x 
+ s.ln is x
+ rc1  is b
+ rc1 = $dbread(3, id, s.fn, s.ln)
+ setStaffName = $ncs(s.fn) + " " + $ncs(s.ln)
+end setStaffName
+
