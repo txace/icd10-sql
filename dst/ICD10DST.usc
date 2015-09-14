@@ -216,4 +216,10 @@ rc = $dstadd(dst, "C.DX10.SNAPID",    "DX10 SNAPID",                     dbfile,
 rc = $dstadd(dst, "C.DX10.ISN",       "DX10 ISN",                        dbfile, "X",109, 32,   0, recordnum)
 rc = $dstadd(dst, "C.DX10.CONVERTED", "DX9-10 Converted Record",         dbfile, "X", 1,  1,   29, recordnum)
 rc = $dstadd(dst, "C.DX10.STAT",      "DX10 STATUS",                     dbfile, "X", 1,  8, stat_dct, recordnum)
+rc = $dstadd(dst, "C.DX10.IQ.SCORE",  "DX10 IQ Score",                   dbfile, "X", 0,  3,    0, recordnum)
+rc = $dstadd(dst, "C.DX10.IQ.DATE",   "DX10 IQ Date",                    dbfile, "D", 0, 10,    0, recordnum)
+rc = $dstadd(dst, "C.DX10.IQ.TEST",   "DX10 IQ Test",                    dbfile, "X", 0,  2,    0, recordnum)
+rc = $dstadd(dst, "C.DX10.SQ.SCORE",  "DX10 SQ Score",                   dbfile, "X", 0,  3,    0, recordnum)
+rc = $dstadd(dst, "C.DX10.SQ.DATE",   "DX10 SQ Date",                    dbfile, "D", 0, 10,    0, recordnum)
+rc = $dstadd(dst, "C.DX10.SQ.TEST",   "DX10 SQ Test",                    dbfile, "X", 0,  2,    0, recordnum)
 end ICD10DST

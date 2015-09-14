@@ -700,7 +700,7 @@ function getClientAamd(client_id, as_of_date, dx_rec, dx_date, dx_aamd_date, dx_
  $allowupdate(dx_date, dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, dx_aamd_mloc, dx_aamd_msev) 
 end getClientAamd 
 
-function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date) is i
+dynamic function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date) is i
  client_id  is x
  as_of_date is d
  dx_rec     is uid
@@ -711,6 +711,8 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
  dx_sq      is x
  dx_sq_test is x
  dx_sq_date is d
+
+ $clear(dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 
  if dx_rec dp then
     getClientIq = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
@@ -724,12 +726,15 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
    enddo 
  endif
 
- 'variable assignments
- 'not implemented
+ dx_iq = c.dx10.iq.score
+ dx_iq_date = c.dx10.iq.date
+ dx_iq_test = c.dx10.iq.test
+ dx_sq = c.dx10.sq.score
+ dx_sq_date = c.dx10.sq.date
+ dx_sq_test = c.dx10.sq.test
 
  $allowupdate(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 
- $clear(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 end getClientIq
 
 public dynamic function MarkAsBatched(client_id, batchdate, record) is i
