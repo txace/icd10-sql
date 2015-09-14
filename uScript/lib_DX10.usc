@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.1.002 09/09/2015
+ %version 1.1.4 09/11/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -9,8 +9,7 @@ library lib_DX10()
  %define row_color3 "bgcolor='PaleGreen'"
  %define row_color4 "bgcolor='LemonChiffon'" 
  %define col_color_multi "bgcolor='LightGrey'"
-
- %define ICD10_date 9/1/2015
+ %define CN_ICD10_DATE 10/01/2015
  on load do: 
   %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table 
   o_user      is x
@@ -223,11 +222,13 @@ function 10_Desc_lookup(UniqID,ICD10_9) is x
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  select ICD10_9
-  case "ICD10" o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
-  case "ICD9"  o_sql = "select [ICD-9_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
-  case other   o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD10"  o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD9"   o_sql = "select [ICD-9_Description] from " + ICD9_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD109" o_sql = "select [ICD-10_Description] from " + ICD9_table + " where [UniqID] = '" + uniqid + "'" 
+  case other    o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
  endselect
  rc = db:q(o_sql, results)
+ results = $replace("|","",results)
  10_Desc_Lookup = results
 end 10_Desc_Lookup
 
@@ -699,7 +700,7 @@ function getClientAamd(client_id, as_of_date, dx_rec, dx_date, dx_aamd_date, dx_
  $allowupdate(dx_date, dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, dx_aamd_mloc, dx_aamd_msev) 
 end getClientAamd 
 
-function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date) is i
+dynamic function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date) is i
  client_id  is x
  as_of_date is d
  dx_rec     is uid
@@ -710,6 +711,8 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
  dx_sq      is x
  dx_sq_test is x
  dx_sq_date is d
+
+ $clear(dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 
  if dx_rec dp then
     getClientIq = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
@@ -723,12 +726,15 @@ function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_iq_test, 
    enddo 
  endif
 
- 'variable assignments
- 'not implemented
+ dx_iq = c.dx10.iq.score
+ dx_iq_date = c.dx10.iq.date
+ dx_iq_test = c.dx10.iq.test
+ dx_sq = c.dx10.sq.score
+ dx_sq_date = c.dx10.sq.date
+ dx_sq_test = c.dx10.sq.test
 
  $allowupdate(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 
- $clear(dx_date, dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 end getClientIq
 
 public dynamic function MarkAsBatched(client_id, batchdate, record) is i
@@ -849,9 +855,10 @@ function DX_Code_Query(UniqID,ICD10_9) is x
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  select ICD10_9
-  case "ICD10" o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
-  case "ICD9"  o_sql = "select [ICD-9_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
-  case other   o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD10"  o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD9"   o_sql = "select [ICD-9_Code] from " + ICD9_table + " where [UniqID] = '" + uniqid + "'" 
+  case "ICD109" o_sql = "select [ICD-10_Code] from " + ICD9_table + " where [UniqID] = '" + uniqid + "'"   
+  case other    o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
  endselect 
  rc = db:q(o_sql, results)
  results = $replace("|","",results)
@@ -1030,324 +1037,323 @@ end dst_value
 
 public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, trans_date, transcount, userid, 
    client-id, client_careid, client_last, client_sufx, client_first, client_middle) is x
-
-dx_rec            is uid
-asofdate          is d
-compcode          is i
-batchno           is x
-trans_date        is d
-transcount        is i
-userid            is x
-client-id         is x
-client_Careid     is x
-client_last       is x
-client_sufx       is x
-client_first      is x
-client_middle     is x
-
-'transaction
-trans_code_dx     is i
-trans_vers_dx     is x
-'dx
-dx_date           is d
-dx_time           is t
-dx_primary        is x
-dx_reason         is x
-dx10_code[]       is x
-dx_rank[]         is x
-dx_axis[]         is x
-dx09_code[]       is x
-
-dx_axis_vers      is x
-dx_axis3_vers     is x
-'dx_aamd_vers      is x
-trans_aamd_ver    is x
-dx_rec_type       is i
-
-dx_4_a            is x
-dx_4_b            is x 
-dx_4_c            is x
-dx_4_d            is x
-dx_4_e            is x
-dx_4_f            is x
-dx_4_g            is x
-dx_4_h            is x
-dx_4_i            is x
-dx_4_j            is x
-
-dx_gaf_cur        is x
-dx_gaf_pre        is x
-dx_abl_cur        is x
-dx_abl_pot        is x
-
-dx_aamd_1         is x
-dx_aamd_2         is x
-dx_aamd_3         is x
-dx_aamd_gen       is x
-dx_aamd_anom      is x
-dx_aamd_sens      is x
-dx_aamd_prec      is x
-dx_aamd_conv      is x
-dx_aamd_phys      is x
-dx_aamd_moto      is x
-dx_aamd_mloc      is x
-dx_aamd_msev      is x
-dx_aamd_date      is d
-dx_iq             is i
-dx_iq_test        is i
-dx_iq_date        is d
-dx_sq             is i
-dx_sq_test        is i
-dx_sq_date        is d
-
-dx_code[]         is x
-axis1[]           is x
-axis2[]           is x
-axis3[]           is x
-
-stripdots         is x
-
-phys_rec_num      is i
-rec_length        is i
-
-outrec            is x
-prefix            is x
-
-
-%define LEVEL_ONE 1
-%define LEVEL_TWO 2
-%define LEVEL_THREE 3
-%define LEVEL_FOUR 4
-%define LEVEL_FIVE 5
-%define LEVEL_SIX 6
-%define CN_axis_ver_9 "04"
-%define CN_axis3_ver_9 "09"
-%define CN_axis_ver_10 "10"
-%define CN_axis3_ver_10 "10"
-
-$allowupdate(dx_rec)
-
+ dx_rec         is uid
+ asofdate       is d
+ compcode       is i
+ batchno        is x
+ trans_date     is d
+ transcount     is i
+ userid         is x
+ client-id      is x
+ client_Careid  is x
+ client_last    is x
+ client_sufx    is x
+ client_first   is x
+ client_middle  is x
+                
+'transaction    
+ trans_code_dx  is i
+ trans_vers_dx  is x
+'dx             
+ dx_date        is d
+ dx_time        is t
+ dx_primary     is x
+ dx_reason      is x
+ dx10_code[]    is x
+ dx_rank[]      is x
+ dx_axis[]      is x
+ dx09_code[]    is x
+                
+ dx_axis_vers   is x
+ dx_axis3_vers  is x
+' dx_aamd_vers   is x
+ trans_aamd_ver is x
+ dx_rec_type    is i
+                
+ dx_4_a         is x
+ dx_4_b         is x 
+ dx_4_c         is x
+ dx_4_d         is x
+ dx_4_e         is x
+ dx_4_f         is x
+ dx_4_g         is x
+ dx_4_h         is x
+ dx_4_i         is x
+ dx_4_j         is x
+                
+ dx_gaf_cur     is x
+ dx_gaf_pre     is x
+ dx_abl_cur     is x
+ dx_abl_pot     is x
+                
+ dx_aamd_1      is x
+ dx_aamd_2      is x
+ dx_aamd_3      is x
+ dx_aamd_gen    is x
+ dx_aamd_anom   is x
+ dx_aamd_sens   is x
+ dx_aamd_prec   is x
+ dx_aamd_conv   is x
+ dx_aamd_phys   is x
+ dx_aamd_moto   is x
+ dx_aamd_mloc   is x
+ dx_aamd_msev   is x
+ dx_aamd_date   is d
+ dx_iq          is i
+ dx_iq_test     is i
+ dx_iq_date     is d
+ dx_sq          is i
+ dx_sq_test     is i
+ dx_sq_date     is d
+                
+ dx_code[]      is x
+ axis1[]        is x
+ axis2[]        is x
+ axis3[]        is x
+                
+ stripdots      is x
+                
+ phys_rec_num   is i
+ rec_length     is i
+                
+ outrec         is x
+ prefix         is x
+ 
+ 
+ %define LEVEL_ONE 1
+ %define LEVEL_TWO 2
+ %define LEVEL_THREE 3
+ %define LEVEL_FOUR 4
+ %define LEVEL_FIVE 5
+ %define LEVEL_SIX 6
+ %define CN_axis_ver_9 "04"
+ %define CN_axis3_ver_9 "09"
+ %define CN_axis_ver_10 "10"
+ %define CN_axis3_ver_10 "10"
+ 
+ $allowupdate(dx_rec)
+ 
 'Batch requires No Dots
-stripdots = "TRUE"
-rec_length = 80
-trans_code_dx = 15
-trans_vers_dx = "C"
-trans_aamd_ver = "77"
-dx_rec_type = 1
-
-$clear(getDxBatchTrans)
-
+ stripdots = "TRUE"
+ rec_length = 80
+ trans_code_dx = 15
+ trans_vers_dx = "C"
+ trans_aamd_ver = "77"
+ dx_rec_type = 1
+ 
+ $clear(getDxBatchTrans)
+ 
 'get the earliest unbatched dx record
-getUnbatchCltDx(client-id, trans_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
-   dx10_code[], dx_rank[], dx_axis[], dx09_code[])
-
+ getUnbatchCltDx(client-id, trans_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+    dx10_code[], dx_rank[], dx_axis[], dx09_code[])
+ 
 'bail if we don't have an unbatched dx record
-if dx_rec !dp then
+ if dx_rec !dp
    return
-endif
-
-'unsubmitted records a year or older cannot be submitted
-if dx_date <= `$dateoffset(trans_date, -365)` then
-   return
-endif 
-
-if $today < icd10_date then
-   dx_code[] = dx09_code[]
-   dx_axis_vers = CN_axis_ver_9
-   dx_axis3_vers = CN_axis3_ver_9
-else 
-   dx_code[] = dx10_code[]
-   dx_axis_vers = CN_axis_ver_10 
-   dx_axis3_vers = CN_axis3_ver_10
-endif
-
-sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[])
-
-'get the reset of the dx values
-getClientAxis4(client-id, $today, dx_rec, , 
-   dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j)
-
-getClientGaf(client-id, $today, dx_rec, , dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot)
-getClientAamd(client-id, $today, dx_rec, , dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, 
-   dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, 
-   dx_aamd_mloc, dx_aamd_msev)
-getClientIq(client-id, $today, dx_rec, , dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
-
-' map axis 4 for batch values
-if dx_4_j = "Y" then
-   dx_4_a = "J"
-   dx_4_b = ""
-   dx_4_c = ""
-   dx_4_d = ""
-   dx_4_e = ""
-   dx_4_f = ""
-   dx_4_g = ""
-   dx_4_h = ""
-   dx_4_i = ""
-else
-   if dx_4_a = "Y" then
-      dx_4_a = "A"
+ endif
+ 
+ 'unsubmitted records a year or older cannot be submitted
+ if dx_date <= `$dateoffset(trans_date, -365)`
+  return
+ endif 
+ 
+ if $today < CN_ICD10_DATE
+  dx_code[] = dx09_code[]
+  dx_axis_vers = CN_axis_ver_9
+  dx_axis3_vers = CN_axis3_ver_9
+ else 
+  dx_code[] = dx10_code[]
+  dx_axis_vers = CN_axis_ver_10 
+  dx_axis3_vers = CN_axis3_ver_10
+ endif
+ 
+ sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis1[], axis2[], axis3[])
+ 
+ 'get the reset of the dx values
+ getClientAxis4(client-id, $today, dx_rec, , 
+    dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j)
+ 
+ getClientGaf(client-id, $today, dx_rec, , dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot)
+ getClientAamd(client-id, $today, dx_rec, , dx_aamd_date, dx_aamd_1, dx_aamd_2, dx_aamd_3, 
+    dx_aamd_gen, dx_aamd_anom, dx_aamd_sens, dx_aamd_prec, dx_aamd_conv, dx_aamd_phys, dx_aamd_moto, 
+    dx_aamd_mloc, dx_aamd_msev)
+ getClientIq(client-id, $today, dx_rec, , dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
+ 
+ ' map axis 4 for batch values
+ if dx_4_j = "Y"
+  dx_4_a = "J"
+  dx_4_b = ""
+  dx_4_c = ""
+  dx_4_d = ""
+  dx_4_e = ""
+  dx_4_f = ""
+  dx_4_g = ""
+  dx_4_h = ""
+  dx_4_i = ""
+ else
+  if dx_4_a = "Y"
+   dx_4_a = "A"
+  endif
+  if dx_4_b = "Y"
+   dx_4_b = "B"
+  endif
+  if dx_4_c = "Y"
+   dx_4_c = "C"
+  endif
+  if dx_4_d = "Y"
+   dx_4_d = "D"
+  endif
+  if dx_4_e = "Y"
+   dx_4_e = "E"
+  endif
+  if dx_4_f = "Y"
+   dx_4_f = "F"
+  endif
+  if dx_4_g = "Y"
+   dx_4_g = "G"
    endif
-   if dx_4_b = "Y" then
-      dx_4_b = "B"
+  if dx_4_H = "Y"
+   dx_4_H = "H"
    endif
-   if dx_4_c = "Y" then
-      dx_4_c = "C"
-   endif
-   if dx_4_d = "Y" then
-      dx_4_d = "D"
-   endif
-   if dx_4_e = "Y" then
-      dx_4_e = "E"
-   endif
-   if dx_4_f = "Y" then
-      dx_4_f = "F"
-   endif
-   if dx_4_g = "Y" then
-      dx_4_g = "G"
-   endif
-   if dx_4_H = "Y" then
-      dx_4_H = "H"
-   endif
-   if dx_4_i = "Y" then
-      dx_4_i = "I"
-   endif
-endif
-
+  if dx_4_i = "Y"
+   dx_4_i = "I"
+  endif
+ endif
+ 
 'build the physical record prefix
-prefix = putPhysicalTrans(13,
-   COMPCODE, "999",
-   dx_rec_type, "9",
-   trans_code_dx, "99",
-   trans_vers_dx, "~",
-   Transcount, "999999")
-
-'line 1
-phys_rec_num = 1
-
-'outrec = prefix
-outrec += putPhysicalTrans(rec_length,
-   COMPCODE, "999",
-   dx_rec_type, "9",
-   trans_code_dx, "99",
-   trans_vers_dx, "~",
-   Transcount, "999999",
-   phys_rec_num, "99",
-   BATCHNO, "~~",
-   trans_date, "YYYYMMDD",
-   USERID, "~~~~~",
-   client-id, "~~~~~~~~~~",
-   client_careid, "~~~~~~~~~~",
-   client_last, "~~~~~~~~~~~~~~~~",
-   client_sufx, "~~~",
-   client_first, "~~~~~~~~~~~")
-
-'line 2
-phys_rec_num = 2
-
-'outrec += prefix
-outrec += putPhysicalTrans(rec_length,
-   COMPCODE, "999",
-   dx_rec_type, "9",
-   trans_code_dx, "99",
-   trans_vers_dx, "~",
-   Transcount, "999999",
-   phys_rec_num, "99",
-   client_middle, "~~~~~~~~~~",
-   dx_date, "YYYYMMDD",
-   dx_time, "HHMM",
-   dx_reason, "~",
-   dx_primary, "~",
-   axis1[LEVEL_ONE], "~~~~~~~",
-   axis1[LEVEL_TWO], "~~~~~~~",
-   axis1[LEVEL_THREE], "~~~~~~~",
-   axis1[LEVEL_FOUR], "~~~~~~~",
-   axis1[LEVEL_FIVE], "~~~~~~~")
-
-'line 3
-phys_rec_num = 3
-'outrec += prefix
-outrec += putPhysicalTrans(rec_length,
-   COMPCODE, "999",
-   dx_rec_type, "9",
-   trans_code_dx, "99",
-   trans_vers_dx, "~",
-   Transcount, "999999",
-   phys_rec_num, "99",
-   axis1[LEVEL_SIX], "~~~~~~~",     'finish off the record we started in the last physical record
-   axis2[LEVEL_ONE], "~~~~~~~",
-   axis2[LEVEL_TWO], "~~~~~~~",
-   axis2[LEVEL_THREE], "~~~~~~~",
-   axis2[LEVEL_FOUR], "~~~~~~~",
-   "", "~~~~~~~~~~~~~~~",                'filler
-   dx_abl_cur, "~",
-   dx_abl_pot, "~",
-   dx_aamd_1, "~~~",
-   dx_aamd_2, "~~~",
-   dx_aamd_3, "~~~",
-   dx_aamd_gen, "~~",
-   dx_aamd_anom, "~~")
-
-'line 4
-phys_rec_num = 4
-'outrec += prefix
-
-outrec += putPhysicalTrans(rec_length,
-   COMPCODE, "999",
-   dx_rec_type, "9",
-   trans_code_dx, "99",
-   trans_vers_dx, "~",
-   Transcount, "999999",
-   phys_rec_num, "99",
-   dx_aamd_sens, "~~",
-   dx_aamd_prec, "~~",
-   dx_aamd_conv, "~~",
-   dx_aamd_phys, "~~",
-   dx_aamd_moto, "~~",
-   dx_aamd_mloc, "~",
-   dx_aamd_msev, "~",
-   dx_aamd_date, "YYYYMMDD",
-   dx_iq, "999",
-   dx_iq_test, "99",
-   dx_iq_date, "YYYYMMDD",
-   dx_sq, "999",
-   dx_sq_test, "99",
-   dx_sq_date, "YYYYMMDD",
-   trans_aamd_ver, "~~",
-   dx_axis_vers, "~~",
-   dx_axis3_vers, "~~",
-   dx_gaf_cur, "~~",
-   dx_gaf_pre, "~~",
-   dx_4_a, "~",
-   dx_4_b, "~",
-   dx_4_c, "~",
-   dx_4_d, "~",
-   dx_4_e, "~",
-   dx_4_f, "~",
-   dx_4_g, "~",
-   dx_4_h, "~",
-   dx_4_i, "~")
-
-'line 5
-phys_rec_num = 5
-'outrec += prefix
-
-outrec += putPhysicalTrans(rec_length,
-   COMPCODE, "999",
-   dx_rec_type, "9",
-   trans_code_dx, "99",
-   trans_vers_dx, "~",
-   Transcount, "999999",
-   phys_rec_num, "99",
-   axis3[LEVEL_ONE], "~~~~~~~",
-   axis3[LEVEL_TWO], "~~~~~~~",
-   axis3[LEVEL_THREE], "~~~~~~~",
-   axis3[LEVEL_FOUR], "~~~~~~~",
-   axis3[LEVEL_FIVE], "~~~~~~~",
-   axis3[LEVEL_SIX], "~~~~~~~",
-   dx_date, "YYYYMMDD")
-
-getDxBatchTrans = outrec
+ prefix = putPhysicalTrans(13,
+    COMPCODE, "999",
+    dx_rec_type, "9",
+    trans_code_dx, "99",
+    trans_vers_dx, "~",
+    Transcount, "999999")
+ 
+ 'line 1
+ phys_rec_num = 1
+ 
+ 'outrec = prefix
+ outrec += putPhysicalTrans(rec_length,
+    COMPCODE, "999",
+    dx_rec_type, "9",
+    trans_code_dx, "99",
+    trans_vers_dx, "~",
+    Transcount, "999999",
+    phys_rec_num, "99",
+    BATCHNO, "~~",
+    trans_date, "YYYYMMDD",
+    USERID, "~~~~~",
+    client-id, "~~~~~~~~~~",
+    client_careid, "~~~~~~~~~~",
+    client_last, "~~~~~~~~~~~~~~~~",
+    client_sufx, "~~~",
+    client_first, "~~~~~~~~~~~")
+ 
+ 'line 2
+ phys_rec_num = 2
+ 
+ 'outrec += prefix
+ outrec += putPhysicalTrans(rec_length,
+    COMPCODE, "999",
+    dx_rec_type, "9",
+    trans_code_dx, "99",
+    trans_vers_dx, "~",
+    Transcount, "999999",
+    phys_rec_num, "99",
+    client_middle, "~~~~~~~~~~",
+    dx_date, "YYYYMMDD",
+    dx_time, "HHMM",
+    dx_reason, "~",
+    dx_primary, "~",
+    axis1[LEVEL_ONE], "~~~~~~~",
+    axis1[LEVEL_TWO], "~~~~~~~",
+    axis1[LEVEL_THREE], "~~~~~~~",
+    axis1[LEVEL_FOUR], "~~~~~~~",
+    axis1[LEVEL_FIVE], "~~~~~~~")
+ 
+ 'line 3
+ phys_rec_num = 3
+ 'outrec += prefix
+ outrec += putPhysicalTrans(rec_length,
+    COMPCODE, "999",
+    dx_rec_type, "9",
+    trans_code_dx, "99",
+    trans_vers_dx, "~",
+    Transcount, "999999",
+    phys_rec_num, "99",
+    axis1[LEVEL_SIX], "~~~~~~~",     'finish off the record we started in the last physical record
+    axis2[LEVEL_ONE], "~~~~~~~",
+    axis2[LEVEL_TWO], "~~~~~~~",
+    axis2[LEVEL_THREE], "~~~~~~~",
+    axis2[LEVEL_FOUR], "~~~~~~~",
+    "", "~~~~~~~~~~~~~~~",                'filler
+    dx_abl_cur, "~",
+    dx_abl_pot, "~",
+    dx_aamd_1, "~~~",
+    dx_aamd_2, "~~~",
+    dx_aamd_3, "~~~",
+    dx_aamd_gen, "~~",
+    dx_aamd_anom, "~~")
+ 
+ 'line 4
+ phys_rec_num = 4
+ 'outrec += prefix
+ 
+ outrec += putPhysicalTrans(rec_length,
+    COMPCODE, "999",
+    dx_rec_type, "9",
+    trans_code_dx, "99",
+    trans_vers_dx, "~",
+    Transcount, "999999",
+    phys_rec_num, "99",
+    dx_aamd_sens, "~~",
+    dx_aamd_prec, "~~",
+    dx_aamd_conv, "~~",
+    dx_aamd_phys, "~~",
+    dx_aamd_moto, "~~",
+    dx_aamd_mloc, "~",
+    dx_aamd_msev, "~",
+    dx_aamd_date, "YYYYMMDD",
+    dx_iq, "999",
+    dx_iq_test, "99",
+    dx_iq_date, "YYYYMMDD",
+    dx_sq, "999",
+    dx_sq_test, "99",
+    dx_sq_date, "YYYYMMDD",
+    trans_aamd_ver, "~~",
+    dx_axis_vers, "~~",
+    dx_axis3_vers, "~~",
+    dx_gaf_cur, "~~",
+    dx_gaf_pre, "~~",
+    dx_4_a, "~",
+    dx_4_b, "~",
+    dx_4_c, "~",
+    dx_4_d, "~",
+    dx_4_e, "~",
+    dx_4_f, "~",
+    dx_4_g, "~",
+    dx_4_h, "~",
+    dx_4_i, "~")
+ 
+ 'line 5
+ phys_rec_num = 5
+ 'outrec += prefix
+ 
+ outrec += putPhysicalTrans(rec_length,
+    COMPCODE, "999",
+    dx_rec_type, "9",
+    trans_code_dx, "99",
+    trans_vers_dx, "~",
+    Transcount, "999999",
+    phys_rec_num, "99",
+    axis3[LEVEL_ONE], "~~~~~~~",
+    axis3[LEVEL_TWO], "~~~~~~~",
+    axis3[LEVEL_THREE], "~~~~~~~",
+    axis3[LEVEL_FOUR], "~~~~~~~",
+    axis3[LEVEL_FIVE], "~~~~~~~",
+    axis3[LEVEL_SIX], "~~~~~~~",
+    dx_date, "YYYYMMDD")
+ 
+ getDxBatchTrans = outrec
 
 end getDxBatchTrans
 
@@ -1393,114 +1399,111 @@ private dynamic function putPhysicalTrans(
    value38, format38,
    value39, format39) is x
 
-rec_length  is i
-value0   is v  format0  is x
-value1   is v  format1  is x
-value2   is v  format2  is x
-value3   is v  format3  is x
-value4   is v  format4  is x
-value5   is v  format5  is x
-value6   is v  format6  is x
-value7   is v  format7  is x
-value8   is v  format8  is x
-value9   is v  format9  is x
-value10   is v  format10  is x
-value11   is v  format11  is x
-value12   is v  format12  is x
-value13   is v  format13  is x
-value14   is v  format14  is x
-value15   is v  format15  is x
-value16   is v  format16  is x
-value17   is v  format17  is x
-value18   is v  format18  is x
-value19   is v  format19  is x
-value20   is v  format20  is x
-value21   is v  format21  is x
-value22   is v  format22  is x
-value23   is v  format23  is x
-value24   is v  format24  is x
-value25   is v  format25  is x
-value26   is v  format26  is x
-value27   is v  format27  is x
-value28   is v  format28  is x
-value29   is v  format29  is x
-value30   is v  format30  is x
-value31   is v  format31  is x
-value32   is v  format32  is x
-value33   is v  format33  is x
-value34   is v  format34  is x
-value35   is v  format35  is x
-value36   is v  format36  is x
-value37   is v  format37  is x
-value38   is v  format38  is x
-value39   is v  format39  is x
-
-pad   is i
-
-putPhysicalTrans = ""
-putPhysicalTrans += addField(value0, format0)
-putPhysicalTrans += addField(value1, format1)
-putPhysicalTrans += addField(value2, format2)
-putPhysicalTrans += addField(value3, format3)
-putPhysicalTrans += addField(value4, format4)
-putPhysicalTrans += addField(value5, format5)
-putPhysicalTrans += addField(value6, format6)
-putPhysicalTrans += addField(value7, format7)
-putPhysicalTrans += addField(value8, format8)
-putPhysicalTrans += addField(value9, format9)
-putPhysicalTrans += addField(value10, format10)
-putPhysicalTrans += addField(value11, format11)
-putPhysicalTrans += addField(value12, format12)
-putPhysicalTrans += addField(value13, format13)
-putPhysicalTrans += addField(value14, format14)
-putPhysicalTrans += addField(value15, format15)
-putPhysicalTrans += addField(value16, format16)
-putPhysicalTrans += addField(value17, format17)
-putPhysicalTrans += addField(value18, format18)
-putPhysicalTrans += addField(value19, format19)
-putPhysicalTrans += addField(value20, format20)
-putPhysicalTrans += addField(value21, format21)
-putPhysicalTrans += addField(value22, format22)
-putPhysicalTrans += addField(value23, format23)
-putPhysicalTrans += addField(value24, format24)
-putPhysicalTrans += addField(value25, format25)
-putPhysicalTrans += addField(value26, format26)
-putPhysicalTrans += addField(value27, format27)
-putPhysicalTrans += addField(value28, format28)
-putPhysicalTrans += addField(value29, format29)
-putPhysicalTrans += addField(value30, format30)
-putPhysicalTrans += addField(value31, format31)
-putPhysicalTrans += addField(value32, format32)
-putPhysicalTrans += addField(value33, format33)
-putPhysicalTrans += addField(value34, format34)
-putPhysicalTrans += addField(value35, format35)
-putPhysicalTrans += addField(value36, format36)
-putPhysicalTrans += addField(value37, format37)
-putPhysicalTrans += addField(value38, format38)
-putPhysicalTrans += addField(value39, format39)
-
-pad = rec_length - $len(putPhysicalTrans)
-if pad < 0 then
-   putPhysicalTrans = "Error - Physical Record Too Long"
-   $abort(1, putPhysicalTrans)
-   return
-endif
-if pad > 0 then
-   putPhysicalTrans += $mchar(" ", pad)
-endif
-
-putPhysicalTrans += x"0a"
-
+ rec_length  is i
+ value0   is v  format0  is x
+ value1   is v  format1  is x
+ value2   is v  format2  is x
+ value3   is v  format3  is x
+ value4   is v  format4  is x
+ value5   is v  format5  is x
+ value6   is v  format6  is x
+ value7   is v  format7  is x
+ value8   is v  format8  is x
+ value9   is v  format9  is x
+ value10   is v  format10  is x
+ value11   is v  format11  is x
+ value12   is v  format12  is x
+ value13   is v  format13  is x
+ value14   is v  format14  is x
+ value15   is v  format15  is x
+ value16   is v  format16  is x
+ value17   is v  format17  is x
+ value18   is v  format18  is x
+ value19   is v  format19  is x
+ value20   is v  format20  is x
+ value21   is v  format21  is x
+ value22   is v  format22  is x
+ value23   is v  format23  is x
+ value24   is v  format24  is x
+ value25   is v  format25  is x
+ value26   is v  format26  is x
+ value27   is v  format27  is x
+ value28   is v  format28  is x
+ value29   is v  format29  is x
+ value30   is v  format30  is x
+ value31   is v  format31  is x
+ value32   is v  format32  is x
+ value33   is v  format33  is x
+ value34   is v  format34  is x
+ value35   is v  format35  is x
+ value36   is v  format36  is x
+ value37   is v  format37  is x
+ value38   is v  format38  is x
+ value39   is v  format39  is x
+ 
+ pad   is i
+ 
+ putPhysicalTrans = ""
+ putPhysicalTrans += addField(value0, format0)
+ putPhysicalTrans += addField(value1, format1)
+ putPhysicalTrans += addField(value2, format2)
+ putPhysicalTrans += addField(value3, format3)
+ putPhysicalTrans += addField(value4, format4)
+ putPhysicalTrans += addField(value5, format5)
+ putPhysicalTrans += addField(value6, format6)
+ putPhysicalTrans += addField(value7, format7)
+ putPhysicalTrans += addField(value8, format8)
+ putPhysicalTrans += addField(value9, format9)
+ putPhysicalTrans += addField(value10, format10)
+ putPhysicalTrans += addField(value11, format11)
+ putPhysicalTrans += addField(value12, format12)
+ putPhysicalTrans += addField(value13, format13)
+ putPhysicalTrans += addField(value14, format14)
+ putPhysicalTrans += addField(value15, format15)
+ putPhysicalTrans += addField(value16, format16)
+ putPhysicalTrans += addField(value17, format17)
+ putPhysicalTrans += addField(value18, format18)
+ putPhysicalTrans += addField(value19, format19)
+ putPhysicalTrans += addField(value20, format20)
+ putPhysicalTrans += addField(value21, format21)
+ putPhysicalTrans += addField(value22, format22)
+ putPhysicalTrans += addField(value23, format23)
+ putPhysicalTrans += addField(value24, format24)
+ putPhysicalTrans += addField(value25, format25)
+ putPhysicalTrans += addField(value26, format26)
+ putPhysicalTrans += addField(value27, format27)
+ putPhysicalTrans += addField(value28, format28)
+ putPhysicalTrans += addField(value29, format29)
+ putPhysicalTrans += addField(value30, format30)
+ putPhysicalTrans += addField(value31, format31)
+ putPhysicalTrans += addField(value32, format32)
+ putPhysicalTrans += addField(value33, format33)
+ putPhysicalTrans += addField(value34, format34)
+ putPhysicalTrans += addField(value35, format35)
+ putPhysicalTrans += addField(value36, format36)
+ putPhysicalTrans += addField(value37, format37)
+ putPhysicalTrans += addField(value38, format38)
+ putPhysicalTrans += addField(value39, format39)
+ 
+ pad = rec_length - $len(putPhysicalTrans)
+ if pad < 0
+  putPhysicalTrans = "Error - Physical Record Too Long"
+  $abort(1, putPhysicalTrans)
+  return
+ endif
+ if pad > 0
+  putPhysicalTrans += $mchar(" ", pad)
+ endif
+ 
+ putPhysicalTrans += x"0a" 
 end putPhysicalTrans
+ 
+ private dynamic function addField(val, form) is x
+ val      is v
+ form     is x 
 
-private dynamic function addField(val, form) is x
-val      is v
-form     is x
-
-addField = ""
-if form dp then
+ addField = ""
+ if form dp
    addField = $formatf(val, form)
-endif
+ endif
 end addField
-
-

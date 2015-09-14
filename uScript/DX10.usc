@@ -27,6 +27,7 @@ start DX10(parmfile,option,client,retcode)
  %global comp_axis2_10_dx,comp_axis3_10_dx,comp_axis1_10_ds,comp_axis2_10_ds,comp_axis3_10_ds
  %global c_dx10_a4_supgrp,c_dx10_a4_socenv,c_dx10_a4_edu,c_dx10_a4_occ,c_dx10_a4_housng,c_dx10_a4_eco,c_dx10_a4_health,c_dx10_a4_legal,c_dx10_a4_psyenv,c_dx10_a4_none,c_dx10_a5_gaf,c_dx10_curr_abl,c_dx10_pot_abl,c_dx10_pimary_ax
  %global c_dx10_dt,c_dx10_reason,c_dx10_a5_pgaf,c_dx10_comment,c_dx10_stat
+ %global c_dx10_iq_score, c_dx10_iq_date, c_dx10_iq_test, c_dx10_sq_score, c_dx10_sq_date, c_dx10_sq_test
  %global errors, RequireABL
  %global c.fn,c.mn,c.ln,c.bd
  %global e_doc
@@ -101,6 +102,12 @@ start DX10(parmfile,option,client,retcode)
  c_dx10_dt          is d
  c_dx10_a5_pgaf     is x
  c_dx10_comment     is x
+ c_dx10_iq_score    is x
+ c_dx10_iq_date     is d
+ c_dx10_iq_test     is x
+ c_dx10_sq_score    is x
+ c_dx10_sq_date     is d
+ c_dx10_sq_test     is x
  c.fn               is x
  c.mn               is x
  c.ln               is x
@@ -123,6 +130,10 @@ start DX10(parmfile,option,client,retcode)
  dosave             is x
  showsavebutton     is x
  %global dosnapshot, dosave, showsavebutton
+
+ ShowIQ              is x
+ ShowSQ              is x
+ %global ShowIQ, ShowSQ
 
  Exclude_staff_by    is x
  force_mode          is x
@@ -447,6 +458,12 @@ function Onload(parmfile, option) is x
  '  c_dx10_a5_gaf           = c.dx10.a5.gaf   
    c_dx10_curr_abl         = c.dx10.curr.abl 
    c_dx10_pot_abl          = c.dx10.pot.abl
+   c_dx10_iq_score         = c.dx10.iq.score
+   c_dx10_iq_date          = c.dx10.iq.date 
+   c_dx10_iq_test          = c.dx10.iq.test 
+   c_dx10_sq_score         = c.dx10.sq.score
+   c_dx10_sq_date          = c.dx10.sq.date 
+   c_dx10_sq_test          = c.dx10.sq.test 
   $clear(c.dx10.icd10.1,c.dx10.icd9.1,c.dx10.legax.1,c.dx10.dxcat.1,c.dx10.dxrank.1,c.dx10.uniq.1,c.dx10.icd10.2,c.dx10.icd9.2,c.dx10.legax.2,c.dx10.dxcat.2,c.dx10.dxrank.2,c.dx10.uniq.2,
          c.dx10.icd10.3,c.dx10.icd9.3,c.dx10.legax.3,c.dx10.dxcat.3,c.dx10.dxrank.3,c.dx10.uniq.3,c.dx10.icd10.4,c.dx10.icd9.4,c.dx10.legax.4,c.dx10.dxcat.4,c.dx10.dxrank.4,c.dx10.uniq.4,
          c.dx10.icd10.5,c.dx10.icd9.5,c.dx10.legax.5,c.dx10.dxcat.5,c.dx10.dxrank.5,c.dx10.uniq.5,c.dx10.icd10.6,c.dx10.icd9.6,c.dx10.legax.6,c.dx10.dxcat.6,c.dx10.dxrank.6,c.dx10.uniq.6,
@@ -501,6 +518,7 @@ function Onload(parmfile, option) is x
    c.dx10.icd10.13,c.dx10.icd9.13,c.dx10.legax.13,c.dx10.dxcat.13,c.dx10.dxrank.13,c.dx10.uniq.13,c.dx10.icd10.14,c.dx10.icd9.14,c.dx10.legax.14,c.dx10.dxcat.14,c.dx10.dxrank.14,c.dx10.uniq.14,
    c.dx10.icd10.15,c.dx10.icd9.15,c.dx10.legax.15,c.dx10.dxcat.15,c.dx10.dxrank.15,c.dx10.uniq.15,c.dx10.icd10.16,c.dx10.icd9.16,c.dx10.legax.16,c.dx10.dxcat.16,c.dx10.dxrank.16,c.dx10.uniq.16,
    c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl,
+   c.dx10.iq.score, c.dx10.iq.date, c.dx10.iq.test, c.dx10.sq.score, c.dx10.sq.date, c.dx10.sq.test,
    c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
   endif
  else
@@ -514,6 +532,7 @@ function Onload(parmfile, option) is x
   c.dx10.icd10.13,c.dx10.icd9.13,c.dx10.legax.13,c.dx10.dxcat.13,c.dx10.dxrank.13,c.dx10.uniq.13,c.dx10.icd10.14,c.dx10.icd9.14,c.dx10.legax.14,c.dx10.dxcat.14,c.dx10.dxrank.14,c.dx10.uniq.14,
   c.dx10.icd10.15,c.dx10.icd9.15,c.dx10.legax.15,c.dx10.dxcat.15,c.dx10.dxrank.15,c.dx10.uniq.15,c.dx10.icd10.16,c.dx10.icd9.16,c.dx10.legax.16,c.dx10.dxcat.16,c.dx10.dxrank.16,c.dx10.uniq.16,
   c.dx10.a4.supgrp,c.dx10.a4.socenv,c.dx10.a4.edu,c.dx10.a4.occ,c.dx10.a4.housng,c.dx10.a4.eco,c.dx10.a4.health,c.dx10.a4.legal,c.dx10.a4.psyenv,c.dx10.a4.none,c.dx10.a5.gaf,c.dx10.curr.abl,c.dx10.pot.abl,
+   c.dx10.iq.score, c.dx10.iq.date, c.dx10.iq.test, c.dx10.sq.score, c.dx10.sq.date, c.dx10.sq.test,
   c.dx10.comment,c.dx10.snapid,c.dx10.isn,c.dx10.stat)
  endif 
 end OnLoad 
@@ -793,6 +812,68 @@ function Page1() is null
                                     $radio(c_dx10_pot_abl,"3 - Profound", "4")        
         $endblock("SHOWABL","SHOWABL")   
   endif 
+  if SHOWIQ = "Y" then
+     $br(2)
+     $fieldset("IQ",,"datatag")
+
+        $text("IQ Score")
+        $textbox(c_dx10_iq_score)
+
+        $br()
+        $text("IQ Date")
+        $textbox(c_dx10_iq_date,"CAL")
+
+        $br()
+        $text("IQ Test")
+        $dropbox(c_dx10_iq_test, "", "")
+        $dropbox(c_dx10_iq_test, "WISC", "01")
+        $dropbox(c_dx10_iq_test, "WAIS", "02")
+        $dropbox(c_dx10_iq_test, "WPPSI", "03")
+        $dropbox(c_dx10_iq_test, "S-B LM", "04")
+        $dropbox(c_dx10_iq_test, "CATTELL", "05")
+        $dropbox(c_dx10_iq_test, "PPVT", "06")
+        $dropbox(c_dx10_iq_test, "Revised BETA", "07")
+        $dropbox(c_dx10_iq_test, "Other", "08")
+        $dropbox(c_dx10_iq_test, "WISC (Revised)", "09")
+        $dropbox(c_dx10_iq_test, "WAIS (Revised)", "10")
+        $dropbox(c_dx10_iq_test, "PPVT (Revised)", "11")
+        $dropbox(c_dx10_iq_test, "Slosson Intelligence Test (SIT)", "12")
+        $dropbox(c_dx10_iq_test, "Leiter International Performance Scale (LIPS)", "13")
+        $dropbox(c_dx10_iq_test, "WISC 3", "14")
+        $dropbox(c_dx10_iq_test, "WAIS III", "15")
+        $dropbox(c_dx10_iq_test, "Leiter International Performance Scale (LIPS-Revised)", "16")
+        $dropbox(c_dx10_iq_test, "S-B 4th", "17")
+        $dropbox(c_dx10_iq_test, "S-B 5th", "18")
+        $dropbox(c_dx10_iq_test, "WISC IV", "19")
+        $dropbox(c_dx10_iq_test, "Slosson Intelligence Test (SIT-Revised)", "22")
+        $dropbox(c_dx10_iq_test, "Kaufman Brief Intelligence Test II (KBIT II)", "21")
+        $dropbox(c_dx10_iq_test, "Peabody Picture Vocalulary Test IB (PPVT IV)", "22")
+        $dropbox(c_dx10_iq_test, "Wechsler Adult Intelligence Scale IV (WAIS IV)", "23")
+        $dropbox(c_dx10_iq_test, "Wechsler Abbreviated Scale of Intelligence - 2nd Edition (WASI-II)", "24")
+        
+     $endfieldset()
+  endif
+  if SHOWSQ = "Y" then
+     $br(2)
+     $fieldset("SQ",,"datatag")
+
+        $text("SQ Score")
+        $textbox(c_dx10_sq_score)
+
+        $br()
+        $text("SQ Date")
+        $textbox(c_dx10_sq_date,"CAL")
+
+        $br()
+        $text("SQ Test")
+        $dropbox(c_dx10_sq_test, "", "")
+        $dropbox(c_dx10_sq_test, "WISC", "01")
+        $dropbox(c_dx10_sq_test, "Other", "02")
+        $dropbox(c_dx10_sq_test, "Vineland ABL Standard Score", "03")
+        $dropbox(c_dx10_sq_test, "Vineland II", "04")
+        
+     $endfieldset()
+  endif
   $br(2)$text("Comments:", "datatag")
   $br()$textblock(c_dx10_comment,8,90,,,10000)$countbox(c_dx10_comment, "(max chars is 10000)")  
  $sendform($funcname)  
@@ -903,6 +984,70 @@ function Page2() is null
                                  case "3" $text("2 - Severe")
                                  case "4" $text("3 - Profound")
                                 endselect	    
+  endif
+  if SHOWIQ = "Y" then
+     $br(2)
+     $fieldset("IQ")
+
+        $text("IQ Score: ")
+        $text(c_dx10_iq_score)
+
+        $br()
+        $text("IQ Date: ")
+        $text(c_dx10_iq_date,"CAL")
+
+        $br()
+        $text("IQ Test: ")
+        select c_dx10_iq_test
+         case "01"  $text( "WISC")
+         case "02"  $text( "WAIS")
+         case "03"  $text( "WPPSI")
+         case "04"  $text( "S-B LM")
+         case "05"  $text( "CATTELL")
+         case "06"  $text( "PPVT")
+         case "07"  $text( "Revised BETA")
+         case "08"  $text( "Other")
+         case "09"  $text( "WISC (Revised)")
+         case "10"  $text( "WAIS (Revised)")
+         case "11"  $text( "PPVT (Revised)")
+         case "12"  $text( "Slosson Intelligence Test (SIT)")
+         case "13"  $text( "Leiter International Performance Scale (LIPS)")
+         case "14"  $text( "WISC 3")
+         case "15"  $text( "WAIS III")
+         case "16"  $text( "Leiter International Performance Scale (LIPS-Revised)")
+         case "17"  $text( "S-B 4th")
+         case "18"  $text( "S-B 5th")
+         case "19"  $text( "WISC IV")
+         case "20"  $text( "Slosson Intelligence Test (SIT-Revised)")
+         case "21"  $text( "Kaufman Brief Intelligence Test II (KBIT II)")
+         case "22"  $text( "Peabody Picture Vocalulary Test IB (PPVT IV)")
+         case "23"  $text( "Wechsler Adult Intelligence Scale IV (WAIS IV)")
+         case "24"  $text( "Wechsler Abbreviated Scale of Intelligence - 2nd Edition (WASI-II)")
+        endselect
+        
+     $endfieldset()
+  endif
+  if SHOWSQ = "Y" then
+     $br(2)
+     $fieldset("SQ")
+
+        $text("SQ Score: ")
+        $text(c_dx10_sq_score)
+
+        $br()
+        $text("SQ Date: ")
+        $text(c_dx10_sq_date,"CAL")
+
+        $br()
+        $text("SQ Test: ")
+        select c_dx10_sq_test
+         case "01"  $text("WISC")
+         case "02"  $text("Other")
+         case "03"  $text("Vineland ABL Standard Score")
+         case "04"  $text("Vineland II")
+        endselect
+        
+     $endfieldset()
   endif
   $br(2)$text("Comments:")
   $br()$text(c_dx10_comment)
@@ -1039,6 +1184,34 @@ function Validate1() is i
 'R-21-03
  if c_dx10_curr_abl !dp and c_dx10_pimary_ax = "2" and RequireABL = "Y"
   (void)$arrpush(errors[],"Current ABL is require for the selected Axis II Level I code")                
+ endif
+
+ 'IQ Validation
+ if c_dx10_iq_score dp and (c_dx10_iq_test !dp or c_dx10_iq_date !dp) then
+    (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
+ endif
+ if c_dx10_iq_test dp and (c_dx10_iq_score !dp or c_dx10_iq_date !dp) then
+    (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
+ endif
+ if c_dx10_iq_date dp and (c_dx10_iq_score !dp or c_dx10_iq_test !dp) then
+    (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
+ endif
+ if `$casti(c_dx10_iq_score)` < 0 or `$casti(c_dx10_iq_score)` > 150 then
+    (void)$arrpush(errors[], "IQ Must be between 0 and 150")
+ endif
+
+ 'SQ Validation
+ if c_dx10_sq_score dp and (c_dx10_sq_test !dp or c_dx10_sq_date !dp) then
+    (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
+ endif
+ if c_dx10_sq_test dp and (c_dx10_sq_score !dp or c_dx10_sq_date !dp) then
+    (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
+ endif
+ if c_dx10_sq_date dp and (c_dx10_sq_score !dp or c_dx10_sq_test !dp) then
+    (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
+ endif
+ if `$casti(c_dx10_sq_score)` < 0 or `$casti(c_dx10_sq_score)` > 150 then
+    (void)$arrpush(errors[], "SQ Must be between 0 and 150")
  endif
  
  if errors[1] !dp
@@ -1213,6 +1386,12 @@ function SaveData() is i
  else
   $clear(c.dx10.curr.abl,c.dx10.pot.abl)
  endif 
+ c.dx10.iq.score = c_dx10_iq_score
+ c.dx10.iq.date = c_dx10_iq_date
+ c.dx10.iq.test = c_dx10_iq_test
+ c.dx10.sq.score = c_dx10_sq_score
+ c.dx10.sq.date = c_dx10_sq_date
+ c.dx10.sq.test = c_dx10_sq_test
  c.dx10.comment   = c_dx10_comment
  c.dx10.converted = "N"
 
