@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.1.4 09/11/2015
+ %version 1.2.0 09/15/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -11,13 +11,14 @@ library lib_DX10()
  %define col_color_multi "bgcolor='LightGrey'"
  %define CN_ICD10_DATE 10/01/2015
  on load do: 
-  %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table 
+  %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table, dsn 
   o_user      is x
   o_pass      is x
   o_ds        is x
   o_db        is x
   ICD10_Table is x
   ICD9_Table  is x
+  dsn         is x
  %include inc_DX10
  
 dynamic function Set_Sql(user, pass, host, db, icd10, icd9) is null 
@@ -33,6 +34,7 @@ dynamic function Set_Sql(user, pass, host, db, icd10, icd9) is null
  o_db = db
  ICD10_TABLE = icd10
  ICD9_TABLE = icd9
+ dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
 end set_sql 
  
 dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
@@ -46,7 +48,6 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  query_txt		  is x
  query_txt_arr[]  is x
  cnt_query		  is i
- dsn		      is x
  o_sql		      is x		
  db			      is i
  sql_tpl	      is x
@@ -85,7 +86,6 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  $looplimit = 0
  $clear(selected[],search_field,all_results[])
  rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  $submitopt("off", "Search")
  $cancelopt("off", "Cancel")
@@ -217,9 +217,7 @@ function 10_Desc_lookup(UniqID,ICD10_9) is x
  results is x
  db		 is i 
  rc      is i
- dsn     is x
  rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  select ICD10_9
   case "ICD10"  o_sql = "select [ICD-10_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
@@ -238,9 +236,7 @@ function 9_Desc_lookup(UniqID) is x
  results     is x
  db			 is i 
  rc          is i
- dsn         is x
  rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  o_sql = "select [ICD-9_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
  rc = db:q(o_sql, results)
@@ -253,9 +249,7 @@ function DX_Uniq_Query(UniqID) is x
  results is x
  db		 is i 
  rc      is i
- dsn     is x
  rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  o_sql = "select * from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
  rc = db:q(o_sql, results)
@@ -283,9 +277,7 @@ function NoDX_Lookup(axis) is x
  o_sql   is x
  results is x
  db		 is i 
- dsn     is x
  rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  select axis
   case "1" o_sql = "select *  FROM " + ICD10_table + " where [ICD-10_Code] = 'Z0389' and [DSM-4_Axis] = '1' and EffDt <= '" + $today + "' and (EndDt > '" + $today + "' or EndDt is null)"
@@ -760,7 +752,6 @@ function DX_9Code_Query(diag_code,legacy_axis,9DOTTED,results[],text) is null
  results[]   is x
  db		     is i 
  rc          is i
- dsn         is x
  index       is i
  if 9DOTTED !dp
   9DOTTED = "Y"
@@ -770,8 +761,6 @@ function DX_9Code_Query(diag_code,legacy_axis,9DOTTED,results[],text) is null
  if legacy_axis !dp
   legacy_axis = "1"
  endif
-' rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  {"LIB-freetds"}setDSN(dsn)
  if 9DOTTED = "Y"
   if text dp
@@ -800,9 +789,7 @@ function DX_Uniq_Query9(UniqID) is x
  results is x
  db              is i
  rc      is i
- dsn     is x
  rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  o_sql = "select * from " + ICD9_table + " where [UniqID] = '" + uniqid + "'"
  rc = db:q(o_sql, results)
@@ -817,7 +804,6 @@ function DX_10Code_Query(diag_code,legacy_axis,9DOTTED,results[]) is null
  results[]   is x
  db		     is i 
  rc          is i
- dsn         is x
  index       is i
  if 9DOTTED !dp
   9DOTTED = "Y"
@@ -827,8 +813,6 @@ function DX_10Code_Query(diag_code,legacy_axis,9DOTTED,results[]) is null
  if legacy_axis !dp
   legacy_axis = "1"
  endif
-' rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  {"LIB-freetds"}setDSN(dsn)
  if 9DOTTED = "Y"
   o_sql = "select [UniqID] from " + ICD10_table + " where [ICD-9_Code_DotNotation] = '" + diag_code + "' and [DSM-4_Axis] = '" + legacy_axis + "'"
@@ -850,9 +834,7 @@ function DX_Code_Query(UniqID,ICD10_9) is x
  results is x
  db		 is i 
  rc      is i
- dsn     is x
  rc = $loadlib(db, "LIB-freetds")
- dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
  db:setDSN(dsn)
  select ICD10_9
   case "ICD10"  o_sql = "select [ICD-10_Code] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
@@ -1507,3 +1489,27 @@ end putPhysicalTrans
    addField = $formatf(val, form)
  endif
 end addField
+
+function IsDXCodeLapsed(uniqid,dx_date,ICD10_9) is x
+ uniqid  is x
+ ICD10_9 is x
+ dx_date is d
+ o_sql   is x
+ db		 is i 
+ rc      is i
+ results is x
+ rc = $loadlib(db, "LIB-freetds")
+ db:setDSN(dsn) 
+ select ICD10_9
+  case "ICD10" o_sql = "select [EndDt] from " + ICD10_table + " where [UniqID] = '" + uniqid + "' and [EndDt] <= '" + dx_date + "'"    
+  case "ICD9"  o_sql = "select [EndDt] from " + ICD9_table + " where [UniqID] = '" + uniqid + "' and [EndDt] <= '" + dx_date + "'"
+ case other    o_sql = "select [EndDt] from " + ICD10_table + " where [UniqID] = '" + uniqid + "' and [EndDt] <= '" + dx_date + "'"
+ endselect 
+ rc = db:q(o_sql, results)
+ results = $replace("|","",results)
+ if results dp
+  IsDXCodeLapsed = "Y"
+ else
+  IsDXCodeLapsed = "N"
+ endif  
+end IsDXCodeLapsed
