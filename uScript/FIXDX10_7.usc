@@ -1,0 +1,343 @@
+start FIXDX10_7()
+ %include inc_DX10
+ rc               is i
+ rc1              is i
+ rc2              is i
+ CID              is x
+ update           is x
+ sql_results      is x
+ UniqID           is x
+ ICD_Code         is x
+ ICD_Code_DotNt   is x
+ ICD_Description  is x
+ ICD_Code2        is x
+ ICD_Code_DotNt2  is x
+ ICD_Description2 is x
+ DSM_4_Axis       is x
+ Approximate      is x
+ NoMap            is x
+ Combination      is x
+ Scenario         is x
+ ChoiceList       is x
+ DX_Cat           is x
+ TermSearch       is x
+ EffDt            is d
+ EndDt            is d
+ parmfile         is x
+ o_user           is x
+ o_pass           is x
+ o_ds             is x
+ o_db             is x
+ icd10_table      is x
+ icd9_table       is x
+
+ parmfile = "DX10"
+ ICD10_Table = "[t_ICD-10_ICD-10_with_GEM_AXIS]"
+ ICD9_Table = "[t_ICD-10_ICD-9_with_GEM_AXIS]"
+ getparm(parmfile)
+ {"lib_DX10"}Set_Sql(o_user, o_pass, o_ds, o_db, icd10_table, icd9_table)
+  
+
+ $looplimit = 0
+ rc = $dbstart(2,CID,"I")
+ $dblock()
+ rc = $dbread(02, CID, dx10_dstlist)
+ if rc = 4
+  do until rc != 4
+   $dblock()
+   rc = $dbread(02,CID, dx10_dstlist)
+   $sleep(10)
+  enddo
+ endif
+ do while rc < 3
+  update = "N"
+  if c.dx10.converted = "Y"
+   if c.dx10.uniq.16 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.16)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.16 != DX_Cat
+	 c.dx10.dxcat.16 = DX_Cat
+     update = "Y"
+	endif 
+   endif   
+   if c.dx10.uniq.15 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.15)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.15 != DX_Cat
+	 c.dx10.dxcat.15 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.14 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.14)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.14 != DX_Cat
+	 c.dx10.dxcat.14 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.13 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.13)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.13 != DX_Cat
+	 c.dx10.dxcat.13 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.12 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.12)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.12 != DX_Cat
+	 c.dx10.dxcat.12 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.11 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.11)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.11 != DX_Cat
+	 c.dx10.dxcat.11 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.10 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.10)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.10 != DX_Cat
+	 c.dx10.dxcat.10 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.9 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.9)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.9 != DX_Cat
+	 c.dx10.dxcat.9 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.8 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.8)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.8 != DX_Cat
+	 c.dx10.dxcat.8 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.7 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.7)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.7 != DX_Cat
+	 c.dx10.dxcat.7 = DX_Cat
+     update = "Y"
+	endif 
+   endif
+   if c.dx10.uniq.6 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.6)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.6 != DX_Cat
+	 c.dx10.dxcat.6 = DX_Cat
+     update = "Y"
+	endif 
+   endif                                                                                                            
+   if c.dx10.uniq.5 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.5)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.5 != DX_Cat
+	 c.dx10.dxcat.5 = DX_Cat
+     update = "Y"
+	endif 
+   endif                
+   if c.dx10.uniq.4 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.4)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.4 != DX_Cat
+	 c.dx10.dxcat.4 = DX_Cat
+     update = "Y"
+	endif 
+   endif      
+   if c.dx10.uniq.3 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.3)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.3 != DX_Cat
+	 c.dx10.dxcat.3 = DX_Cat
+     update = "Y"
+	endif 
+   endif         
+   if c.dx10.uniq.2 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.2)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.2 != DX_Cat
+	 c.dx10.dxcat.2 = DX_Cat
+     update = "Y"
+	endif 
+   endif 
+   if c.dx10.uniq.1 dp
+    sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.1)
+	(void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	if c.dx10.dxcat.1 != DX_Cat
+	 c.dx10.dxcat.1 = DX_Cat
+     update = "Y"
+	endif 
+   endif                                                               
+  endif
+  if update = "Y"
+   rc2 = $dbupdate(2,CID,DX10_dstlist)
+   rc1 = $dbread(2,CID,DX10_dstlist)
+  else
+   $dbunlock()
+  endif 
+  do while rc1 < 2
+   update = "N"
+   $dblock()
+   rc1 = $dbreadnextdst(02, CID, dx10_dstlist)
+   if c.dx10.converted = "Y"
+    if c.dx10.uniq.16 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.16)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.16 != DX_Cat
+	  c.dx10.dxcat.16 = DX_Cat
+      update = "Y"
+	 endif 
+    endif   
+    if c.dx10.uniq.15 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.15)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.15 != DX_Cat
+	  c.dx10.dxcat.15 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.14 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.14)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.14 != DX_Cat
+	  c.dx10.dxcat.14 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.13 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.13)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.13 != DX_Cat
+	  c.dx10.dxcat.13 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.12 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.12)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.12 != DX_Cat
+	  c.dx10.dxcat.12 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.11 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.11)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.11 != DX_Cat
+	  c.dx10.dxcat.11 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.10 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.10)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.10 != DX_Cat
+	  c.dx10.dxcat.10 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.9 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.9)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.9 != DX_Cat
+	  c.dx10.dxcat.9 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.8 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.8)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.8 != DX_Cat
+	  c.dx10.dxcat.8 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.7 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.7)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.7 != DX_Cat
+	  c.dx10.dxcat.7 = DX_Cat
+      update = "Y"
+	 endif 
+    endif
+    if c.dx10.uniq.6 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.6)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.6 != DX_Cat
+	  c.dx10.dxcat.6 = DX_Cat
+      update = "Y"
+	 endif 
+    endif                                                                                                            
+    if c.dx10.uniq.5 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.5)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.5 != DX_Cat
+	  c.dx10.dxcat.5 = DX_Cat
+      update = "Y"
+	 endif 
+    endif                
+    if c.dx10.uniq.4 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.4)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.4 != DX_Cat
+	  c.dx10.dxcat.4 = DX_Cat
+      update = "Y"
+	 endif 
+    endif      
+    if c.dx10.uniq.3 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.3)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.3 != DX_Cat
+	  c.dx10.dxcat.3 = DX_Cat
+      update = "Y"
+	 endif 
+    endif         
+    if c.dx10.uniq.2 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.2)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.2 != DX_Cat
+	  c.dx10.dxcat.2 = DX_Cat
+      update = "Y"
+	 endif 
+    endif 
+    if c.dx10.uniq.1 dp
+     sql_results = {"lib_DX10"}DX_Uniq_Query9(c.dx10.uniq.1)
+	 (void)$parsem(sql_results,1,"|",UniqID,ICD_Code,ICD_Code_DotNt,ICD_Description,ICD_Code2,ICD_Code_DotNt2,ICD_Description2,DSM_4_Axis,Approximate,NoMap,Combination,Scenario,ChoiceList,DX_Cat,TermSearch,Effdt,EndDt)
+	 if c.dx10.dxcat.1 != DX_Cat
+	  c.dx10.dxcat.1 = DX_Cat
+      update = "Y"
+	 endif 
+    endif                                                               
+   endif
+   if update = "Y"
+    rc2 = $dbupdate(2,CID,DX10_dstlist)
+    rc1 = $dbread(2,CID,DX10_dstlist)
+   else
+    $dbunlock()
+   endif
+  enddo
+  rc1 = 0
+  $dblock()
+  rc = $dbreadnext(02, CID, dx10_dstlist)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+    rc = $dbread(02,CID, dx10_dstlist)
+    $sleep(10)
+   enddo
+  endif  
+ enddo 
+end FIXDX10_7
+%include inc_GetParm

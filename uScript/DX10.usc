@@ -1,5 +1,5 @@
 start DX10(parmfile,option,client,retcode)
- %version 1.1.002 09/09/2015
+ %version 1.2.0 09/15/2015
  $looplimit = 0
  parmfile is x
  option   is x
@@ -332,6 +332,7 @@ function Onload(parmfile, option) is x
  dosave      = $uc(dosave)
  dosnapshot  = $uc(dosnapshot)
  SHOWABL     = $uc(SHOWABL)
+ SHOWIQ      = $uc(SHOWIQ)
 
  creds_dst = $uc(creds_dst)
  dx_dst = $uc(dx_dst)
@@ -1186,33 +1187,41 @@ function Validate1() is i
   (void)$arrpush(errors[],"Current ABL is require for the selected Axis II Level I code")                
  endif
 
- 'IQ Validation
- if c_dx10_iq_score dp and (c_dx10_iq_test !dp or c_dx10_iq_date !dp) then
-    (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
+'IQ Validation
+ if c_dx10_iq_score dp and (c_dx10_iq_test !dp or c_dx10_iq_date !dp)
+  (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
  endif
- if c_dx10_iq_test dp and (c_dx10_iq_score !dp or c_dx10_iq_date !dp) then
-    (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
+ if c_dx10_iq_test dp and (c_dx10_iq_score !dp or c_dx10_iq_date !dp)
+  (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
  endif
- if c_dx10_iq_date dp and (c_dx10_iq_score !dp or c_dx10_iq_test !dp) then
-    (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
+ if c_dx10_iq_date dp and (c_dx10_iq_score !dp or c_dx10_iq_test !dp)
+  (void)$arrpush(errors[], "If IQ is entered, you must enter the Score, Date and Test")
  endif
- if `$casti(c_dx10_iq_score)` < 0 or `$casti(c_dx10_iq_score)` > 150 then
-    (void)$arrpush(errors[], "IQ Must be between 0 and 150")
+ if `$casti(c_dx10_iq_score)` < 0 or `$casti(c_dx10_iq_score)` > 150
+  (void)$arrpush(errors[], "IQ Must be between 0 and 150")
  endif
 
- 'SQ Validation
- if c_dx10_sq_score dp and (c_dx10_sq_test !dp or c_dx10_sq_date !dp) then
-    (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
+'SQ Validation
+ if c_dx10_sq_score dp and (c_dx10_sq_test !dp or c_dx10_sq_date !dp)
+  (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
  endif
- if c_dx10_sq_test dp and (c_dx10_sq_score !dp or c_dx10_sq_date !dp) then
-    (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
+ if c_dx10_sq_test dp and (c_dx10_sq_score !dp or c_dx10_sq_date !dp)
+  (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
  endif
- if c_dx10_sq_date dp and (c_dx10_sq_score !dp or c_dx10_sq_test !dp) then
-    (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
+ if c_dx10_sq_date dp and (c_dx10_sq_score !dp or c_dx10_sq_test !dp)
+  (void)$arrpush(errors[], "If SQ is entered, you must enter the Score, Date and Test")
  endif
- if `$casti(c_dx10_sq_score)` < 0 or `$casti(c_dx10_sq_score)` > 150 then
-    (void)$arrpush(errors[], "SQ Must be between 0 and 150")
+ if `$casti(c_dx10_sq_score)` < 0 or `$casti(c_dx10_sq_score)` > 150
+  (void)$arrpush(errors[], "SQ Must be between 0 and 150")
  endif
+
+'Prevent Lapsed DX10 codes from being used,
+ index = 0
+ do while index++ < $maxarray(c_dx10_uniq[])
+  if {"lib_DX10"}IsDXCodeLapsed(c_dx10_uniq[index],$today,"ICD10") = "Y"
+   (void)$arrpush(errors[], `"The code {u}" + c_dx10_icd10[index] + "{/u} has been lapsed since it's last use and cannot be used for a diagnosis update"`)      
+  endif
+ enddo
  
  if errors[1] !dp
   Validate1 = 0
