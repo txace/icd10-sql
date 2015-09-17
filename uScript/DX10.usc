@@ -986,7 +986,7 @@ function Page2() is null
                                  case "4" $text("3 - Profound")
                                 endselect	    
   endif
-  if SHOWIQ = "Y" then
+  if SHOWIQ = "Y" and c_dx10_iq_score dp and c_dx10_iq_date dp and c_dx10_iq_test dp then
      $br(2)
      $fieldset("IQ")
 
@@ -1028,7 +1028,7 @@ function Page2() is null
         
      $endfieldset()
   endif
-  if SHOWSQ = "Y" then
+  if SHOWSQ = "Y" and c_dx10_sq_score dp and c_dx10_sq_date dp and c_dx10_sq_test dp then
      $br(2)
      $fieldset("SQ")
 
