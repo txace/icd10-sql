@@ -283,3 +283,11 @@ dx_groups-2 99
  icd9_gaf_dst DST_NAME
  ex.) icd9_gaf_dst c.dxaxvc
 
+### Optional: ICD10_File/ICD9_File
+Used to quickly return either the ICD 10 or 9 Description from a file instead of relying on the database. Reason? No major requirements to retrofit existing scripts to simply display the description
+Files used are in the data directory
+
+##### Examples
+```
+ICD10_File /c0/EXPORT/ICD10/t_ICD-10_ICD-10_with_GEM_AXIS.csv
+ICD9_File /c0/EXPORT/ICD10/t_ICD-10_ICD-9_with_GEM_AXIS.csv

@@ -377,7 +377,8 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
 
 end getUnbatchCltDx
 
-private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt, dx_cat[], DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[]) is i 
+private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt, dx_cat[], DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],
+                                      dx_uniqid[],dx_converted) is i 
  dx_rec       is uid
  dx_date      is d
  dx_time      is t
@@ -395,9 +396,11 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
  DX9_axis2[]  is x
  DX10_axis3[] is x
  DX9_axis3[]  is x
+ DX_UniqID[]  is x
+ dx_converted is x
  index        is i   
 
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_UniqID[],dx_converted)
 
  'dx_rec = $castn(c.dx10.rh)
  dx_rec = c.dx10.rh[uid]
@@ -406,6 +409,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
  dx_primary = c.dx10.pimary.ax
  dx_reason = c.dx10.reason  
  dx_batchdt = c.dx10.caredt
+ dx_converted = c.dx10.converted
 
  if c.dx10.uniq.1 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.1)
@@ -413,6 +417,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.1)  
   (void)$arrpush(dx_axis[],c.dx10.legax.1)
   (void)$arrpush(dx_cat[],c.dx10.dxcat.1)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.1)
  endif
  if c.dx10.uniq.2 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.2)
@@ -420,6 +425,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.2)  
   (void)$arrpush(dx_axis[],c.dx10.legax.2) 
   (void)$arrpush(dx_cat[],c.dx10.dxcat.2)  
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.2)  
  endif
  if c.dx10.uniq.3 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.3)
@@ -427,6 +433,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.3)  
   (void)$arrpush(dx_axis[],c.dx10.legax.3)
   (void)$arrpush(dx_cat[],c.dx10.dxcat.3)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.3)
  endif
  if c.dx10.uniq.4 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.4)
@@ -434,55 +441,63 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.4)  
   (void)$arrpush(dx_axis[],c.dx10.legax.4) 
   (void)$arrpush(dx_cat[],c.dx10.dxcat.4)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.4)  
  endif
  if c.dx10.uniq.5 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.5)
   (void)$arrpush(dx9_code[],c.dx10.icd9.5)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.5)  
   (void)$arrpush(dx_axis[],c.dx10.legax.5) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.5)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.5)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.5)    
  endif
  if c.dx10.uniq.6 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.6)
   (void)$arrpush(dx9_code[],c.dx10.icd9.6)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.6)  
   (void)$arrpush(dx_axis[],c.dx10.legax.6) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.6)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.6)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.6)    
  endif
  if c.dx10.uniq.7 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.7)
   (void)$arrpush(dx9_code[],c.dx10.icd9.7)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.7)  
   (void)$arrpush(dx_axis[],c.dx10.legax.7) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.7)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.7)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.7)    
  endif
  if c.dx10.uniq.8 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.8)
   (void)$arrpush(dx9_code[],c.dx10.icd9.8)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.8)  
   (void)$arrpush(dx_axis[],c.dx10.legax.8) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.8)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.8)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.8)    
  endif
  if c.dx10.uniq.9 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.9)
   (void)$arrpush(dx9_code[],c.dx10.icd9.9)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.9)  
   (void)$arrpush(dx_axis[],c.dx10.legax.9) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.9)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.9)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.9)    
  endif
  if c.dx10.uniq.10 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.10)
   (void)$arrpush(dx9_code[],c.dx10.icd9.10)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.10)  
   (void)$arrpush(dx_axis[],c.dx10.legax.10) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.10)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.10)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.10)    
  endif
  if c.dx10.uniq.11 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.11)
   (void)$arrpush(dx9_code[],c.dx10.icd9.11)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.11)  
   (void)$arrpush(dx_axis[],c.dx10.legax.11) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.11)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.11)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.11)    
  endif
  if c.dx10.uniq.12 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.12)
@@ -490,6 +505,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.12)  
   (void)$arrpush(dx_axis[],c.dx10.legax.12) 
   (void)$arrpush(dx_cat[],c.dx10.dxcat.12)  
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.12)
  endif
  if c.dx10.uniq.13 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.13)
@@ -497,6 +513,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.13)  
   (void)$arrpush(dx_axis[],c.dx10.legax.13) 
   (void)$arrpush(dx_cat[],c.dx10.dxcat.13)  
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.13)
  endif
  if c.dx10.uniq.14 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.14)
@@ -504,6 +521,7 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.14)  
   (void)$arrpush(dx_axis[],c.dx10.legax.14) 
   (void)$arrpush(dx_cat[],c.dx10.dxcat.14)  
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.14)
  endif
  if c.dx10.uniq.15 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.15)
@@ -511,13 +529,15 @@ private dynamic function fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_r
   (void)$arrpush(dx_rank[],c.dx10.dxrank.15)  
   (void)$arrpush(dx_axis[],c.dx10.legax.15) 
   (void)$arrpush(dx_cat[],c.dx10.dxcat.15)  
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.15)  
  endif
  if c.dx10.uniq.16 dp
   (void)$arrpush(dx10_code[],c.dx10.icd10.16)
   (void)$arrpush(dx9_code[],c.dx10.icd9.16)
   (void)$arrpush(dx_rank[],c.dx10.dxrank.16)  
   (void)$arrpush(dx_axis[],c.dx10.legax.16) 
-  (void)$arrpush(dx_cat[],c.dx10.dxcat.16)  
+  (void)$arrpush(dx_cat[],c.dx10.dxcat.16)
+  (void)$arrpush(dx_uniqid[],c.dx10.uniq.16)    
  endif
  index = 0
  do while index++ < $maxarray(dx10_code[])
