@@ -1,5 +1,5 @@
 start DX10(parmfile,option,client,retcode)
- %version 1.2.0 09/15/2015
+ %version 1.2.1 09/18/2015
  $looplimit = 0
  parmfile is x
  option   is x
@@ -899,7 +899,7 @@ function Page2() is null
     $col("center")$text("Status: ")$text($dct(2088,c_dx10_stat))
    if c.bd dp
     $row()
-     $col("center")$text("Birth Date:", "datatag")$text(c.bd)
+     $col("center")$text("Birth Date:")$text(c.bd)
      $col()$ctag("&nbsp")
      $col()$ctag("&nbsp")
    endif	
