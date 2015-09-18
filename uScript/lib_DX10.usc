@@ -1535,13 +1535,14 @@ function ICD10_Desc(UniqID,ICD10_9) is x
  UniqID     is x
  ICD10_9    is x
  result     is x
-
- select ICD10_9
-  case "ICD10"   (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
-  case "ICD9"    (void)$unix(`"grep " + UniqID + " " + ICD9_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
-  case "ICD109"  (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $3}'"`,result)
-  case other     (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
- endselect
+ if ICD10_File dp and ICD9_File dp
+  select ICD10_9
+   case "ICD10"   (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
+   case "ICD9"    (void)$unix(`"grep " + UniqID + " " + ICD9_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
+   case "ICD109"  (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $3}'"`,result)
+   case other     (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
+  endselect
+ endif
  if result dp
   ICD10_Desc = result
  else
