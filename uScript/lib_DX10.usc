@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.2.2 09/18/2015
+ %version 1.2.3 09/18/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -11,29 +11,36 @@ library lib_DX10()
  %define col_color_multi "bgcolor='LightGrey'"
  %define CN_ICD10_DATE 10/01/2015
  on load do: 
-  %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table, dsn 
+  %global o_user, o_pass, o_ds, o_db, ICD10_Table, ICD9_Table, dsn, ICD10_File, ICD9_FIle 
   o_user      is x
   o_pass      is x
   o_ds        is x
   o_db        is x
   ICD10_Table is x
   ICD9_Table  is x
+  ICD10_File  is x
+  ICD9_File   is x
   dsn         is x
  %include inc_DX10
  
-dynamic function Set_Sql(user, pass, host, db, icd10, icd9) is null 
- user  is x
- pass  is x
- host  is x
- db    is x
- icd10 is x
- icd9  is x
- o_user = user
- o_pass = pass
- o_ds = host
- o_db = db
+dynamic function Set_Sql(user, pass, host, db, icd10, icd9, icd10file,icd9file) is null 
+ user      is x
+ pass      is x
+ host      is x
+ db        is x
+ icd10     is x
+ icd9      is x
+ icd10file is x
+ icd9file  is x
+
+ o_user      = user
+ o_pass      = pass
+ o_ds        = host
+ o_db        = db
  ICD10_TABLE = icd10
- ICD9_TABLE = icd9
+ ICD9_TABLE  = icd9
+ ICD10_File  = icd10file
+ ICD9_File   = icd9file
  dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
 end set_sql 
  
@@ -49,8 +56,6 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
  query_txt_arr[]  is x
  cnt_query		  is i
  o_sql		      is x		
- db			      is i
- sql_tpl	      is x
  result[]	      is x
  all_results[]    is x
  CodeID		      is x
@@ -214,7 +219,6 @@ function 10_Desc_lookup(UniqID,ICD10_9) is x
  ICD10_9 is x
  o_sql   is x
  results is x
- db		 is i 
  rc      is i
  {"LIB-freetds"}setDSN(dsn)
  select ICD10_9
@@ -232,7 +236,6 @@ function 9_Desc_lookup(UniqID) is x
  UniqID      is x
  o_sql       is x
  results     is x
- db			 is i 
  rc          is i
  {"LIB-freetds"}setDSN(dsn)
  o_sql = "select [ICD-9_Description] from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
@@ -244,7 +247,6 @@ function DX_Uniq_Query(UniqID) is x
  UniqID  is x
  o_sql   is x
  results is x
- db		 is i 
  rc      is i
  {"LIB-freetds"}setDSN(dsn)
  o_sql = "select * from " + ICD10_table + " where [UniqID] = '" + uniqid + "'" 
@@ -272,7 +274,6 @@ function NoDX_Lookup(axis) is x
  rc      is i
  o_sql   is x
  results is x
- db		 is i 
  {"LIB-freetds"}setDSN(dsn)
  select axis
   case "1" o_sql = "select *  FROM " + ICD10_table + " where [ICD-10_Code] = 'Z0389' and [DSM-4_Axis] = '1' and EffDt <= '" + $today + "' and (EndDt > '" + $today + "' or EndDt is null)"
@@ -363,7 +364,7 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
    dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[], DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
 
  ' we only want unbatched records
- if dx_batchdt !dp then
+ if dx_batchdt !dp
    ' we want to find the earliest unbatched layer
    $dblock()
    getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
@@ -580,7 +581,7 @@ dynamic function sortDxByV4Axis(dx_code[], dx_rank[], dx_axis[], stripdots, axis
  do while index++ < $maxarray(dx_code[])
   axis = $casti(dx_axis[index])
   level = $casti(dx_rank[index])
-  if stripdots = "TRUE" then
+  if stripdots = "TRUE"
    dx_code[index] = $replace(".","",dx_code[index])
   endif
   dx[axis,level] = dx_code[index]
@@ -619,17 +620,16 @@ public dynamic function getClientAxis4(client_id, as_of_date, dx_rec, dx_date, d
 
  $clear(dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j)
  $allowupdate(dx_4_a, dx_4_b, dx_4_c, dx_4_d, dx_4_e, dx_4_f, dx_4_g, dx_4_h, dx_4_i, dx_4_j)
- if dx_rec dp then
-    getClientAxis4 = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
+ if dx_rec dp
+  getClientAxis4 = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
  else 
-    if as_of_date !dp then
-       as_of_date = $today
-    endif
-
-    getClientAxis4 = $dbread(2,client_id,dx10_dstlist)
-   do while c.dx10.dt > as_of_date
-    getClientAxis4 = $dbreadnextdst(2,client_id,dx10_dstlist) 
-   enddo 
+  if as_of_date !dp
+   as_of_date = $today
+  endif
+  getClientAxis4 = $dbread(2,client_id,dx10_dstlist)
+  do while c.dx10.dt > as_of_date
+   getClientAxis4 = $dbreadnextdst(2,client_id,dx10_dstlist) 
+  enddo 
  endif
 
  dx_4_a  = c.dx10.a4.supgrp
@@ -656,7 +656,7 @@ function getClientGaf(client_id, as_of_date, dx_rec, dx_date, dx_gaf_cur, dx_gaf
 
  $allowupdate(dx_gaf_cur, dx_gaf_pre, dx_abl_cur, dx_abl_pot)
 
- if dx_rec dp then
+ if dx_rec dp
     getClientGaf = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
  else
    if as_of_date !dp
@@ -696,7 +696,7 @@ function getClientAamd(client_id, as_of_date, dx_rec, dx_date, dx_aamd_date, dx_
  dx_aamd_mloc is x
  dx_aamd_msev is x
 
- if dx_rec dp then
+ if dx_rec dp
     getClientAamd = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
  else
    if as_of_date !dp
@@ -728,7 +728,7 @@ dynamic function getClientIq(client_id, as_of_date, dx_rec, dx_date, dx_iq, dx_i
 
  $clear(dx_iq, dx_iq_test, dx_iq_date, dx_sq, dx_sq_test, dx_sq_date)
 
- if dx_rec dp then
+ if dx_rec dp
     getClientIq = $dbreaduid(dx_rec, 2, client_id, dx10_dstlist)
  else
    if as_of_date !dp
@@ -772,7 +772,6 @@ function DX_9Code_Query(diag_code,legacy_axis,9DOTTED,results[],text) is null
  text is x
  o_sql       is x
  results[]   is x
- db		     is i 
  rc          is i
  index       is i
  if 9DOTTED !dp
@@ -809,7 +808,6 @@ function DX_Uniq_Query9(UniqID) is x
  UniqID  is x
  o_sql   is x
  results is x
- db              is i
  rc      is i
  {"LIB-freetds"}setDSN(dsn)
  o_sql = "select * from " + ICD9_table + " where [UniqID] = '" + uniqid + "'"
@@ -823,7 +821,6 @@ function DX_10Code_Query(diag_code,legacy_axis,9DOTTED,results[]) is null
  9DOTTED     is x
  o_sql       is x
  results[]   is x
- db		     is i 
  rc          is i
  index       is i
  if 9DOTTED !dp
@@ -853,7 +850,6 @@ function DX_Code_Query(UniqID,ICD10_9) is x
  ICD10_9 is x
  o_sql   is x
  results is x
- db		 is i 
  rc      is i
  {"LIB-freetds"}setDSN(dsn)
  select ICD10_9
@@ -1035,7 +1031,6 @@ function dst_value(regid,dst_number,dst_name) is x
  endif
  dst_value = myvar
 end dst_value
-
 
 public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, trans_date, transcount, userid, 
    client-id, client_careid, client_last, client_sufx, client_first, client_middle) is x
@@ -1506,11 +1501,11 @@ end putPhysicalTrans
 
  addField = ""
  if form dp
-   addField = $formatf(val, form)
-   'fix the time fields
-   if $vartype(val) = "T" then
-      addField = $replace(" ", "0", addField)
-   endif
+  addField = $formatf(val, form)
+'fix the time fields
+  if $vartype(val) = "T"
+    addField = $replace(" ", "0", addField)
+  endif
  endif
 end addField
 
@@ -1519,7 +1514,6 @@ function IsDXCodeLapsed(uniqid,dx_date,ICD10_9) is x
  ICD10_9 is x
  dx_date is d
  o_sql   is x
- db		 is i 
  rc      is i
  results is x
  {"LIB-freetds"}setDSN(dsn) 
@@ -1536,3 +1530,21 @@ function IsDXCodeLapsed(uniqid,dx_date,ICD10_9) is x
   IsDXCodeLapsed = "N"
  endif  
 end IsDXCodeLapsed
+
+function ICD10_Desc(UniqID,ICD10_9) is x
+ UniqID     is x
+ ICD10_9    is x
+ result     is x
+
+ select ICD10_9
+  case "ICD10"   (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
+  case "ICD9"    (void)$unix(`"grep " + UniqID + " " + ICD9_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
+  case "ICD109"  (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $3}'"`,result)
+  case other     (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
+ endselect
+ if result dp
+  ICD10_Desc = result
+ else
+  ICD10_Desc = $funcname + " Error"
+ endif
+end ICD10_Desc
