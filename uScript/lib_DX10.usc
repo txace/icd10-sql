@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.2.1 09/16/2015
+ %version 1.2.2 09/18/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -284,7 +284,8 @@ function NoDX_Lookup(axis) is x
  NoDX_Lookup = results  
 end NoDX_Lookup
 
-function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[]) is i
+function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],
+                     DX_uniqid[],dx_converted) is i
  client_id    is x
  as_of_date   is d
  dx_rec       is uid
@@ -304,12 +305,14 @@ function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
  DX9_axis2[]  is x
  DX10_axis3[] is x
  DX9_axis3[]  is x
+ DX_uniqid[]  is x
+ dx_converted is x
  
  if as_of_date !dp
   as_of_date = $today
  endif
- $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
 
  $dblock()
  getClientDx = $dbread(2,client_id,dx10_dstlist)
@@ -318,13 +321,14 @@ function getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary
  enddo
  fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
     dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],
-    DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+    DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
 
  $dbunlock()
 end getclientdx
 
 function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
-   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[]) is i
+   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],
+   DX_uniqid[],dx_converted) is i
  client_id    is x
  as_of_date   is d
  dx_rec       is uid
@@ -343,18 +347,20 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
  DX10_axis2[] is x
  DX9_axis2[]  is x
  DX10_axis3[] is x
- DX9_axis3[]  is x 
+ DX9_axis3[]  is x
+ DX_uniqid[]  is x
+ dx_converted is x
  
  if as_of_date !dp
   as_of_date = $today
  endif
 
- $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
- $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+ $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
+ $allowupdate(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
 
 
  getUnbatchCltDx = getclientdx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
-   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[], DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+   dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[], DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
 
  ' we only want unbatched records
  if dx_batchdt !dp then
@@ -364,13 +370,14 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
    do while c.dx10.caredt !dp and getUnbatchCltDx < 2
       getUnbatchCltDx = fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
          dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],
-         DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+         DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],
+		 DX_uniqid[],dx_converted)
 
       getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
    enddo
  else 
    ' return nothing if everything is batched
-   $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[])
+   $clear(dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_rec, dx_date, dx_time, dx_primary, dx_reason, dx_batchdt,dx_cat[],DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],DX_uniqid[],dx_converted)
 
  endif 
  $dbunlock()
