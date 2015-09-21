@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.2.3 09/18/2015
+ %version 1.2.4 09/21/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -1537,10 +1537,10 @@ function ICD10_Desc(UniqID,ICD10_9) is x
  result     is x
  if ICD10_File dp and ICD9_File dp
   select ICD10_9
-   case "ICD10"   (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
-   case "ICD9"    (void)$unix(`"grep " + UniqID + " " + ICD9_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
-   case "ICD109"  (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $3}'"`,result)
-   case other     (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "," + x"22" + " '{print $2}'"`,result)
+   case "ICD10"   (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "\t" + x"22" + " '{print $2}'"`,result)
+   case "ICD9"    (void)$unix(`"grep " + UniqID + " " + ICD9_File + "|awk -F" + x"22" + "\t" + x"22" + " '{print $2}'"`,result)
+   case "ICD109"  (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "\t" + x"22" + " '{print $3}'"`,result)
+   case other     (void)$unix(`"grep " + UniqID + " " + ICD10_File + "|awk -F" + x"22" + "\t" + x"22" + " '{print $2}'"`,result)
   endselect
  endif
  if result dp
