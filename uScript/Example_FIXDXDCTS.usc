@@ -1,0 +1,119 @@
+start FIXDXDCTS()
+ $looplimit = 0
+ parmfile is x
+ %include inc_ICD10_TRANS
+ Axis1_USEDOT is x
+ Axis2_USEDOT is x
+ Axis3_USEDOT is x
+ axis_dct     is b
+ AXIS1_DCT    is b
+ AXIS2_DCT    is b
+ AXIS3_DCT    is b
+ dsn          is x
+ o_sql        is x
+ results[]    is x
+ rc           is i
+ c[]          is x
+ d[]          is x
+ act-code[]   is x
+ a1[]         is x
+ a2[]         is x
+ a3[]         is x
+ tbl-desc     is x
+ index        is i
+ ICD9_Code    is x
+ ICD9_Desc    is x
+ DX_Cat       is x
+ AddCode[]    is x
+ AddDesc[]    is x
+ select $uc($seg($mscname,1,5))
+  case "HELEN" Axis1_USEDOT = "Y"
+               Axis2_USEDOT = "Y"
+			   Axis3_USEDOT = "N"
+               AXIS1_DCT = 400
+               AXIS2_DCT = 401
+               AXIS3_DCT = 404
+  case "PECAN" Axis1_USEDOT = "N"
+               Axis2_USEDOT = "N"
+			   Axis3_USEDOT = "N"
+               AXIS1_DCT = 300
+               AXIS2_DCT = 305
+               AXIS3_DCT = 306 
+ endselect
+
+ axis_dct = axis1_dct
+ if Axis1_USEDOT = "Y"
+  o_sql = "select distinct [ICD-9_Code_DotNotation],[ICD-9_Description],[DX_Cat] from " + ICD10_Table + " where [DSM-4_Axis] = '1'"
+ else
+  o_sql = "select distinct [ICD-9_Code],[ICD-9_Description],[DX_Cat] from " + ICD10_Table + " where [DSM-4_Axis] = '1'"
+ endif
+ dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
+ {"LIB-freetds"}setDSN(dsn)
+ rc = {"LIB-freetds"}q(o_sql, results[]) 
+ rc = $dctloada(axis_dct,c[],d[],act-code[],a1[],a2[],a3[],tbl-desc)
+ index = 0
+ do while index++ < $maxarray(results[])
+  (void)$parsem(results[index],1,"|",ICD9_Code,ICD9_Desc,DX_Cat)
+  if $find(ICD9_Code,c[],1,"F") = 0
+    ICD9_Desc = $uc(ICD9_Desc)  
+	select DX_Cat	
+	 case "OT" a1[index] = "O"       
+	 case "IP" a2[index] = "O"
+	 case "PH" a2[index] = "O"
+	 case "PP" a2[index] = "O"
+     case "SA"       a1[index] = "O"
+	                 a3[index] = "SA"
+	 case "TP_B"     a1[index] = "B"
+	 case "TP_MDDPF" a1[index] = "D"
+	 case "TP_MDDWO" a1[index] = "D"
+	 case "TP_S"	 a1[index] = "S"
+	endselect
+	a2[index] = $replace(".","",ICD9_Code)
+   rc = $adddcv(axis_dct, ICD9_Code, ICD9_Desc, a1[index],a2[index],a3[index])
+  endif
+ enddo
+ $clear(results[],c[],d[],act-code[],a1[],a2[],a3[],tbl-desc)
+ 
+ axis_dct = axis2_dct
+ if Axis2_USEDOT = "Y"
+  o_sql = "select distinct [ICD-9_Code_DotNotation],[ICD-9_Description],[DX_Cat] from " + ICD10_Table + " where [DSM-4_Axis] = '2'"
+ else
+  o_sql = "select distinct [ICD-9_Code],[ICD-9_Description],[DX_Cat] from " + ICD10_Table + " where [DSM-4_Axis] = '2'"
+ endif
+ dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
+ {"LIB-freetds"}setDSN(dsn)
+ rc = {"LIB-freetds"}q(o_sql, results[]) 
+ rc = $dctloada(axis_dct,c[],d[],act-code[],a1[],a2[],a3[],tbl-desc)
+ index = 0
+ do while index++ < $maxarray(results[])
+  (void)$parsem(results[index],1,"|",ICD9_Code,ICD9_Desc,DX_Cat)
+  if $find(ICD9_Code,c[],1,"F") = 0
+    ICD9_Desc = $uc(ICD9_Desc)  
+	a2[index] = $replace(".","",ICD9_Code)
+   rc = $adddcv(axis_dct, ICD9_Code, ICD9_Desc, a1[index],a2[index],a3[index])
+  endif
+ enddo
+ $clear(results[],c[],d[],act-code[],a1[],a2[],a3[],tbl-desc)
+ 
+ axis_dct = axis3_dct
+ if Axis3_USEDOT = "Y"
+  o_sql = "select distinct [ICD-9_Code_DotNotation],[ICD-9_Description],[DX_Cat] from " + ICD10_Table + " where [DSM-4_Axis] = '3'"
+ else
+  o_sql = "select distinct [ICD-9_Code],[ICD-9_Description],[DX_Cat] from " + ICD10_Table + " where [DSM-4_Axis] = '3'"
+ endif
+ dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
+ {"LIB-freetds"}setDSN(dsn)
+ rc = {"LIB-freetds"}q(o_sql, results[]) 
+ rc = $dctloada(axis_dct,c[],d[],act-code[],a1[],a2[],a3[],tbl-desc)
+ index = 0
+ do while index++ < $maxarray(results[])
+  (void)$parsem(results[index],1,"|",ICD9_Code,ICD9_Desc,DX_Cat)
+  if $find(ICD9_Code,c[],1,"F") = 0
+   ICD9_Desc = $uc(ICD9_Desc)  
+   rc = $adddcv(axis_dct, ICD9_Code, ICD9_Desc, a1[index],a2[index],a3[index])
+  endif
+ enddo
+ $clear(results[],c[],d[],act-code[],a1[],a2[],a3[],tbl-desc)   
+
+end FIXDXDCTS
+%include inc_GetParm 
