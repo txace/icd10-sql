@@ -1108,6 +1108,8 @@ public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, tra
  axis2[]        is x
  axis3[]        is x
                 
+ dx_ax3_date    is d
+ 
  stripdots      is x
                 
  phys_rec_num   is i
@@ -1154,7 +1156,7 @@ public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, tra
   return
  endif 
  
- if $today < CN_ICD10_DATE
+ if dx_date < CN_ICD10_DATE
   dx_code[] = dx09_code[]
   dx_axis_vers = CN_axis_ver_9
   dx_axis3_vers = CN_axis3_ver_9
@@ -1215,6 +1217,13 @@ public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, tra
   if dx_4_i = "Y"
    dx_4_i = "I"
   endif
+ endif
+
+ 'the axis 3 date should be the same as the dx date
+ dx_ax3_date = dx_date
+ 'unless there is not axis 3 dx
+ if axis3[1] = "NONE" or axis3[] !dp then
+    $clear(dx_ax3_date)
  endif
  
 'build the physical record prefix
@@ -1348,7 +1357,7 @@ public dynamic function getDxBatchTrans(dx_rec, asofdate, compcode, batchno, tra
     axis3[LEVEL_FOUR], "~~~~~~~",
     axis3[LEVEL_FIVE], "~~~~~~~",
     axis3[LEVEL_SIX], "~~~~~~~",
-    dx_date, "YYYYMMDD")
+    dx_ax3_date, "YYYYMMDD")
  
  getDxBatchTrans = outrec
 
