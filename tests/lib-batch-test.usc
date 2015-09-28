@@ -29,7 +29,7 @@ compcode = 100
 batchno = "T1"
 trans_date = $today
 transcount = 123
-userid = "A0001"
+userid = "BATCH"
 
 client_careid = "000123456"
 client_last = "FAKERSON"
@@ -37,8 +37,14 @@ client_sufx = "SR"
 client_first = "FAKIE"
 client_middle = "MAC"
 
+$trace("on,path", "/c1/FRSH/SCRIPT/S/batch.trace")
 batch = lib-dx:getDxBatchTrans(rec, asofdate, compcode, batchno, trans_date, transcount, userid,
    client, client_careid, client_last, client_sufx, client_first, client_middle)
+
+rc = $putfile(batch, "/c1/FRSH/SCRIPT/S/batch.test")
+
+lib-dx:markAsBatched(client, $today, rec)
+$trace("off")
 
 'batch = $replace(x"a0", "{br}", batch)
 
@@ -46,7 +52,6 @@ batch = lib-dx:getDxBatchTrans(rec, asofdate, compcode, batchno, trans_date, tra
 '$tag(batch)
 '$sendform()
 
-rc = $putfile(batch, "/c1/FRSH/SCRIPT/S/batch.test")
 
 rc = $unloadlib(lib-dx)
 
