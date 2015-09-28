@@ -369,6 +369,12 @@ function getUnbatchCltDx(client_id, as_of_date, dx_rec, dx_date, dx_time, dx_pri
    $dblock()
    getUnbatchCltDx = $dbreadnextdst(2, client_id, dx10_dstlist)
    do while c.dx10.caredt !dp and getUnbatchCltDx < 2
+      'if the next record is unbatched - clear the previous one
+      $clear(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
+         dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],
+         DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],
+		 DX_uniqid[],dx_converted)
+      'now fill the the record with the current layer
       getUnbatchCltDx = fillclientdx(dx_rec, dx_date, dx_time, dx_primary, dx_reason, 
          dx10_code[], dx_rank[], dx_axis[], dx9_code[], dx_batchdt,dx_cat[],
          DX10_axis1[],DX9_axis1[],DX10_axis2[],DX9_axis2[],DX10_axis3[],DX9_axis3[],
