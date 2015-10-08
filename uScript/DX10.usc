@@ -1,5 +1,5 @@
 start DX10(parmfile,option,client,retcode)
- %version 1.2.1 09/18/2015
+ %version 1.2.3 10/08/2015
  $looplimit = 0
  parmfile is x
  option   is x
@@ -348,11 +348,12 @@ function Onload(parmfile, option) is x
  
  select Exclude_staff_by
   case "STAFFDST" if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y"
+                   $brmsg("You are not Authorized for this Function", 1, "WC","Staff DST: Authorization Error")
                    Onload = "Exit"
                    return
                   endif
   case "DCT" if $dct(staff_access_dct, $operstaffid) !dp
-              $brmsg("You are not Authorized for this Function", 1, "WC")
+              $brmsg("You are not Authorized for this Function", 1, "WC","DCT: Authorization Error")
               Onload = "Exit"
               return
              endif
@@ -366,14 +367,14 @@ function Onload(parmfile, option) is x
                 endif
                enddo
                if rc = 0
-                $brmsg("You are not Authorized for this Function", 1, "WC")
+                $brmsg("You are not Authorized for this Function", 1, "WC","Group: Authorization Error")
                 Onload = "Exit"
                 return
                endif
   case other 'no staff are excluded from using
  endselect
  select force_mode_by
-  case "STAFFDST" if isStaffDstInList($operstaffid, creds_dst, entry_creds[], creds_dst_dct, creds_dst_dct_op) = "Y"
+  case "STAFFDST" if isStaffDstInList($operstaffid, dx_dst, dx_creds[], dx_dst_dct, dx_dst_dct_op) = "N"
                    mode = force_mode '"DATAENTRY"
                   endif
    case "DCT" if $dct(staff_access_dct, $operstaffid) !dp
@@ -541,7 +542,6 @@ end OnLoad
 function LookUp() is null
  {"lib_DX10"}DX_Lookup(selection[],10DOTTED,9DOTTED)
  index = 0
- (void)$sortu(selection[])		   
  $clear(c_dx10_uniq[],c_dx10_legax[],axis1_10_dx[],axis1_10_desc[],axis2_10_dx[],axis2_10_desc[],axis3_10_dx[],axis3_10_desc[],
         c_dx10_dxrank[],c_dx10_icd10_des[],c_dx10_icd9_des[],c_dx10_icd10[],c_dx10_icd9[],c_dx10_dxcat[])
  do while index++ < $maxarray(selection[])
@@ -621,6 +621,7 @@ function Page1() is null
   if mode = "DATAENTRY"
    $br(2)$text("Diagnosis Staff: ","datatag")$textbox(c_dx10_staff ,"DB``03",6,,"Y")$editmsg(c_dx10_staff )
   endif  
+
   $br(2)
   $fieldset("Diagnosis Codes",,"datatag")
    $br()$submit(lookup_btn,"Lookup")
@@ -1717,8 +1718,8 @@ function SaveData() is i
 
   else
    SaveData = 0
-   $brmsg("**Warning** this Script is *NOT* configured to acutally save the DX Record", 2, "C")
-   $brmsg("The Record Has NOT BEEN SAVED", 3, "C")
+   $brmsg("**Warning** this Script is *NOT* configured to acutally save the DX Record", 1, "C","Record Not Saved")
+   $brmsg("The Record Has NOT BEEN SAVED", 2, "C")
   endif 
 
  if SaveData = 0
@@ -1810,7 +1811,7 @@ dynamic function isStaffDstInList(staff-id, lookup-dst, lookup-list[], dct-edit,
  isStaffDstInList = "N"
  (void)$dbread(3, staff-id, lookup-dst)
  if lookup-dst !dp
-  isStaffDstInList = "Y"
+  isStaffDstInList = "N"
   return 
  endif
  if dct-edit dp and dct-recode dp

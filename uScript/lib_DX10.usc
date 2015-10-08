@@ -1,5 +1,5 @@
 library lib_DX10()
- %version 1.2.4 09/21/2015
+ %version 1.2.5 10/08/2015
  bgcolor is x
  bgcolor = "white"
  %define table_wbgcolor "width='100%'  border='1' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
@@ -204,9 +204,10 @@ dynamic function DX_Lookup(selection[],10DOTTED,9DOTTED) is null
 	          index = 0
 	          do while index++ < $maxarray(all_results[])
 	           if selected[index] dp   
-	            (void)$arrpush(selection[],all_results[index])
-				(void)$sortu(selection[])
-				(void)$arrcompress(selection[])
+	            if $find(all_results[index],selection[],1,"F") = 0
+				 (void)$arrpush(selection[],all_results[index])
+				 (void)$arrcompress(selection[])
+				endif 
 	           endif
 	          enddo
 			  return  
